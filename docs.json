@@ -1,5 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
+  "theme": "mint",
   "name": "Fibrous",
   "logo": {
     "dark": "/logo/dark.png",
@@ -17,8 +18,8 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:support@fibrous.finance"
+      "name": "Contact",
+      "url": "mailto:contact@fibrous.finance"
     }
   ],
   "topbarCtaButton": {
@@ -29,7 +30,6 @@
     {
       "group": "Getting Started",
       "pages": [
-        "quickstart",
         "inspiration-for-aggregator",
         "faq"
       ]
@@ -104,7 +104,7 @@
         },
         {
           "name": "Farcaster",
-          "url": "https://warpcast.com/fibrous",
+          "url": "https://warpcast.com/fibrousfinance",
           "icon": "arrow-up-right-square"
         },
         {
