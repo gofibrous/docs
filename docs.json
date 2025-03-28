@@ -21,33 +21,67 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
+      "label": "Go to App",
       "href": "https://app.fibrous.finance"
     }
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Introduction",
             "pages": [
               "inspiration-for-aggregator",
               "faq"
             ]
+          }
+        ]
+      },
+      {
+        "tab": "Fibrous Solutions",
+        "groups": [
+          {
+            "group": "Fibrous Interface",
+            "pages": [
+              {
+                "title": "User Guides",
+                "pages": [
+                  "fibrous-solutions/fibrous-interface/connecting-wallet",
+                  "fibrous-solutions/fibrous-interface/swapping",
+                  "fibrous-solutions/fibrous-interface/price-impact",
+                  "fibrous-solutions/fibrous-interface/block-explorer",
+                  "fibrous-solutions/fibrous-interface/receiving-swaps",
+                  "fibrous-solutions/fibrous-interface/display-settings",
+                  "fibrous-solutions/fibrous-interface/custom-tokens"
+                ]
+              },
+              {
+                "title": "Advanced Features",
+                "pages": [
+                  "fibrous-solutions/fibrous-interface/batch-swap",
+                  "fibrous-solutions/fibrous-interface/how-to-batch-swap",
+                  "fibrous-solutions/fibrous-interface/arena"
+                ]
+              }
+            ]
           },
           {
-            "group": "Fibrous Solutions",
+            "group": "Other Solutions",
             "pages": [
-              "fibrous-solutions/fibrous-interface",
               "fibrous-solutions/integrate-best-trading",
               "fibrous-solutions/fibrous-limit-order",
               "fibrous-solutions/fibrous-widget"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Developer Resources",
+        "groups": [
           {
-            "group": "Developer Resources",
+            "group": "Smart Contracts",
             "pages": [
               "developer-resources/smart-contracts"
             ]
