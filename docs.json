@@ -1,16 +1,103 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "theme": "mint",
-  "name": "Fibrous",
-  "logo": {
-    "dark": "/logo/dark.png",
-    "light": "/logo/light.png"
-  },
-  "favicon": "/favicon.svg",
+  "name": "Fibrous Finance",
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
     "dark": "#0D9373"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "faq"
+            ]
+          },
+          {
+            "group": "User Guides",
+            "pages": [
+              "guides/connecting-wallet",
+              "guides/swapping",
+              "guides/price-impact",
+              "guides/block-explorer",
+              "guides/receiving-swaps",
+              "guides/display-settings",
+              "guides/custom-tokens"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Advanced Features",
+        "groups": [
+          {
+            "group": "Trading Solutions",
+            "pages": [
+              "advanced/batch-swap",
+              "advanced/arena"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "advanced/api-integration",
+              "advanced/router-sdk"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Smart Contracts",
+            "pages": [
+              "api/starknet-v2",
+              "api/scroll-router",
+              "api/contract-addresses"
+            ]
+          },
+          {
+            "group": "Limit Orders",
+            "pages": [
+              "api/limit-order-sdk",
+              "api/limit-order-api"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://docs.fibrous.finance",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.gg/fibrous",
+          "icon": "discord"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://blog.fibrous.finance",
+          "icon": "newspaper"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
   },
   "navbar": {
     "links": [
@@ -24,108 +111,6 @@
       "label": "Go to App",
       "href": "https://app.fibrous.finance"
     }
-  },
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Getting Started",
-        "groups": [
-          {
-            "group": "Introduction",
-            "pages": [
-              "inspiration-for-aggregator",
-              "faq"
-            ]
-          },
-          {
-            "group": "Quickstart",
-            "pages": [
-              "getting-started/editing",
-              "getting-started/global-settings",
-              "getting-started/navigation",
-              "getting-started/themes",
-              "getting-started/migration"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Fibrous Solutions",
-        "groups": [
-          {
-            "group": "User Guides",
-            "pages": [
-              "solutions/connecting-wallet",
-              "solutions/swapping",
-              "solutions/price-impact",
-              "solutions/block-explorer",
-              "solutions/receiving-swaps",
-              "solutions/display-settings",
-              "solutions/custom-tokens"
-            ]
-          },
-          {
-            "group": "Advanced Features",
-            "pages": [
-              "solutions/batch-swap",
-              "solutions/arena"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Developer Resources",
-        "groups": [
-          {
-            "group": "API References",
-            "pages": [
-              "developer/playground",
-              "developer/openapi",
-              "developer/mdx"
-            ]
-          },
-          {
-            "group": "Smart Contracts",
-            "pages": [
-              "developer/starknet-v2",
-              "developer/scroll-router"
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  "global": {
-    "anchors": [
-      {
-        "anchor": "App",
-        "href": "https://app.fibrous.finance",
-        "icon": "arrow-up-right"
-      },
-      {
-        "anchor": "GitHub",
-        "href": "https://github.com/fibrous-finance",
-        "icon": "github"
-      }
-    ],
-    "dropdowns": [
-      {
-        "anchor": "Community",
-        "icon": "users",
-        "items": [
-          {
-            "anchor": "Discord",
-            "href": "https://discord.gg/fibrous",
-            "icon": "discord"
-          },
-          {
-            "anchor": "Twitter",
-            "href": "https://x.com/fibrousfinance",
-            "icon": "twitter"
-          }
-        ]
-      }
-    ]
   },
   "footer": {
     "socials": {
