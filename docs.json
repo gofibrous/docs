@@ -2,33 +2,17 @@
   "$schema": "https://mintlify.com/schema.json",
   "theme": "mint",
   "name": "Fibrous",
-  "logo": {
-    "dark": "/logo/dark.png",
-    "light": "/logo/light.png"
-  },
+  "logo": { "dark": "/logo/dark.png", "light": "/logo/light.png" },
   "favicon": "/favicon.svg",
-  "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373"
-  },
+  "colors": { "primary": "#0D9373", "light": "#07C983", "dark": "#0D9373" },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:contact@fibrous.finance"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Go to App",
-      "href": "https://app.fibrous.finance"
-    }
+    "links": [{ "label": "Support", "href": "mailto:contact@fibrous.finance" }],
+    "primary": { "type": "button", "label": "Go to App", "href": "https://app.fibrous.finance" }
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Getting Started",
+        "tab": "QUICKSTART",
         "groups": [
           {
             "group": "Introduction",
@@ -40,7 +24,7 @@
         ]
       },
       {
-        "tab": "Fibrous Solutions",
+        "tab": "FIBROUS SOLUTIONS",
         "groups": [
           {
             "group": "Fibrous Interface",
@@ -48,42 +32,60 @@
               {
                 "title": "User Guides",
                 "pages": [
-                  "fibrous-solutions/fibrous-interface/connecting-wallet",
-                  "fibrous-solutions/fibrous-interface/swapping",
-                  "fibrous-solutions/fibrous-interface/price-impact",
-                  "fibrous-solutions/fibrous-interface/block-explorer",
-                  "fibrous-solutions/fibrous-interface/receiving-swaps",
-                  "fibrous-solutions/fibrous-interface/display-settings",
-                  "fibrous-solutions/fibrous-interface/custom-tokens"
+                  "fibrous-interface/connecting-wallet",
+                  "fibrous-interface/swapping",
+                  "fibrous-interface/price-impact",
+                  "fibrous-interface/block-explorer",
+                  "fibrous-interface/receiving-swaps",
+                  "fibrous-interface/display-settings",
+                  "fibrous-interface/custom-tokens"
                 ]
               },
               {
                 "title": "Advanced Features",
                 "pages": [
-                  "fibrous-solutions/fibrous-interface/batch-swap",
-                  "fibrous-solutions/fibrous-interface/how-to-batch-swap",
-                  "fibrous-solutions/fibrous-interface/arena"
+                  "fibrous-interface/batch-swap",
+                  "fibrous-interface/arena"
                 ]
               }
             ]
           },
           {
-            "group": "Other Solutions",
+            "group": "Integrate Best Trading",
             "pages": [
-              "fibrous-solutions/integrate-best-trading",
-              "fibrous-solutions/fibrous-limit-order",
-              "fibrous-solutions/fibrous-widget"
+              "integrate-best-trading/api",
+              "integrate-best-trading/router-sdk"
             ]
+          },
+          {
+            "group": "Fibrous Limit Order",
+            "pages": [
+              "limit-order/overview",
+              "limit-order/concept",
+              {
+                "title": "User Guides",
+                "pages": [
+                  "limit-order/sdk",
+                  "limit-order/api"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Fibrous Widget",
+            "pages": ["widget"]
           }
         ]
       },
       {
-        "tab": "Developer Resources",
+        "tab": "DEVELOPER RESOURCES",
         "groups": [
           {
             "group": "Smart Contracts",
             "pages": [
-              "developer-resources/smart-contracts"
+              "smart-contracts/starknet-v2",
+              "smart-contracts/scroll-router",
+              "smart-contracts/addresses"
             ]
           }
         ]
@@ -92,19 +94,36 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://docs.fibrous.finance",
-          "icon": "book-open-cover"
+          "anchor": "Fibrous Finance App",
+          "href": "https://app.fibrous.finance",
+          "icon": "arrow-up-right"
         },
         {
-          "anchor": "Community",
-          "href": "https://discord.gg/fibrous",
-          "icon": "discord"
+          "anchor": "GitHub",
+          "href": "https://github.com/fibrous-finance",
+          "icon": "github"
         },
         {
           "anchor": "Blog",
           "href": "https://blog.fibrous.finance",
           "icon": "newspaper"
+        },
+        {
+          "anchor": "Status",
+          "href": "https://status.fibrous.finance",
+          "icon": "signal"
+        }
+      ],
+      "dropdowns": [
+        {
+          "anchor": "SOCIALS",
+          "icon": "share-2",
+          "items": [
+            { "anchor": "X", "href": "https://x.com/fibrousfinance", "icon": "twitter" },
+            { "anchor": "Discord", "href": "https://discord.gg/fibrous", "icon": "discord" },
+            { "anchor": "Farcaster", "href": "https://warpcast.com/fibrousfinance", "icon": "message-circle" },
+            { "anchor": "YouTube", "href": "https://youtube.com/@fibrousfinance", "icon": "youtube" }
+          ]
         }
       ]
     }
