@@ -30,7 +30,7 @@
                 ]
               },
               {
-                "title": "Advanced",
+                "title": "Advanced Features",
                 "pages": [
                   "fibrous-solutions/fibrous-interface/batch-swap",
                   "fibrous-solutions/fibrous-interface/arena"
@@ -41,13 +41,10 @@
           {
             "group": "Fibrous Limit Order",
             "pages": [
-              "fibrous-solutions/fibrous-limit-order",
               "fibrous-solutions/fibrous-limit-order/overview-limit-order",
               "fibrous-solutions/fibrous-limit-order/general-concept",
-              "fibrous-solutions/fibrous-limit-order/limit-order-sdk",
-              "fibrous-solutions/fibrous-limit-order/user-guides-limit-order"
-                ]
-              }
+              "fibrous-solutions/fibrous-limit-order/user-guides-limit-order",
+              "fibrous-solutions/fibrous-limit-order/limit-order-sdk"
             ]
           },
           {
@@ -58,22 +55,53 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Developer Resources",
+        "groups": [
+          {
+            "group": "Smart Contracts",
+            "pages": [
+              "developer-resources/smart-contracts/starknet-v2",
+              "developer-resources/smart-contracts/scroll-router",
+              "developer-resources/smart-contracts/contract-addresses"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "global": {
+    "anchors": [
+      {
+        "anchor": "App",
+        "href": "https://app.fibrous.finance",
+        "icon": "arrow-up-right"
+      },
+      {
+        "anchor": "GitHub",
+        "href": "https://github.com/fibrous-finance",
+        "icon": "github"
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "App",
-          "href": "https://app.fibrous.finance",
-          "icon": "arrow-up-right"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/fibrous-finance",
-          "icon": "github"
-        }
-      ]
-    }
+    "dropdowns": [
+      {
+        "anchor": "Community",
+        "icon": "users",
+        "items": [
+          {
+            "anchor": "Discord",
+            "href": "https://discord.gg/fibrous",
+            "icon": "discord"
+          },
+          {
+            "anchor": "Twitter",
+            "href": "https://x.com/fibrousfinance",
+            "icon": "twitter"
+          }
+        ]
+      }
+    ]
   },
   "logo": {
     "light": "/logo/light.png",
@@ -90,6 +118,13 @@
       "type": "button",
       "label": "Go to App",
       "href": "https://app.fibrous.finance"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/fibrousfinance",
+      "github": "https://github.com/fibrous-finance",
+      "discord": "https://discord.gg/fibrous"
     }
   }
 }
