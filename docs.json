@@ -33,7 +33,6 @@
           {
             "group": "Quickstart",
             "pages": [
-              "essentials/quickstart",
               "essentials/inspiration-for-aggregator",
               "essentials/faq"
             ]
