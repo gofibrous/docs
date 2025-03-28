@@ -18,7 +18,7 @@
   },
   "topbarLinks": [
     {
-      "name": "Contact",
+      "name": "Support",
       "url": "mailto:contact@fibrous.finance"
     }
   ],
@@ -115,6 +115,25 @@
       ]
     }
   ],
+  "global": {
+    "anchors": [
+      {
+        "anchor": "Documentation",
+        "href": "https://docs.fibrous.finance",
+        "icon": "book-open-cover"
+      },
+      {
+        "anchor": "Community",
+        "href": "https://discord.gg/fibrous",
+        "icon": "discord"
+      },
+      {
+        "anchor": "Blog",
+        "href": "https://blog.fibrous.finance",
+        "icon": "newspaper"
+      }
+    ]
+  },
   "footerSocials": {
     "twitter": "https://x.com/fibrousfinance",
     "github": "https://github.com/fibrous-finance",
