@@ -48,13 +48,15 @@
                   "fibrous-solutions/fibrous-interface/price-impact",
                   "fibrous-solutions/fibrous-interface/block-explorer",
                   "fibrous-solutions/fibrous-interface/receiving-swaps",
-                  "fibrous-solutions/fibrous-interface/display-settings"
+                  "fibrous-solutions/fibrous-interface/display-settings",
+                  "fibrous-solutions/fibrous-interface/custom-tokens"
                 ]
               },
               {
-                "group": "Importing Custom Tokens",
+                "group": "Advanced Features",
                 "pages": [
-                  "fibrous-solutions/fibrous-interface/batch-swap"
+                  "fibrous-solutions/fibrous-interface/batch-swap",
+                  "fibrous-solutions/fibrous-interface/arena"
                 ]
               },
               {
