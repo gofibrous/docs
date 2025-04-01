@@ -38,7 +38,7 @@
             ]
           },
           {
-            "group": "Fibrous Solutions",
+            "group": "Fibrous-Solutions",
             "pages": [
               {
                 "group": "User Guides",
@@ -72,17 +72,6 @@
                   "api-reference/starknet",
                   "api-reference/scroll",
                   "api-reference/rate-limit"
-                ]
-              },
-              {
-                "group": "Fibrous Router SDK",
-                "pages": [
-                  "fibrous-router-sdk/overview",
-                  "fibrous-router-sdk/supported-tokens",
-                  "fibrous-router-sdk/supported-protocols",
-                  "fibrous-router-sdk/best-route",
-                  "fibrous-router-sdk/execute-swap",
-                  "fibrous-router-sdk/execute-batch-swap"
                 ]
               },
               {
@@ -170,9 +159,49 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Starknet",
+            "pages": [
+              "api-reference/starknet/endpoint/healthCheck",
+              "api-reference/starknet/endpoint/route",
+              "api-reference/starknet/endpoint/routeBatch",
+              "api-reference/starknet/endpoint/execute",
+              "api-reference/starknet/endpoint/executeBatch"
+            ]
+          },
+          {
+            "group": "Base",
+            "pages": [
+              "api-reference/base/endpoint/healthCheck",
+              "api-reference/base/endpoint/calldata",
+              "api-reference/base/endpoint/route",
+              "api-reference/base/endpoint/execute"
+            ]
+          },
+          {
+            "group": "Scroll",
+            "pages": [
+              "api-reference/scroll/endpoint/healthCheck",
+              "api-reference/scroll/endpoint/calldata",
+              "api-reference/scroll/endpoint/route",
+              "api-reference/scroll/endpoint/execute"
+            ]
+          }
+        ]
       }
     ]
   },
+
   "footer": {
     "socials": {
       "twitter": "https://x.com/fibrousfinance",
