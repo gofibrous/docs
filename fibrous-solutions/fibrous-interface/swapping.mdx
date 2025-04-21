@@ -1,0 +1,178 @@
+---
+title: "Swapping on Fibrous"
+description: "Elevate Your Trading Experience with Fibrous!"
+---
+
+## Optimized Token Swapping with Fibrous
+
+Fibrous allows you to swap tokens and offers various settings to provide the best trade options for you. By scanning the prominent liquidity sources on the network you are using, it creates a complex trade pathway for you and delivers favorable rates in the simplest way.
+
+## Benefits of Using Fibrous
+
+- **Price Optimization**: Fibrous isn't just an exchange; it's an aggregator. This means it looks across multiple exchanges to get you the best price.
+- **Gas Fee Savings**: Compared to other platforms, Fibrous often results in lower gas fees.
+
+In conclusion, while platforms like Uniswap are direct exchanges, Fibrous ensures that you get the best deal across multiple exchanges, often saving you on fees and getting you a better swap rate.
+
+## Finding the best rates, easily\!
+
+### Step 1: Connect Your Wallet
+
+Go to Fibrous, and click on the Connect Wallet button in the upper right corner.
+
+<Frame caption="Connecting a Wallet on app.fibrous.finance">
+  ![Connect Wallet Interface](/scrollwalletconnect.webp)
+</Frame>
+
+### Step 2: Choose Your Swap Pair
+
+Once connected, select the tokens you want to swap. You can do this by typing the token name in the token field or by importing a custom token. Additionally, for a seamless experience, we have pre-listed and categorized the most popular tokens on your current network.
+
+<Frame caption="Token Selection Interface on app.fibrous.finance">
+  <img
+    src="/image(26).png"
+    alt="Token Selection Interface on app.fibrous.finance"
+    style={{ maxWidth:"400px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+### Step 3: Configure Your Swap Amount
+
+Type in the amount in the top field. You will then see a quote of the amount you will receive in the field below. To adjust the amount, you can directly enter the amounts, or you can use sliders or percentage adjustment buttons.
+
+<Frame caption="Configuring your swap amount on app.fibrous.finance">
+  ![Swap Amount Configuration](/image.gif)
+</Frame>
+
+### Step 4: Approve or Permit Contract to Swap Tokens
+
+Approve or permit Fibrous to swap the tokens on your behalf. Proceed to Step 5 if token approval/permit is not required.
+
+Thanks to [Starknet's Native Account Abstraction](https://www.starknet.io/blog/account-abstraction/native-account-abstraction/)\! You do not need to approve separately for your swaps.
+
+If this is your first time swapping token on Scroll network with Fibrous using your wallet, you'll find that the Swap button is grayed out. You'll need to approve the Fibrous smart contract to spend your tokens before you can proceed with the swap.
+
+<Frame caption="Approve button below Swap Interface">
+  ![Token Approval Interface](/image\(1\).gif)
+</Frame>
+
+<Note>
+  To help our users save on gas fees, Fibrous offers a Permit based approval option for tokens that adhere to the ERC-2612 standard. Unlike the basic ERC20 token implementation, ERC-2612 allows for gasless approvals of smart contract allowances through a simple signed message. In other words, approving a token via Approve doesn't require any gas and has the same effect as the ERC20 Approve.
+</Note>
+
+To ensure the security of your tokens, you'll be prompted to sign the transaction for the exact amount in your wallet's interface. By signing the approval request, you're ensuring that Fibrous can only swap the exact number of tokens specified from your wallet. If future swaps exceed this amount, you'll need to complete the approval process again.
+
+<Frame caption="Approval pop-up on app.fibrous.finance">
+  <img
+    src="/images/image(27).png"
+    alt="Approval pop-up on app.fibrous.finance"
+    style={{ maxWidth:"400px",width:"100%" }}
+  />
+</Frame>
+
+Upon signing the approval, you will then be able to proceed with the swap.
+
+### Step 5: Confirm the Swap
+
+After everything is set up, you can click on the Swap button. In the tab that appears, you can adjust the slippage settings and see the amount you will receive in the event of negative slippage. Once everything is in order, you can initiate your transaction by clicking the Confirm button.
+
+<Frame caption="Confirm your Swap on app.fibrous.finance">
+  <img
+    src="/image(2).gif"
+    alt="Swap Setting button on app.fibrous.finance"
+    style={{ maxWidth:"400px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+<Frame caption="Example confirmation tab on Argent Wallet">
+  <img
+    src="/image(28).png"
+    alt="Example confirmation tab on Argent Wallet"
+    style={{ maxWidth:"350px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+## Monitoring Transaction Confirmations
+
+After confirming the transactions in Fibrous, you can complete the process once you also approve them in your wallet. Later, you can view the details of the transaction in the pop-up that will appear in the bottom right corner of the Fibrous interface.
+
+<Frame caption="Transaction confirmation notification">
+  <img
+    src="/image(29).png"
+    alt="Transaction confirmation notification"
+    style={{ maxWidth:"350px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+By clicking on the "transaction id" in the pop-up at the bottom right, you can view and track many technical details of your transaction on the preferred block explorer.
+
+Lastly, you can view the aggregated swap you executed in Fibrous under the history tab for your all confirmations.
+
+<Frame caption="Transaction history view">
+  <img
+    src="/image(30).png"
+    alt="Transaction history view"
+    style={{ maxWidth:"350px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+## Customizing Slippage Tolerance
+
+Slippage is the potential price difference from when you initiate a trade to when it's processed on the blockchain.
+
+'Auto' is set at 1.0%, meaning the final price could vary by half a percent from the quoted price.
+
+You can adjust this according to your risk tolerance. Apart from the options of 0.1%, 0.5%, and 1%, you can also set a custom slippage.
+
+<Frame caption="Slippage settings interface">
+  <img
+    src="/image(4).webp"
+    alt="Slippage settings interface"
+    style={{ maxWidth:"350px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+## Find Your Favorite Tokens
+
+To make it easy for you to swap any two tokens at the best rates on the Fibrous interface, we have developed token categorization. In this categorization:
+
+<Frame caption="Token List on app.fibrous.finance">
+  <img
+    src="/image(31).png"
+    alt="Slippage settings interface"
+    style={{ maxWidth:"350px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+- **All**: Displays all tokens with a specific ticker on the selected network.
+- **Verified**: This category includes a selection of tokens that are widely used and generally considered reliable for trading.
+
+  If you want your token to be verified on Fibrous, you can check the repository below. https://github.com/Fibrous-Finance/Fibrous-tokens
+- **Stable**: Offers a selection of all available stablecoins.
+- **Meme**: Showcases meme tokens that are prominent on your network and have surpassed a certain volume threshold.
+- **Unrugged (for Starknet)**: This selection displays all tokens originating from the [Unruggable.meme](https://unruggable.meme) platform, which allows the deployment of unruggable tokens on Starknet.
+
+## Managing Liquidity Sources
+
+Fibrous will automatically select the best sources on the selected network. You can choose the liquidity sources you want to use from this tab according to your preference. By default, all Fibrous supported DEXes on the connected chain will be selected. You can view the list of supported DEXs on each chain by the Swap Settings tab.
+
+<div style={{ display:"flex",justifyContent:"center" }}>
+<img
+  src="/image(5).webp"
+  style={{ maxWidth:"350px",width:"100%" }}
+  alt=""
+  title=""
+/>
+
+</div>
+
+<Warning>
+  If you do not select all liquidity sources, you may not achieve the best price fetching. To maximize your swap outputs and trade with the widest variety of token variations, you should keep all liquidity sources enabled.
+</Warning>

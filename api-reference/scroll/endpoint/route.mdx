@@ -1,0 +1,186 @@
+---
+title: 'Route'
+description: 'Find the optimal trading route through Fibrous Finance liquidity pools on Scroll'
+api: 'GET /scroll/route'
+---
+
+https://api.fibrous.finance/scroll
+
+Find the optimal trading route through Fibrous Finance's liquidity pools on Scroll to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
+
+## Query Parameters
+
+<ParamField query="amount" type="string" required>
+  The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
+  
+  Example: `"1000000000000000000"` for 1 ETH
+</ParamField>
+
+<ParamField query="tokenInAddress" type="string" required>
+  The address of the input token.
+  
+  Example: `"0x5300000000000000000000000000000000000004"` for ETH on Scroll
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  The address of the output token.
+  
+  Example: `"0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550"` for USDC on Scroll
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful.
+</ResponseField>
+
+<ResponseField name="routeSwapType" type="number">
+  Type of swap route (e.g., 2 for split routes).
+</ResponseField>
+
+<ResponseField name="inputToken" type="object">
+  Details about the input token.
+  <Expandable>
+    <ResponseField name="name" type="string">
+      The token's name (e.g., "Wrapped Ether")
+    </ResponseField>
+    <ResponseField name="address" type="string">
+      The token's contract address
+    </ResponseField>
+    <ResponseField name="decimals" type="number">
+      Number of decimals the token uses
+    </ResponseField>
+    <ResponseField name="price" type="number">
+      Current price of the token in USD
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="outputToken" type="object">
+  Details about the output token.
+  <Expandable>
+    <ResponseField name="name" type="string">
+      The token's name (e.g., "USD Coin")
+    </ResponseField>
+    <ResponseField name="address" type="string">
+      The token's contract address
+    </ResponseField>
+    <ResponseField name="decimals" type="number">
+      Number of decimals the token uses
+    </ResponseField>
+    <ResponseField name="price" type="number">
+      Current price of the token in USD
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -L \
+  "https://api.fibrous.finance/scroll/route?amount=1000000000000000000&tokenInAddress=0x5300000000000000000000000000000000000004&tokenOutAddress=0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550" \
+  --header "Accept: */*"
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/scroll/route"
+
+params = {
+    "amount": "1000000000000000000",  # 1 ETH
+    "tokenInAddress": "0x5300000000000000000000000000000000000004",
+    "tokenOutAddress": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550"
+}
+
+response = requests.get(url, params=params)
+print(response.json())
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+const params = {
+  amount: '1000000000000000000', // 1 ETH
+  tokenInAddress: '0x5300000000000000000000000000000000000004',
+  tokenOutAddress: '0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550'
+};
+
+axios.get('https://api.fibrous.finance/scroll/route', { params })
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "routeSwapType": 2,
+  "inputToken": {
+    "name": "Wrapped Ether",
+    "address": "0x5300000000000000000000000000000000000004",
+    "decimals": 18,
+    "price": 1590.87
+  },
+  "inputAmount": "1000000000000000000",
+  "outputToken": {
+    "name": "USD Coin",
+    "address": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550",
+    "decimals": 6,
+    "price": 0.999982
+  },
+  "outputAmount": "1596313860",
+  "time": 1.1,
+  "estimatedGasUsed": "212280540264",
+  "estimatedGasUsedInUsd": 0.0013627561562787743,
+  "route": [
+    {
+      "percent": "100%",
+      "swaps": [
+        [
+          {
+            "protocol": 5,
+            "poolName": "Uniswap V3",
+            "poolAddress": "0xd0b53d9277642d899df5c87a3966a349a798f224",
+            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
+            "toTokenAddress": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550",
+            "percent": "100%",
+            "extraData": {
+              "fee": 500
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "bestQuotesByProtocols": []
+}
+```
+</ResponseExample>
+
+## Error Responses
+
+### Invalid Token Address
+
+```json
+{
+  "success": false,
+  "error": "Invalid token address",
+  "details": "The provided token address is not valid or not supported"
+}
+```
+
+### Insufficient Liquidity
+
+```json
+{
+  "success": false,
+  "error": "Insufficient liquidity",
+  "details": "Not enough liquidity for the requested swap amount"
+}
+```
+
+## Related Endpoints
+
+- [Execute](/api-reference/scroll/endpoint/execute) - Execute the swap
+- [Calldata](/api-reference/scroll/endpoint/calldata) - Get raw transaction data

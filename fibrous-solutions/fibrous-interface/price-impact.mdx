@@ -1,0 +1,102 @@
+---
+title: "Understanding Price Impact, Slippage and Fees"
+description: "Learn about price impact, slippage, and fees on Fibrous"
+---
+
+## Understanding Price Impact
+
+### Definition and Effects
+
+Price Impact refers to the influence a specific trade has on the market value of an asset pair, which is closely linked to the liquidity of the source. In scenarios where market or pair liquidity is low, the price impact can be substantial, potentially leading to losses for the trader. Essentially, a large trade in a small market can significantly disturb the market equilibrium.
+
+### Favorable Scenarios
+
+However, price impact can sometimes work in favor of the trader. If the pool's liquidity is skewed opposite to your trade direction, you may trade at a more advantageous rate than the pool's average, opening opportunities for arbitrage.
+
+## Distinguishing Between Price Impact and Slippage
+
+### Key Differences
+
+- **Price Slippage** refers to the price variation resulting from market movements that are not directly linked to an individual trade.
+- **Price Impact**, conversely, is the price change directly caused by an individual's trade.
+
+Both are influenced by the liquidity in a pool; limited liquidity can lead to significant rate shifts from minor overall market movements.
+
+Also, slippage can sometimes be beneficial. If the exchange rate shifts advantageously, you receive extra tokens in a swap.
+
+## Strategies to Reduce Negative Price Impact
+
+### Fibrous' Pathfinder Algorithm
+
+Fibrous' algorithm is designed to distribute trading volume across various liquidity sources, minimizing adverse price impact. However, for tokens with a single liquidity source, especially illiquid ones, optimizing price impact is challenging.
+
+### Personal Strategies
+
+To reduce swap price impact, consider trading smaller volumes or waiting for increased market liquidity. For certain tokens, especially those from dubious projects, this liquidity boost may never arrive. Ensure the "Minimum received after slippage" reflects accurate token counts based on current market rates.
+
+## Managing Slippage on Fibrous
+
+### Slippage Tolerance Settings
+
+Fibrous features a "Slippage Tolerance" option, allowing traders to set a preferred slippage percentage for their trades. The platform typically uses "auto-slippage," adjusting tolerance based on the pair's volatility. This option can be found and adjusted in the general settings, with the ability to pin the slippage tolerance display to the main swap interface for easy access.
+
+<Frame caption="Swap Setting button on app.fibrous.finance">
+  <img
+    src="/image(23).png"
+    alt="Swap Setting button on app.fibrous.finance"
+    style={{ maxWidth:"400px",width:"100%" }}
+    title=""
+  />
+</Frame>
+
+<Warning>
+  If the final token amount deviates beyond the set slippage tolerance during the trade process, the transaction will be aborted, preventing significant losses despite non-refundable gas costs.
+</Warning>
+
+## Implications of Extreme Slippage Tolerance Settings
+
+The ideal slippage tolerance varies by token, transaction, and personal preference.
+
+### Very High / High Impact
+
+An overly generous slippage tolerance permits the trade to finalize even with substantial price shifts, exposing the user to potential front-running and sandwich attacks. In a sandwich attack, a malicious actor places two larger trades just before and after a target transaction, forcing the target to buy at a higher rate.
+
+<Frame caption="Do not forget to check slippage indicators on app.fibrous.finance">
+  ![High Slippage Risk Indicator](/image\(24\).png)
+</Frame>
+
+<Warning>
+  By the victim having a high slippage tolerance, the attacker gains more. While the likelihood seems minimized on the Starknet and Scroll networks at the moment, as the Fibrous team, we are developing MEV-resistant transactions and preparing to offer you the best experience. Therefore, it is not recommended to execute a transaction under such conditions.
+</Warning>
+
+### Medium Impact / Low Impact
+
+A very strict slippage tolerance might cause the transaction to be rejected if price fluctuations surpass the designated percentage. While this might ward off front-runners, it also results in wasted gas fees for the failed transaction.
+
+A transaction that gets rejected due to very low slippage tolerance will display "**Fail with error 'Min return not reached**" when inspected on a block explorer.
+
+<Frame caption="Do not forget to check slippage indicators on app.fibrous.finance">
+  ![Medium Slippage Risk Indicator](/image\(25\).png)
+</Frame>
+
+In transactions with this level of price impact, the key is to set the correct slippage settings. The transactions are safe to execute; however, the output price may be affected depending on liquidity. It is advisable to monitor the "Minimum received amount."
+
+Fortunately, in the transactions you perform on Fibrous, the price impact will be minimized.
+
+### Positive Slippage
+
+As we emphasized, these price impacts can also be positive. For such transactions, Fibrous ensures you can obtain a positive return. With Fibrous, you can catch arbitrage opportunities and earn.
+
+## Gas and Transaction Fees
+
+Just as with EVM chains, gas fees and mechanisms for Starknet's CairoVM are vital for the network's operation and protocol flow. Therefore, specific gas fees are charged for every transaction executed, and if these fees are met, your transaction is processed.
+
+Therefore, to perform transactions, you need to have enough of the required gas tokens on both the Starknet and Scroll networks. However, to minimize these costs, we have developed a **"Flash Accounts"** model that ensures you encounter more favorable gas fees as your routes become more complex.
+
+## Service Fee
+
+Fibrous is not just a Decentralized Exchange platform; it also aims to offer users the best DeFi experience by integrating a wide range of DeFi applications and infrastructures. For all these services, Fibrous charges a fee of **0.02% for single-route** transactions optimized within the protocol and **0.15% for multi-route** transactions.
+
+<Note>
+  Don't worry. We don't charge any fees for transactions on the Scroll network for now\! Also, if you are a StarkRocks holder on the Starknet network, you can perform transactions on Fibrous without any service and gas fees.
+</Note>

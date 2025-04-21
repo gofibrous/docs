@@ -1,0 +1,25 @@
+---
+title: 'Execute Parameters'
+description: 'Parameters for executing swaps through Fibrous Finance on Scroll'
+---
+
+https://api.fibrous.finance/scroll
+
+| Parameter name | Type | Description |
+|---------------|------|-------------|
+| amount * | string | amount of a token to sell, for 1 eth set as `1000000000000000000` |
+| tokenInAddress * | string | contract address of a token to sell e.g.: `0x5300000000000000000000000000000000000004` |
+| tokenOutAddress * | string | contract address of a token to buy e.g.: `0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550` |
+| slippage * | integer | slippage=0.5 means 0.5% slippage is acceptable. Low values increase chances that transaction will fail, high values increase chances of front running. |
+| destination * | string | The receiver address for the output token |
+| reverse | boolean | Default `false`, it's not supported yet. |
+| direct | boolean | Default `false`. If it's true direct route |
+| excludeProtocols | [string] | The protocol ID |
+
+### excludeProtocols
+This is where you list the IDs of the AMMs you don't want to include. For example, if there are certain AMMs you prefer not to use due to high fees or other reasons, you simply put their unique IDs in this list.
+
+### supportPairs ↗
+This function returns a list of supported AMMs, along with the AMM IDs.
+
+Returns data with best route to transaction via Fibrous Finance 

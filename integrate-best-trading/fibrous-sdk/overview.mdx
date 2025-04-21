@@ -1,0 +1,79 @@
+---
+title: 'Overview'
+description: 'Overview of Fibrous Router SDK main functions'
+---
+
+## supportedTokens
+
+Returns the list of Tokens supported by Fibrous Finance
+
+```typescript
+/**
+ * Supported token list
+ * @param chainName Chain ID to get the supported tokens for
+ * @returns Promise<Record<string, Token>>
+ */
+async supportedTokens(chainName: string): Promise<Record<string, Token>>;
+```
+
+## supportedProtocols
+
+Returns the list of Protocols supported by Fibrous Finance
+
+```typescript
+/**
+ * Supported protocol list
+ * @param chainName Chain ID to get the supported protocols for
+ * @returns Promise<Record<string, ProtocolId>>
+ */
+async supportedProtocols(chainName: string): Promise<Record<string, ProtocolId>>;
+```
+
+## getBestRoute
+
+Returns the best route via Fibrous Finance
+
+```typescript
+/**
+ * Gets the best route from the API
+ * @param amount: Amount to swap, formatted
+ * @param tokenInAddress: Token to swap from
+ * @param tokenOutAddress: Token to swap to
+ * @param chainName: Chain name where the transaction will take place
+ * @param options: Optional parameters such as slippage and excluded protocols
+ * @returns Promise<RouteResponse>
+ * @throws Error if the API returns an error
+ */
+async getBestRoute(
+    amount: BigNumber,
+    tokenInAddress: string,
+    tokenOutAddress: string,
+    chainName: string,
+    options?: Partial<RouteOverrides>
+): Promise<RouteResponse>;
+```
+
+## buildTransaction
+
+Returns calldata with best route to transaction via Fibrous Finance
+
+```typescript
+/**
+ * Builds a Starknet or Scroll transaction out of the route response
+ * @param amount: Amount to swap, formatted
+ * @param tokenInAddress: Token to swap from
+ * @param tokenOutAddress: Token to swap to
+ * @param slippage: Slippage percentage (1 = 1%)
+ * @param receiverAddress: Address to receive the tokens
+ * @returns Call (for Starknet) or calldata (for EVM)
+ */
+async buildTransaction(
+    amount: BigNumber,
+    tokenInAddress: string,
+    tokenOutAddress: string,
+    slippage: number,
+    receiverAddress: string,
+    chainName: string
+): Promise<Call | any>;
+```
+

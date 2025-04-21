@@ -1,0 +1,66 @@
+---
+title: 'Supported Protocols'
+description: 'Fetch a list of protocols supported by Fibrous Finance api'
+---
+
+The `supportedProtocols` function returns a list of protocols (AMMs) that are supported by Fibrous Finance on a specific chain.
+
+## Function Signature
+
+```typescript
+/**
+ * Supported protocol list
+ * @param chainName Chain ID to get the supported protocols for
+ * @returns Promise<Record<string, ProtocolId>>
+ */
+async supportedProtocols(chainName: string): Promise<Record<string, ProtocolId>>;
+```
+
+## Example Usage
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+const router = new FibrousRouter();
+const starknetProtocols = await router.supportedProtocols("starknet");
+const scrollProtocols = await router.supportedProtocols("scroll");
+```
+
+## Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| chainName | string | The chain name to get supported protocols for (e.g., "starknet", "scroll", "base") |
+
+## Response
+
+Returns a Promise that resolves to a Record mapping protocol names to their IDs. The response includes:
+
+```typescript
+type ProtocolId = {
+  id: number;          // Protocol unique identifier
+  name: string;        // Protocol name
+  logoURI?: string;    // Optional protocol logo URL
+};
+```
+
+## Example Response
+
+```json
+{
+  "JediSwap": {
+    "id": 1,
+    "name": "JediSwap",
+    "logoURI": "https://jediswap.xyz/logo.png"
+  },
+  "MySwap": {
+    "id": 2,
+    "name": "MySwap",
+    "logoURI": "https://myswap.xyz/logo.png"
+  },
+  "10kSwap": {
+    "id": 3,
+    "name": "10kSwap",
+    "logoURI": "https://10kswap.com/logo.png"
+  }
+}

@@ -1,0 +1,69 @@
+---
+title: 'Installation'
+description: 'Learn how to install and setup Fibrous Router SDK'
+---
+
+# Installation
+
+You can install Fibrous Router SDK using npm, yarn, or pnpm:
+
+<CodeGroup>
+```bash npm
+npm install fibrous-router-sdk
+```
+
+```bash yarn
+yarn add fibrous-router-sdk
+```
+
+```bash pnpm
+pnpm add fibrous-router-sdk
+```
+</CodeGroup>
+
+# Quick Start
+
+Here's a simple example of how to initialize and use the SDK:
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+// Initialize the router
+const router = new FibrousRouter();
+
+// Example: Get supported tokens for Base chain
+const tokens = await router.supportedTokens("base");
+
+// Example: Get best route for a swap
+const route = await router.getBestRoute(
+  amount,          // BigNumber: Amount to swap
+  tokenInAddress,  // string: Input token address
+  tokenOutAddress, // string: Output token address
+  "base",          // string: Chain name
+);
+
+// Example: Build a transaction
+const tx = await router.buildTransaction(
+  amount,          // BigNumber: Amount to swap
+  tokenInAddress,  // string: Input token address
+  tokenOutAddress, // string: Output token address
+  1,               // number: Slippage percentage (1 = 1%)
+  receiverAddress, // string: Address to receive tokens
+  "base"           // string: Chain name
+);
+```
+
+# Requirements
+
+- Node.js version 14 or higher
+- A Web3 provider (like ethers.js) for transaction signing
+- Access to supported blockchain networks (Base, Scroll, or Starknet)
+
+# Next Steps
+
+After installation, check out these guides to learn more about specific features:
+
+- [Overview](/integrate-best-trading/fibrous-sdk/overview)
+- [Supported Tokens](/integrate-best-trading/fibrous-sdk/supported-tokens)
+- [Best Route](/integrate-best-trading/fibrous-sdk/best-route)
+- [Execute Swap](/integrate-best-trading/fibrous-sdk/execute-swap) 

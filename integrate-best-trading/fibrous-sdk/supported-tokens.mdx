@@ -1,0 +1,67 @@
+---
+title: 'Supported Tokens'
+description: 'Fetch a list of tokens supported by Fibrous Finance api'
+---
+
+The `supportedTokens` function returns a list of tokens supported by Fibrous Finance on a specific chain.
+
+## Function Signature
+
+```typescript
+/**
+ * Supported token list
+ * @param chainName Chain ID to get the supported tokens for
+ * @returns Promise<Record<string, Token>>
+ */
+async supportedTokens(chainName: string): Promise<Record<string, Token>>;
+```
+
+## Example Usage
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+const router = new FibrousRouter();
+const starknetTokens = await router.supportedTokens("starknet");
+const scrollTokens = await router.supportedTokens("scroll");
+```
+
+## Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| chainName | string | The chain name to get supported tokens for (e.g., "starknet", "scroll", "base") |
+
+## Response
+
+Returns a Promise that resolves to a Record mapping token symbols to Token objects. Each Token object contains:
+
+```typescript
+type Token = {
+  name: string;        // Token name
+  symbol: string;      // Token symbol
+  address: string;     // Token contract address
+  decimals: number;    // Token decimals
+  logoURI?: string;    // Optional logo URL
+};
+```
+
+## Example Response
+
+```json
+{
+  "ETH": {
+    "name": "Ethereum",
+    "symbol": "ETH",
+    "address": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "decimals": 18,
+    "logoURI": "https://tokens.1inch.io/0x0000000000000000000000000000000000000000.png"
+  },
+  "USDC": {
+    "name": "USD Coin",
+    "symbol": "USDC",
+    "address": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8",
+    "decimals": 6,
+    "logoURI": "https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"
+  }
+}

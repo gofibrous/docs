@@ -1,0 +1,498 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/starknet/healthCheck": {
+            "get": {
+                "operationId": "RouterController_healthCheck",
+                "summary": "Ping the router to see if it's alive or just pretending to work",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "route"
+                ]
+            }
+        },
+        "/starknet/route": {
+            "get": {
+                "operationId": "RouterController_route",
+                "summary": "Find the magical money path through the DeFi jungle of Fibrous Finance",
+                "description": "Find the optimal trading route through Fibrous Finance's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.",
+                "parameters": [
+                    {
+                        "name": "amount",
+                        "required": true,
+                        "in": "query",
+                        "example": "0xde0b6b3a7640000 || 1000000000000000000",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tokenInAddress",
+                        "required": true,
+                        "in": "query",
+                        "example": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tokenOutAddress",
+                        "required": true,
+                        "in": "query",
+                        "example": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "excludeProtocols",
+                        "required": false,
+                        "in": "query",
+                        "description": "The protocol IDs you want to exclude from liquidity sources (MySwap:1, JediSwap:2, 10kSwap:3, SithSwap:4, Ekubo:5, MySwap CL:6, StarkDefi:7, JediSwap CL:8, Nostra: 9, Haiko: 10) separated by commas",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "reverse",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "direct",
+                        "required": false,
+                        "in": "query",
+                        "description": "if its true direct route",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "route api response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouteResponseDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "route"
+                ]
+            }
+        },
+        "/starknet/routeBatch": {
+            "get": {
+                "operationId": "RouterController_routeBatch",
+                "summary": "Find the magical money path through the DeFi jungle of Fibrous Finance",
+                "description": "Find the optimal trading route through Fibrous Finance's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.",
+                "parameters": [
+                    {
+                        "name": "amounts",
+                        "required": true,
+                        "in": "query",
+                        "example": "1000000000000000000,2000000000",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "tokenInAddresses",
+                        "required": true,
+                        "in": "query",
+                        "example": "[0x049d...,0x0da1...]",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "tokenOutAddresses",
+                        "required": true,
+                        "in": "query",
+                        "example": "[0x053c...]",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "reverse",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "direct",
+                        "required": false,
+                        "in": "query",
+                        "description": "if its true direct route",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "excludeProtocols",
+                        "required": false,
+                        "in": "query",
+                        "description": "The protocol IDs you want to exclude from liquidity sources (MySwap:1, JediSwap:2, 10kSwap:3, SithSwap:4, Ekubo:5, MySwap CL:6)",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Route batch api response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RouteResponseDto"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "route"
+                ]
+            }
+        },
+        "/starknet/execute": {
+            "get": {
+                "operationId": "RouterController_execute",
+                "summary": "Generate calldata for the Fibrous Finance router contract for swap",
+                "description": "Like a financial GPS on steroids - finds the magical money path through DeFi jungle, squeezes every penny out of your swap, and hands you the secret incantation (calldata) to summon the Fibrous Router contract. No wizardry degree required!\n     **TLDR: Find the best route and return the calldata to execute the swap**",
+                "parameters": [
+                    {
+                        "name": "amount",
+                        "required": true,
+                        "in": "query",
+                        "example": "0xde0b6b3a7640000 || 1000000000000000000",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tokenInAddress",
+                        "required": true,
+                        "in": "query",
+                        "example": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tokenOutAddress",
+                        "required": true,
+                        "in": "query",
+                        "example": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "slippage",
+                        "required": true,
+                        "in": "query",
+                        "example": "0.5",
+                        "description": "slippage: Min. 0; max:49 (0.49)",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": true,
+                        "in": "query",
+                        "description": "The receiver address for the output token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reverse",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "direct",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "excludeProtocols",
+                        "required": false,
+                        "in": "query",
+                        "description": "The protocol IDs you want to exclude from liquidity sources (MySwap:1, JediSwap:2, 10kSwap:3, SithSwap:4, Ekubo:5, MySwap CL:6, StarkDefi:7, JediSwap CL:8, Nostra: 9, Haiko: 10) separated by commas",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "route"
+                ]
+            }
+        },
+        "/starknet/executeBatch": {
+            "get": {
+                "operationId": "RouterController_executeBatch",
+                "parameters": [
+                    {
+                        "name": "amounts",
+                        "required": true,
+                        "in": "query",
+                        "example": "0xde0b6b3a7640000,0xde0b6b3a7640000 || 1000000000000000000,1000000000000000000",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tokenInAddresses",
+                        "required": true,
+                        "in": "query",
+                        "example": "[0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7,0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d]",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "tokenOutAddresses",
+                        "required": true,
+                        "in": "query",
+                        "example": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "slippage",
+                        "required": true,
+                        "in": "query",
+                        "example": "0.5",
+                        "description": "slippage: Min. 0; max:49 (0.49)",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "required": true,
+                        "in": "query",
+                        "description": "The receiver address for the output token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reverse",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "direct",
+                        "required": false,
+                        "in": "query",
+                        "description": "its not supported yet",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "excludeProtocols",
+                        "required": false,
+                        "in": "query",
+                        "description": "The protocol IDs you want to exclude from liquidity sources (MySwap:1, JediSwap:2, 10kSwap:3, SithSwap:4, Ekubo:5, MySwap CL:6, StarkDefi:7, JediSwap CL:8, Nostra: 9, Haiko: 10) separated by commas",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "route"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Fibrous Smart Order Rotuer",
+        "description": "Fibrous Smart Order Rotuer",
+        "version": "1.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "fibrous",
+            "description": ""
+        }
+    ],
+    "servers": [],
+    "components": {
+        "schemas": {
+            "RouteDto": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "string",
+                        "example": "0xde0b6b3a7640000 || 1000000000000000000"
+                    },
+                    "tokenInAddress": {
+                        "type": "string",
+                        "example": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
+                    },
+                    "tokenOutAddress": {
+                        "type": "string",
+                        "example": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8"
+                    },
+                    "excludeProtocols": {
+                        "default": null,
+                        "description": "The protocol IDs you want to exclude from liquidity sources (MySwap:1, JediSwap:2, 10kSwap:3, SithSwap:4, Ekubo:5, MySwap CL:6)",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "reverse": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "its not supported yet"
+                    },
+                    "direct": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "if its true direct route"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "tokenInAddress",
+                    "tokenOutAddress"
+                ]
+            },
+            "RouteResponseDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "inputToken": {
+                        "type": "object"
+                    },
+                    "inputAmount": {
+                        "type": "string"
+                    },
+                    "outputToken": {
+                        "type": "object"
+                    },
+                    "outputAmount": {
+                        "type": "string"
+                    },
+                    "estimatedGasUsed": {
+                        "type": "string"
+                    },
+                    "route": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "time": {
+                        "type": "number"
+                    },
+                    "bestQuotesByProtocols": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "success",
+                    "inputToken",
+                    "inputAmount",
+                    "outputToken",
+                    "outputAmount",
+                    "estimatedGasUsed",
+                    "route",
+                    "time",
+                    "bestQuotesByProtocols"
+                ]
+            }
+        }
+    }
+}

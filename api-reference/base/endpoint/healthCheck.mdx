@@ -1,0 +1,71 @@
+---
+title: 'Health Check'
+description: 'Check the health status of the Fibrous Finance API'
+api: 'GET /base/healthCheck'
+---
+
+https://api.fibrous.finance/base
+
+Verify if the Fibrous Finance API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
+
+## Response
+
+<ResponseField name="status" type="string">
+  The health status of the API. Will be "ok" if the service is healthy.
+</ResponseField>
+
+<ResponseField name="version" type="string">
+  The current version of the API.
+</ResponseField>
+
+## Error Responses
+
+If the service is unhealthy or experiencing issues, the endpoint will return a non-200 status code.
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.fibrous.finance/base/healthCheck"
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/base/healthCheck"
+response = requests.get(url)
+print(response.json())
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+axios.get('https://api.fibrous.finance/base/healthCheck')
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "status": "ok",
+  "version": "1.0.0"
+}
+```
+</ResponseExample>
+
+## Usage
+
+Use this endpoint to:
+1. Monitor API availability
+2. Check API version
+3. Implement health checks in your application
+4. Verify connectivity before making other API calls
+
+## Rate Limits
+
+The health check endpoint has a higher rate limit than other endpoints. Please refer to our rate limiting documentation for specific details.
+
+## Related Endpoints
+
+- [Route](/api-reference/base/endpoint/route) - Find optimal swap routes
+- [Calldata](/api-reference/base/endpoint/calldata) - Generate transaction data

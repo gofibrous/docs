@@ -1,0 +1,22 @@
+---
+title: 'Batch Route Params'
+description: 'Batch Route Params Page'
+---
+
+## Request Parameters
+
+| Parameter name | Type | Description |
+| --- | --- | --- |
+| amounts * | [string] | amounts of tokens to sell, for 1 ETH and 1 Wtbc set as `[1000000000000000000, 100000000]` |
+| tokenInAddresses * | [string] | contract addresses of tokens to sell e.g.: `[0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7, 0x03fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac]` |
+| tokenOutAddresses * | [string] | contract address of a token to buy e.g.: `[0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8]` (just one output token supported for now) |
+| reverse | boolean | Default `false`. it's not supported yet. |
+| direct | boolean | Default `false`. If it's true direct route |
+| excludeProtocols | [string] | The protocol IDs you want to exclude from liquidity sources. |
+
+## Response Parameters
+
+| Parameter name | Type | Description |
+| --- | --- | --- |
+| success | boolean | Indicates if the request was successful. |
+| routes | array | Array of route objects containing input token details (name, address, decimals, price), output token details, and route segments. | 

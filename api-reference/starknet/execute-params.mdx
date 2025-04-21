@@ -1,0 +1,26 @@
+---
+title: 'Execute Params'
+description: 'Execute Params Page'
+---
+
+## Request Parameters
+
+| Parameter name | Type | Description |
+| --- | --- | --- |
+| amount * | string | amount of a token to sell, for 1 ETH set as `1000000000000000000` |
+| tokenInAddress * | string | contract address of a token to sell e.g.: `0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7` |
+| tokenOutAddress * | string | contract address of a token to buy e.g.: `0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8` |
+| slippage * | integer | slippage=0.5 means 0.5% slippage is acceptable. Low values increase chances that transaction will fail, high values increase chances of front running. |
+| destination * | string | The receiver address for the output token |
+| reverse | boolean | Default `false`. it's not supported yet. |
+| direct | boolean | Default `false`. If it's true direct route |
+| excludeProtocols | [string] | The protocol ID |
+
+### excludeProtocols
+This is where you list the IDs of the AMMs you don't want to include. For example, if there are certain AMMs you prefer not to use due to high fees or other reasons, you simply put their unique IDs in this list.
+
+[supportPairs](/api-reference/starknet/endpoint/supportPairs) : This function returns a list of supported AMMs, along with the AMM IDs.
+
+## Response
+
+Returns data with best route to transaction via Fibrous Finance 

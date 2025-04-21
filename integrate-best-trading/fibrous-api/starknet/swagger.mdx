@@ -1,0 +1,110 @@
+---
+title: "Swagger"
+description: "https://api.fibrous.finance/starknet"
+---
+
+## Health Check
+
+<ParamField query="GET" />/healthCheck
+
+Check if the API is running and healthy.
+
+### Response
+
+<ResponseField name="200" type="number">
+  Indicates the API is healthy and running
+</ResponseField>
+
+---
+
+## Find Best Route
+
+<ParamField query="GET" />/route
+
+Find the best route for token swaps via Fibrous Finance.
+
+### Query Parameters
+
+<ParamField query="amount" type="string" required>
+  The amount of input token
+  Example: 0xde0db3a7e7d0000 || 1000000000000000000
+</ParamField>
+
+<ParamField query="tokenInAddress" type="string" required>
+  Input token address
+  Example: 0x049e3657b0de464d8e9967dcd3cc8d644dd6b96f7c7d1b15d2d82f0e06dc7
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  Output token address
+  Example: 0x053c91253bc9d92cb4929cca92ed00b3e4231671b2ee7ebdcebb6f3ccf36db8
+</ParamField>
+
+<ParamField query="excludeProtocols" type="string[]" optional>
+  The protocol IDs you want to exclude from liquidity sources
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional default="false">
+  Its not supported yet
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional default="false">
+  If its true direct route
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="inputToken" type="array">
+  Input token details
+</ResponseField>
+
+<ResponseField name="outputToken" type="array">
+  Output token details
+</ResponseField>
+
+<ResponseField name="outputAmount" type="string">
+  The amount of tokens to be received
+</ResponseField>
+
+---
+
+## Find Best Route for Batch Swap
+
+<ParamField query="GET" />/routeBatch
+
+Find the best route for multiple input tokens to single output token.
+
+### Query Parameters
+
+<ParamField query="amounts" type="array[string]" required>
+  Array of input amounts
+  Example: [1000000000000000000,2000000000]
+</ParamField>
+
+<ParamField query="tokenInAddresses" type="array[string]" required>
+  Array of input token addresses
+  Example: [0x049e..., 0x0da1...]
+</ParamField>
+
+<ParamField query="tokenOutAddresses" type="array[string]" required>
+  Array of output token addresses
+  Example: [0x053c...]
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional default="false">
+  Its not supported yet
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional default="false">
+  If its true direct route
+</ParamField>
+
+<ParamField query="excludeProtocols" type="string[]" optional>
+  The protocol IDs you want to exclude from liquidity sources
+</ParamField>
+
+---

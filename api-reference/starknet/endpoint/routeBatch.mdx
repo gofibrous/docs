@@ -1,0 +1,190 @@
+---
+title: 'Route Batch'
+description: 'Find optimal routes for multiple token swaps through Fibrous Finance on Starknet'
+api: 'GET /starknet/routeBatch'
+---
+
+https://api.fibrous.finance/starknet
+
+Find optimal trading routes for multiple token swaps through Fibrous Finance's liquidity pools on Starknet. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
+
+## Query Parameters
+
+<ParamField query="amounts" type="array[string]" required>
+  Array of input token amounts in wei format. For tokens with 18 decimals, multiply each amount by 10^18.
+  
+  Example: `["1000000000000000000", "2000000000"]`
+</ParamField>
+
+<ParamField query="tokenInAddresses" type="array[string]" required>
+  Array of input token addresses.
+  
+  Example: `["0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8"]`
+</ParamField>
+
+<ParamField query="tokenOutAddresses" type="array[string]" required>
+  Array of output token addresses.
+  
+  Example: `["0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8"]`
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful.
+</ResponseField>
+
+<ResponseField name="routes" type="array">
+  Array of route objects, each containing:
+  <Expandable>
+    <ResponseField name="inputToken" type="object">
+      Details about the input token
+      <Expandable>
+        <ResponseField name="name" type="string">Token name</ResponseField>
+        <ResponseField name="address" type="string">Token contract address</ResponseField>
+        <ResponseField name="decimals" type="number">Token decimals</ResponseField>
+        <ResponseField name="price" type="number">Current token price in USD</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="outputToken" type="object">
+      Details about the output token
+      <Expandable>
+        <ResponseField name="name" type="string">Token name</ResponseField>
+        <ResponseField name="address" type="string">Token contract address</ResponseField>
+        <ResponseField name="decimals" type="number">Token decimals</ResponseField>
+        <ResponseField name="price" type="number">Current token price in USD</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="route" type="array">
+      Array of route segments
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -L \
+  "https://api.fibrous.finance/starknet/routeBatch?amounts=null&tokenInAddresses=null&tokenOutAddresses=null" \
+  --header "Accept: */*"
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/starknet/routeBatch"
+
+params = {
+    "amounts": ["1000000000000000000", "2000000000"],
+    "tokenInAddresses": [
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8"
+    ],
+    "tokenOutAddresses": [
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8"
+    ]
+}
+
+response = requests.get(url, params=params)
+print(response.json())
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+const params = {
+  amounts: ['1000000000000000000', '2000000000'],
+  tokenInAddresses: [
+    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+    '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8'
+  ],
+  tokenOutAddresses: [
+    '0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8'
+  ]
+};
+
+axios.get('https://api.fibrous.finance/starknet/routeBatch', { params })
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "success": true,
+  "routes": [
+    {
+      "inputToken": {
+        "name": "Ethereum",
+        "address": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "decimals": 18,
+        "price": 1590.87
+      },
+      "outputToken": {
+        "name": "USD Coin",
+        "address": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "decimals": 6,
+        "price": 0.999982
+      },
+      "route": [
+        {
+          "percent": "100%",
+          "swaps": [
+            {
+              "protocol": 5,
+              "poolName": "JediSwap",
+              "poolAddress": "0x...",
+              "percent": "100%",
+              "extraData": {
+                "fee": 500
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "time": 1.2,
+  "estimatedGasUsed": "350000",
+  "estimatedGasUsedInUsd": 0.002
+}
+```
+</ResponseExample>
+
+## Error Responses
+
+### Invalid Token Address
+
+```json
+{
+  "success": false,
+  "error": "Invalid token address",
+  "details": "One or more provided token addresses are not valid or not supported"
+}
+```
+
+### Insufficient Liquidity
+
+```json
+{
+  "success": false,
+  "error": "Insufficient liquidity",
+  "details": "Not enough liquidity for one or more requested swap amounts"
+}
+```
+
+### Array Length Mismatch
+
+```json
+{
+  "success": false,
+  "error": "Array length mismatch",
+  "details": "The number of amounts must match the number of input token addresses"
+}
+```
+
+## Related Endpoints
+
+- [Route](/api-reference/starknet/endpoint/route) - Find single swap route
+- [Execute](/api-reference/starknet/endpoint/execute) - Execute swaps
+- [Calldata](/api-reference/starknet/endpoint/calldata) - Generate transaction data

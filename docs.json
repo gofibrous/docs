@@ -1,0 +1,146 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Fibrous Documentation",
+  "colors": {
+    "primary": "#11B2BA",
+    "light": "#11B2BA",
+    "dark": "#11B2BA"
+  },
+  "favicon": "/logo/fibrous_logo.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "User Guides",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "essentials/inspiration-for-aggregator",
+              "essentials/faq"
+            ]
+          },
+          {
+            "group": "Fibrous Solutions",
+            "pages": [
+              {
+                "group": "Fibrous Interface",
+                "pages": [
+                  "fibrous-solutions/fibrous-interface-intro",
+                  "fibrous-solutions/fibrous-interface/connecting-wallet",
+                  "fibrous-solutions/fibrous-interface/swapping",
+                  "fibrous-solutions/fibrous-interface/price-impact",
+                  "fibrous-solutions/fibrous-interface/block-explorer",
+                  "fibrous-solutions/fibrous-interface/receiving-swaps",
+                  "fibrous-solutions/fibrous-interface/display-settings",
+                  "fibrous-solutions/fibrous-interface/custom-tokens"
+                ]
+              },
+              {
+                "group": "Advanced Features",
+                "pages": [
+                  "fibrous-solutions/fibrous-interface/batch-swap",
+                  "fibrous-solutions/fibrous-interface/arena"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integrate Best Trading",
+        "groups": [
+          {
+            "group": "Fibrous Router API",
+            "pages": [
+              "api-reference/introduction",
+              {
+                "group": "Base",
+                "pages": [
+                  "api-reference/base/endpoint/healthCheck",
+                  "api-reference/base/endpoint/route",
+                  "api-reference/base/endpoint/execute",
+                  "api-reference/base/endpoint/calldata",
+                  "api-reference/base/route-params",
+                  "api-reference/base/execute-params"
+                ]
+              },
+              {
+                "group": "Scroll",
+                "pages": [
+                  "api-reference/scroll/endpoint/healthCheck",
+                  "api-reference/scroll/endpoint/route",
+                  "api-reference/scroll/endpoint/execute",
+                  "api-reference/scroll/endpoint/calldata",
+                  "api-reference/scroll/route-params",
+                  "api-reference/scroll/execute-params"
+                ]
+              },
+              {
+                "group": "Starknet",
+                "pages": [
+                  "api-reference/starknet/endpoint/healthCheck",
+                  "api-reference/starknet/endpoint/route",
+                  "api-reference/starknet/endpoint/routeBatch",
+                  "api-reference/starknet/endpoint/execute",
+                  "api-reference/starknet/route-params",
+                  "api-reference/starknet/batch-route-params",
+                  "api-reference/starknet/execute-params"
+                ]
+              },
+              "api-reference/rate-limit"
+            ]
+          },
+          {
+            "group": "Fibrous SDK",
+            "pages": [
+              {
+                "group": "Integrate Fibrous SDK",
+                "pages": [
+                  "integrate-best-trading/fibrous-sdk/installation",
+                  "integrate-best-trading/fibrous-sdk/overview",
+                  "integrate-best-trading/fibrous-sdk/supported-tokens",
+                  "integrate-best-trading/fibrous-sdk/supported-protocols",
+                  "integrate-best-trading/fibrous-sdk/best-route",
+                  "integrate-best-trading/fibrous-sdk/execute-swap",
+                  "integrate-best-trading/fibrous-sdk/execute-batch-swap"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Fibrous Widget",
+            "pages": [
+              "fibrous-solutions/fibrous-widget"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/fibrous_logo.svg",
+    "dark": "/logo/fibrous_logo.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:contact@fibrous.finance"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Go to App",
+      "href": "https://app.fibrous.finance"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x-twitter": "https://x.com/fibrousfinance",
+      "github": "https://github.com/fibrous-finance",
+      "discord": "https://discord.gg/fibrous",
+      "youtube": "https://youtube.com/@fibrousfinance"
+    }
+  }
+}

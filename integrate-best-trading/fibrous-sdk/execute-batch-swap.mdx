@@ -1,0 +1,152 @@
+---
+title: 'Execute Batch Swap'
+description: 'Learn how to execute multiple token swaps in a single transaction using Fibrous Router SDK'
+---
+
+# Execute Batch Swap
+
+<Info>
+Slippage is an important concept in trading that can have a significant impact on your trading outcomes. It refers to the difference between the expected price of a trade and the actual price at which the trade is executed. Slippage can occur in various market conditions and for several reasons, and it's crucial for traders to be aware of its potential effects.
+
+Fibrous Finance uses slippage settings to prevent you from losing money; there is no need to increase your slippage when you spot an arbitrage opportunity.
+
+**Fibrous Finance is still in alpha version. Please make sure you have adjusted your slippage properly.**
+</Info>
+
+Generate transaction data for calling the Fibrous Finance Router contract to execute multiple swaps in a single transaction.
+
+## Basic Setup
+
+First, let's set up the router and get the token information:
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+import { BigNumber } from "@ethersproject/bignumber";
+import { parseUnits } from "ethers";
+
+const fibrous = new FibrousRouter();
+
+const tokens = await fibrous.supportedTokens("starknet");
+const tokenInAddress_1 = tokens["eth"].address;
+const tokenInAddress_2 = tokens["strk"].address;
+const tokenInAddress_3 = tokens["usdc"].address;
+
+const tokenOutAddress = tokens["usdt"].address;
+
+const tokenInDecimals_1 = tokens["eth"].decimals;
+const tokenInDecimals_2 = tokens["strk"].decimals;
+const tokenInDecimals_3 = tokens["usdc"].decimals;
+
+const inputAmounts = [
+    BigNumber.from(1n * 10n ** BigInt(tokenInDecimals_1 - 3)), // 0.001 ETH
+    BigNumber.from(10n * 10n ** BigInt(tokenInDecimals_2)), // 0.001 STRK
+    BigNumber.from(5n * 10n ** BigInt(tokenInDecimals_3)), // 5 USDC
+]; // 0.001 ETH
+```
+
+## Usage on Frontend
+
+Here's how to execute batch swaps using the Argent wallet on frontend:
+
+```typescript
+// Usage on your website
+const starknet = await connect({ showList: false })
+
+await starknet.enable()
+
+if (starknet.isConnected) {
+  // Call the buildTransaction method in order to build the transaction
+  // slippage: The maximum acceptable slippage of the buyAmount amount.
+  const slippage = 1; // 1%
+  const destination = starknet.selectedAddress; // The address to receive the tokens after
+
+  const tokenInAddresses = [tokenInAddress_1, tokenInAddress_2, tokenInAddress_3];
+  const tokenOutAddresses = [tokenOutAddress];
+  const swapCalls = await fibrous.buildBatchTransaction(
+    inputAmounts,
+    tokenInAddresses,
+    tokenOutAddresses,
+    slippage,
+    destination,
+    "starknet",
+  );
+
+  const approveCalls: Call[] = [];
+  for(let i = 0; i < inputAmounts.length; i++) {
+    const approveCall: Call = await fibrous.buildApproveStarknet(
+      inputAmounts[i],
+      tokenInAddresses[i],
+    );
+    approveCalls.push(approveCall);
+  }
+  await starknet.account.execute([...approveCall, ...swapCalls]);
+}
+```
+
+## Usage on Backend
+
+For backend implementations on Starknet:
+
+```typescript
+import { Account, Provider } from "starknet";
+import { Call } from "starknet";
+
+const provider = new Provider();
+const privateKey0 = "YOUR_PRIVATE_KEY";
+const accountAddress = "YOUR_WALLET_ADDRESS";
+// https://www.starknetjs.com/docs/guides/connect_account
+// If this account is based on a Cairo v2 contract (for example OpenZeppelin account 0.7.0)
+const RPC_URL = "RPC_URL";
+const account0 = account(privateKey, public_key, "1", RPC_URL);
+
+// Call the buildTransaction method in order to build the transaction
+// slippage: The maximum acceptable slippage of the buyAmount amount.
+const slippage = 1; // %1
+
+const swapCalls = await fibrous.buildBatchTransaction(
+  inputAmounts,
+  tokenInAddresses,
+  tokenOutAddresses,
+  slippage,
+  destination,
+  "starknet",
+);
+
+const approveCalls: Call[] = [];
+for(let i = 0; i < inputAmounts.length; i++) {
+  const approveCall: Call = await fibrous.buildApproveStarknet(
+    inputAmounts[i],
+    tokenInAddresses[i],
+  );
+  approveCalls.push(approveCall);
+}
+
+const resp = await account0.execute([...approveCalls, ...swapCalls]);
+console.log(`https://voyager.online/tx/${resp.transaction_hash}`);
+```
+
+The swap call returns a transaction object with the following structure:
+
+```typescript
+{
+  contractAddress:ROUTER_ADDRESS,
+  entrypoint: "swap",
+  calldata: calldata,
+}
+```
+
+## Important Notes
+
+1. All swaps in a batch must succeed for the transaction to be successful
+2. Make sure to have sufficient balance for all tokens being swapped
+3. Approve all tokens before executing the batch swap
+4. Consider gas costs for multiple swaps in a single transaction
+5. Monitor the transaction status for all swaps in the batch
+6. Handle errors appropriately for each swap in the batch
+
+## Related Topics
+
+- [Execute Swap](/integrate-best-trading/fibrous-sdk/execute-swap)
+- [Best Route](/integrate-best-trading/fibrous-sdk/best-route)
+- [Supported Tokens](/integrate-best-trading/fibrous-sdk/supported-tokens)
+
