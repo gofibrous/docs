@@ -1,0 +1,111 @@
+---
+title: "Base"
+description: "Base smart contracts"
+---
+
+### Functions
+
+```solidity
+    /**
+     * @dev  Performs a swap using the provided route and swap parameters.
+     * @param   route  The route parameters for the swap.
+     * @param   swap_parameters  The parameters for the swaps to perform.
+     * @return  The amount of the output token received.
+     */
+    function swap(RouteParam calldata route, SwapParams[] calldata swap_parameters)
+        external
+        payable
+        returns (uint256)
+```
+
+## Paramaters
+
+# RouteParam
+> @notice RouteParam is a struct that contains the parameters needed to execute a swap
+```solidity
+struct RouteParam {
+    address token_in;
+    address token_out;
+    uint256 amount_in;
+    uint256 amount_out;
+    uint256 min_received;
+    address destination;
+    SwapType swap_type;
+}
+```
+
+| name             | type            | description                               |
+| ---------------- | --------------- | ----------------------------------------- |
+| **token_in**     | address         | contract address of token to sell         |
+| **token_out**    | address         | contract address of token to buy          |
+| **amount_in**    | uint256         | amount of token to sell                   |
+| **amount_out**   | uint256         | amount of token to buy                    |
+| **min_received** | uint256         | minimum received amount of user get       |
+| **destination**  | address         | The receiver address for the output token |
+| **swap_type**  | enum(SwapType)         | Swap type  |
+
+#SwapType(Enum)
+> @notice SwapType is an enum that represents the type of swap
+
+```solidity
+enum SwapType {
+    ethToToken,
+    tokenToEth,
+    tokenToToken
+}
+```
+
+| name | value | description |
+| ---- | ---- | ----------- |
+| **ethToToken** | 0 | eth to token |
+| **tokenToEth** | 1 | token to eth |
+| **tokenToToken** | 2 | token to token |
+
+
+# SwapParams
+> @notice SwapParams is a struct that contains the parameters needed to execute a swap
+```solidity
+struct SwapParams {
+    address token_in;
+    address token_out;
+    uint32 rate;
+    int24 protocol_id;
+    address pool_address;
+    SwapType swap_type;
+    bytes extra_data;
+}
+```
+| name            | type            | description                              |
+| --------------- | --------------- | ---------------------------------------- |
+| **token_in**    | ContractAddress | contract address of token to sell        |
+| **token_out**   | ContractAddress | contract address of token to buy         |
+| **rate**        | uint32             | rate \* 10\*\*4 gives 4 precision points |
+| **protocol_id** | int24             | procotol id                              |
+| **pool_address**  | address         | pool contract address                  |
+| **swap_type**  | enum(SwapType)         | Swap type  |
+| **extra_data**  | bytes         | extra data from route                     |
+
+
+## Events
+
+# Swap
+
+```solidity
+event Swap(
+    address sender,
+    uint256 amount_in,
+    uint256 amount_out,
+    address token_in,
+    address token_out,
+    address destination
+  )
+```
+
+| name           | type            | description                               |
+| -------------- | --------------- | ----------------------------------------- |
+| **sender**     | address         | address that execute the swap             |
+| **token_in**   | address         | contract address of token to sold         |
+| **token_out**  | address         | contract address of token to bought       |
+| **amount_in**  | uint256            | amount of token to sold                   |
+| **amount_out** | uint256            | amount of token to bought                 |
+| **destination**         | address         | The receiver address for the output token |

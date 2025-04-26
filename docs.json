@@ -109,6 +109,20 @@
             ]
           },
           {
+            "group": "Fibrous Smart Contracts",
+            "pages": [
+              {
+                "group": "Smart Contracts",
+                "pages": [
+                  "integrate-best-trading/fibrous-smart-contracts/starknet",
+                  "integrate-best-trading/fibrous-smart-contracts/scroll",
+                  "integrate-best-trading/fibrous-smart-contracts/base",
+                  "integrate-best-trading/fibrous-smart-contracts/deployed-contracts"
+                ]
+              }
+            ]
+          },
+          {
             "group": "Fibrous Widget",
             "pages": [
               "fibrous-solutions/fibrous-widget"
