@@ -1,6 +1,6 @@
 ---
 title: "Starknet"
-description: "Starknet smart contracts"
+description: "Starknet Smart Contracts"
 ---
 
 ### Functions
@@ -11,13 +11,12 @@ description: "Starknet smart contracts"
 #[constructor]
 fn constructor(ref self: ContractState, _owner: ContractAddress)
 ```
+
 ## Paramaters
 
-| name                                  |      type          |         Description      |
-| ------------------------------------- | ----------------- | ------------------------ |
-| _owner                                | ContractAddress    | The owner of the router contract |
-
-
+| name    | type            | Description                      |
+| ------- | --------------- | -------------------------------- |
+| \_owner | ContractAddress | The owner of the router contract |
 
 ## swap
 
@@ -29,27 +28,28 @@ fn constructor(ref self: ContractState, _owner: ContractAddress)
 ## Paramaters
 
 # RouteParam
+
 > @notice RouteParam is a struct that contains the parameters needed to execute a swap
 
-| name | type | description |
-| ---- | ---- | ----------- |
-| **token_in** | ContractAddress | contract address of token to sell |
-| **token_out** | ContractAddress | contract address of token to buy |
-| **amount_in** | u256 | amount of token to sell |
-| **min_received** | u256 | minimum received amount of user get |
-| **destination** | ContractAddress | The receiver address for the output token |
-
+| name             | type            | description                               |
+| ---------------- | --------------- | ----------------------------------------- |
+| **token_in**     | ContractAddress | contract address of token to sell         |
+| **token_out**    | ContractAddress | contract address of token to buy          |
+| **amount_in**    | u256            | amount of token to sell                   |
+| **min_received** | u256            | minimum received amount of user get       |
+| **destination**  | ContractAddress | The receiver address for the output token |
 
 # SwapParams
+
 > @notice SwapParams is a struct that contains the parameters needed to execute a swap
 
-| name | type | description |
-| ---- | ---- | ----------- |
-| **token_in** | ContractAddress | contract address of token to sell |
-| **token_out** | ContractAddress | contract address of token to buy |
-| **rate** | u32 | rate * 10**4 gives 4 precision points |
-| **protocol_id** | u32 | procotol id |
-| **extra_data** | Array(felt252) | extra data fro route |
+| name            | type            | description                              |
+| --------------- | --------------- | ---------------------------------------- |
+| **token_in**    | ContractAddress | contract address of token to sell        |
+| **token_out**   | ContractAddress | contract address of token to buy         |
+| **rate**        | u32             | rate \* 10\*\*4 gives 4 precision points |
+| **protocol_id** | u32             | procotol id                              |
+| **extra_data**  | Array(felt252)  | extra data fro route                     |
 
 ## Events
 
@@ -67,15 +67,11 @@ struct Swap {
 }
 ```
 
-
-| name              | type            | description |
-| ----------------- | --------------- | ----------- |
-| **sender**        | ContractAddress | address that execute the swap |
-| **token_in**      | ContractAddress | contract address of token to sold |
-| **token_out**     | ContractAddress | contract address of token to bought |
-| **amount_in**     | u256            | amount of token to sold |
-| **amount_out**    | u256            | amount of token to bought |
-| **to**            | ContractAddress | The receiver address for the output token |
-
-
-
+| name           | type            | description                               |
+| -------------- | --------------- | ----------------------------------------- |
+| **sender**     | ContractAddress | address that execute the swap             |
+| **token_in**   | ContractAddress | contract address of token to sold         |
+| **token_out**  | ContractAddress | contract address of token to bought       |
+| **amount_in**  | u256            | amount of token to sold                   |
+| **amount_out** | u256            | amount of token to bought                 |
+| **to**         | ContractAddress | The receiver address for the output token |
