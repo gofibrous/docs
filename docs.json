@@ -44,55 +44,6 @@
                 ]
               }
             ]
-          },
-          {
-            "group": "External Links",
-            "pages": [
-              {
-                "title": "Fibrous App",
-                "url": "https://app.fibrous.finance/en",
-                "icon": "app"
-              },
-              {
-                "title": "GitHub",
-                "url": "https://github.com/Fibrous-Finance",
-                "icon": "github"
-              },
-              {
-                "title": "Blog",
-                "url": "https://fibrous.finance/blog",
-                "icon": "book"
-              },
-              {
-                "title": "Status",
-                "url": "https://fibroustatus.com/",
-                "icon": "status"
-              },
-              {
-                "title": "Twitter",
-                "url": "https://x.com/FibrousFinance",
-                "icon": "twitter"
-              },
-              {
-                "title": "Discord",
-                "url": "https://discord.com/invite/fibrous",
-                "icon": "discord"
-              },
-              {
-                "title": "Farcaster",
-                "url": "https://warpcast.com/fibrousfinance",
-                "icon": "farcaster"
-              },
-              {
-                "title": "YouTube",
-                "url": "https://www.youtube.com/@fibrousfinance",
-                "icon": "youtube"
-              },
-              {
-                "title": "Brand Assets",
-                "url": "https://fibrous.finance/brand-assets"
-              }
-            ]
           }
         ]
       },
