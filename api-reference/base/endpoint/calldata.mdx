@@ -1,7 +1,7 @@
 ---
 title: 'Calldata'
-description: 'Generate calldata for the Fibrous Finance router contract for swap'
-api: 'POST /base/calldata'
+description: 'Get calldata for executing a swap through Fibrous Finance'
+api: 'GET /base/calldata'
 ---
 
 https://api.fibrous.finance/base
@@ -179,7 +179,11 @@ axios.post('https://api.fibrous.finance/base/calldata', data)
 ```json Response
 {
   "success": true,
-  "calldata": "0x7c025200000000000000000000000000..."
+  "data": {
+    "to": "0x1234...",
+    "data": "0x...",
+    "value": "0"
+  }
 }
 ```
 </ResponseExample>

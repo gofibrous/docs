@@ -158,29 +158,3 @@ axios.get('https://api.fibrous.finance/scroll/route', { params })
 ```
 </ResponseExample>
 
-## Error Responses
-
-### Invalid Token Address
-
-```json
-{
-  "success": false,
-  "error": "Invalid token address",
-  "details": "The provided token address is not valid or not supported"
-}
-```
-
-### Insufficient Liquidity
-
-```json
-{
-  "success": false,
-  "error": "Insufficient liquidity",
-  "details": "Not enough liquidity for the requested swap amount"
-}
-```
-
-## Related Endpoints
-
-- [Execute](/api-reference/scroll/endpoint/execute) - Execute the swap
-- [Calldata](/api-reference/scroll/endpoint/calldata) - Get raw transaction data

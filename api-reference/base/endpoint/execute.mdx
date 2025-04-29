@@ -1,7 +1,7 @@
 ---
 title: 'Execute'
-description: 'Execute a swap using the optimal route found through Fibrous Finance'
-api: 'POST /base/execute'
+description: 'Execute a swap through Fibrous Finance liquidity pools'
+api: 'GET /base/execute'
 ---
 
 https://api.fibrous.finance/base
@@ -221,19 +221,10 @@ axios.post('https://api.fibrous.finance/base/execute', data)
 ```json Response
 {
   "success": true,
-  "transactionHash": "0x123...abc",
-  "route": {
-    "protocol": "uniswap",
-    "path": [
-      "0x4200000000000000000000000000000000000006",
-      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    ],
-    "pools": ["0x..."]
-  },
-  "execution": {
-    "gasUsed": "150000",
-    "effectiveGasPrice": "1500000000",
-    "blockNumber": 123456
+  "data": {
+    "to": "0x1234...",
+    "data": "0x...",
+    "value": "0"
   }
 }
 ```
