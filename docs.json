@@ -44,6 +44,20 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "External Links",
+            "pages": [
+              "external-links/app",
+              "external-links/github",
+              "external-links/blog",
+              "external-links/status",
+              "external-links/twitter",
+              "external-links/discord",
+              "external-links/farcaster",
+              "external-links/youtube",
+              "external-links/brand-assets"
+            ]
           }
         ]
       },
