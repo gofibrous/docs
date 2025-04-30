@@ -147,8 +147,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/fibrous_logo.svg",
-    "dark": "/logo/fibrous_logo.svg"
+    "light": "/logo/dark-wordmark-symbol.svg",
+    "dark": "/logo/light-wordmark-symbol.svg"
   },
   "navbar": {
     "links": [
