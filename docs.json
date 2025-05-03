@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Fibrous Documentation",
   "colors": {
-    "primary": "11B2BA",
-    "light": "11B2BA",
-    "dark": "11B2BA"
+    "primary": "#11B2BA",
+    "light": "#11B2BA",
+    "dark": "#11B2BA"
   },
   "favicon": "/logo/default-circle-symbol.svg",
   "navigation": {
