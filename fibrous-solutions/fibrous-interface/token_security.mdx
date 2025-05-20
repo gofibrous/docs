@@ -1,0 +1,91 @@
+---
+title: "Token Security Scoring System"
+description: "Assess token security risks on Fibrous using the GoPlus Token Security API."
+---
+
+## Overview
+
+At Fibrous, we prioritize providing users with the best trading execution rates while ensuring robust detection of security risks associated with tokens. To achieve this, we have integrated the [**GoPlus Token Security API**](https://gopluslabs.io/token-security) into our interface. This integration enables us to deliver a transparent and user-friendly security risk assessment for tokens. The dedicated page outlines our token security scoring system, as implemented in [Fibrous](https://app.fibrous.finance/), detailing the risk categories, scoring methodology, and security levels.
+
+## Risk Categories and Scoring
+
+### Critical Risks (100 Points)
+
+The following parameters indicate severe security concerns, each contributing **100 points** to the token's risk score, marking them as **CRITICAL** risks.
+
+| Parameter                   | Score | Risk Level |
+| --------------------------- | ----- | ---------- |
+| `is_open_source` (value: 0) | \+100 | CRITICAL   |
+| `is_honeypot`               | \+100 | CRITICAL   |
+| `hidden_owner`              | \+100 | CRITICAL   |
+| `external_call`             | \+100 | CRITICAL   |
+| `can_take_back_ownership`   | \+100 | CRITICAL   |
+| `owner_change_balance`      | \+100 | CRITICAL   |
+| `selfdestruct`              | \+100 | CRITICAL   |
+| `cannot_buy`                | \+100 | CRITICAL   |
+| `cannot_sell_all`           | \+100 | CRITICAL   |
+| `transfer_pausable`         | \+100 | CRITICAL   |
+| `is_blacklisted`            | \+100 | CRITICAL   |
+| `gas_abuse`                 | \+100 | CRITICAL   |
+| `is_airdrop_scam`           | \+100 | CRITICAL   |
+| `fake_token`                | \+100 | CRITICAL   |
+| `buy_tax` (100%)            | \+100 | CRITICAL   |
+| `sell_tax` (100%)           | \+100 | CRITICAL   |
+| `transfer_tax` (100%)       | \+100 | CRITICAL   |
+
+### High, Medium, and Low-Level Risks
+
+These parameters contribute to the risk score based on their severity, ranging from **HIGH** to **LOW** risk levels.
+
+| Parameter                      | Score Contribution | Detailed Risk Level |
+| ------------------------------ | ------------------ | ------------------- |
+| `honeypot_with_same_creator`   | \+50               | HIGH                |
+| `buy_tax` (\>15%)              | \+50               | HIGH                |
+| `buy_tax` (\>5% and ≤15%)      | \+30               | MEDIUM              |
+| `buy_tax` (\>0% and ≤5%)       | \+10               | LOW                 |
+| `sell_tax` (\>15%)             | \+50               | HIGH                |
+| `sell_tax` (\>5% and ≤15%)     | \+30               | MEDIUM              |
+| `sell_tax` (\>0% and ≤5%)      | \+10               | LOW                 |
+| `transfer_tax` (\>15%)         | \+50               | HIGH                |
+| `transfer_tax` (\>5% and ≤15%) | \+30               | MEDIUM              |
+| `transfer_tax` (\>0% and ≤5%)  | \+10               | LOW                 |
+| `slippage_modifiable`          | \+30               | MEDIUM              |
+| `personal_slippage_modifiable` | \+30               | MEDIUM              |
+| `is_whitelisted`               | \+20               | MEDIUM              |
+| `trading_cooldown`             | \+15               | MEDIUM              |
+
+### Governance Risks and Long-Term Factors
+
+These parameters reflect governance-related risks or factors that may impact the token's security over time.
+
+| Parameter               | Score | Risk Level |
+| ----------------------- | ----- | ---------- |
+| `is_mintable`           | \+20  | MEDIUM     |
+| `anti_whale_modifiable` | \+10  | LOW        |
+| `other_potential_risks` | \+15  | MEDIUM     |
+
+### Risk Mitigating / Trust-Enhancing Factors
+
+Certain parameters reduce the risk score, indicating positive attributes that enhance the token's security.
+
+| Parameter                                              | Score | Risk Level |
+| ------------------------------------------------------ | ----- | ---------- |
+| `is_anti_whale` (non-modifiable)                       | -10   | POSITIVE   |
+| `contract_renounced` (owner_address is a burn address) | -50   | POSITIVE   |
+| `trust_list`                                           | -30   | POSITIVE   |
+| `is_in_cex`                                            | -20   | POSITIVE   |
+| `launchpad_token`                                      | -25   | POSITIVE   |
+
+## Security Levels and Scoring
+
+Based on the total risk score, tokens are classified into one of the following security levels, each accompanied by an icon for user interface representation.
+
+| Total Score | Level Code        | Icon                                                                                             | Description                                                                                                        |
+| ----------- | ----------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| \< 0        | **SECURE**        |                                                                                                  | The safest level; occurs when risk-mitigating factors result in a negative score, displayed in the user interface. |
+| 0–19        | **LOW_RISK**      | <img   src="icons/LowRiskIcon.svg"   alt="Low Risk Icon"   width="24"   height="24" />           | Relatively safe tokens with minimal risk.                                                                          |
+| 20–49       | **MEDIUM_RISK**   | <img   src="icons/MediumRiskIcon.svg"   alt="Medium Risk Icon"   width="24"   height="24" />     | Moderately risky tokens requiring caution.                                                                         |
+| 50–99       | **HIGH_RISK**     | <img   src="icons/HighRiskIcon.svg"   alt="High Risk Icon"   width="24"   height="24" />         | High-risk tokens with significant security concerns.                                                               |
+| 100\+       | **CRITICAL_RISK** | <img   src="icons/CriticalRiskIcon.svg"   alt="Critical Risk Icon"   width="24"   height="24" /> | The highest risk level, indicating critical security issue                                                         |
+
+For more details and explanations, users can refer to the GoPlus Labs documentation at https://docs.gopluslabs.io/reference/response-details.
