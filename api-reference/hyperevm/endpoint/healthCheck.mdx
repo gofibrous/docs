@@ -1,26 +1,26 @@
 ---
 title: 'Health Check'
-description: 'Check the health status of the Fibrous Finance Starknet API'
+description: 'Check the health status of the Fibrous Finance API'
 ---
 
 ## Endpoint
 
 <CodeGroup>
 ```bash
-https://api.fibrous.finance/starknet/healthCheck
+https://api.fibrous.finance/hyperevm/healthCheck
 ```
 </CodeGroup>
 
-Verify if the Fibrous Finance Starknet API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
+Verify if the Fibrous Finance API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
 
 ## Response
 
-<ResponseField name="staus" type="number">
-  The HTTP status code. Will be 200 if the service is healthy.
+<ResponseField name="status" type="string">
+  The health status of the API. Will be "ok" if the service is healthy.
 </ResponseField>
 
-<ResponseField name="message" type="string">
-  A descriptive message about the API status.
+<ResponseField name="version" type="string">
+  The current version of the API.
 </ResponseField>
 
 ## Error Responses
@@ -29,13 +29,13 @@ If the service is unhealthy or experiencing issues, the endpoint will return a n
 
 <RequestExample>
 ```bash cURL
-curl -X GET "https://api.fibrous.finance/starknet/healthCheck"
+curl -X GET "https://api.fibrous.finance/hyperevm/healthCheck"
 ```
 
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/starknet/healthCheck"
+url = "https://api.fibrous.finance/hyperevm/healthCheck"
 response = requests.get(url)
 print(response.json())
 ```
@@ -43,7 +43,7 @@ print(response.json())
 ```javascript JavaScript
 const axios = require('axios');
 
-axios.get('https://api.fibrous.finance/starknet/healthCheck')
+axios.get('https://api.fibrous.finance/hyperevm/healthCheck')
   .then(response => console.log(response.data))
   .catch(error => console.error(error));
 ```
@@ -52,8 +52,9 @@ axios.get('https://api.fibrous.finance/starknet/healthCheck')
 <ResponseExample>
 ```json Response
 {
-  "staus": 200,
-  "message": "{Starknet} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\""
+  "success": true,
+  "status": "healthy",
+  "timestamp": "2024-01-20T12:34:56.789Z"
 }
 ```
 </ResponseExample>
@@ -72,6 +73,5 @@ The health check endpoint has a higher rate limit than other endpoints. Please r
 
 ## Related Endpoints
 
-- [Route](/api-reference/starknet/endpoint/route) - Find optimal swap routes
-- [Calldata](/api-reference/starknet/endpoint/calldata) - Generate transaction data
-
+- [Route](/api-reference/base/endpoint/route) - Find optimal swap routes
+- [Calldata](/api-reference/base/endpoint/calldata) - Generate transaction data

@@ -1,0 +1,35 @@
+---
+title: 'Route Parameters'
+description: 'Parameters for finding optimal routes through Fibrous Finance'
+---
+
+https://api.fibrous.finance/hyperevm
+
+## Request Parameters
+
+| Parameter name | Type | Description |
+|---------------|------|-------------|
+| amount * | string | amount of a token to sell, for 1 ETH set as `1000000000000000000` |
+| tokenInAddress * | string | contract address of a token to sell e.g.: `0x4200000000000000000000000000000000000006` |
+| tokenOutAddress * | string | contract address of a token to buy e.g.: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| reverse | boolean | Default `false`. It's not supported yet. |
+| direct | boolean | Default `false`. If it's true direct route |
+| excludeProtocols | [string] | The protocol ID |
+
+### Additional Information
+
+`excludeProtocols`: This is where you list the IDs of the AMMs you don't want to include. For example, if there are certain AMMs you prefer not to use due to high fees or other reasons, you simply put their unique IDs in this list.
+
+`supportPairs`: This function returns a list of supported AMMs, along with the AMM IDs.
+
+## Description of response parameters
+
+| Parameter name | Type | Description |
+|---------------|------|-------------|
+| success | boolean | It is a boolean value that serves as a status indicator for the API call. |
+| inputToken | Token | details of a token to sell |
+| inputAmount | string | details of a token to buy |
+| outputToken | Token | details of a token to buy |
+| route | [Route] | the best route for the swap |
+| time | number | execute time |
+| bestQuotesByProtocols | [string] | quotes from supported AMMs | 

@@ -97,7 +97,7 @@
             }
         },
         "/scroll/execute": {
-            "get": {
+            "post": {
                 "operationId": "RouterController_execute",
                 "summary": "Generate calldata for the Fibrous Finance router contract for swap",
                 "description": "Like a financial GPS on steroids - finds the magical money path through DeFi jungle, squeezes every penny out of your swap, and hands you the secret incantation (calldata) to summon the Fibrous Router contract. No wizardry degree required!\n     **TLDR: Find the best route and return the calldata to execute the swap**",
@@ -225,7 +225,12 @@
             "description": ""
         }
     ],
-    "servers": [],
+    "servers": [
+        {
+            "url": "https://api.fibrous.finance",
+            "description": "Production server"
+        }
+    ],
     "components": {
         "schemas": {
             "RouteDto": {

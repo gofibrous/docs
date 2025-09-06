@@ -1,4 +1,12 @@
 ---
 title: 'Execute'
-openapi: 'GET /starknet/execute'
+description: 'Execute a swap using the optimal route found through Fibrous Finance on Starknet'
 ---
+
+<CodeGroup>
+```bash
+https://api.fibrous.finance/starknet/execute
+```
+</CodeGroup>
+
+Execute a token swap using the optimal route previously found through the route endpoint. This endpoint handles the actual transaction execution and ensures the swap is performed with the best possible outcome on Starknet.

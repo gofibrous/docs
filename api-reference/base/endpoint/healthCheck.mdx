@@ -1,21 +1,26 @@
 ---
 title: 'Health Check'
-description: 'Check the health status of the Fibrous Finance API'
-api: 'GET /base/health'
+description: 'Check the health status of the Fibrous API'
 ---
 
-https://api.fibrous.finance/base
+## Endpoint
 
-Verify if the Fibrous Finance API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
+<CodeGroup>
+```bash
+https://api.fibrous.finance/base/healthCheck
+```
+</CodeGroup>
+
+Verify if the Fibrous API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
 
 ## Response
 
-<ResponseField name="status" type="string">
-  The health status of the API. Will be "ok" if the service is healthy.
+<ResponseField name="staus" type="number">
+  The HTTP status code. Will be 200 if the service is healthy.
 </ResponseField>
 
-<ResponseField name="version" type="string">
-  The current version of the API.
+<ResponseField name="message" type="string">
+  A descriptive message about the API status.
 </ResponseField>
 
 ## Error Responses
@@ -47,9 +52,8 @@ axios.get('https://api.fibrous.finance/base/healthCheck')
 <ResponseExample>
 ```json Response
 {
-  "success": true,
-  "status": "healthy",
-  "timestamp": "2024-01-20T12:34:56.789Z"
+  "staus": 200,
+  "message": "{Base} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\""
 }
 ```
 </ResponseExample>

@@ -1,0 +1,129 @@
+---
+title: 'Base API Reference'
+description: 'Find the magical money path through the DeFi jungle of Fibrous Finance'
+openapi: "api-reference/hyperevm/endpoint/swagger.yaml"
+---
+
+# Base API Reference
+
+Welcome to the Base API reference documentation. Our Base API provides endpoints for finding optimal trading routes and executing swaps on Base network.
+
+## Getting Started
+
+Before diving into specific endpoints, here are some important things to know:
+
+### Authentication
+No authentication is required for the API endpoints.
+
+### Base URL
+```bash
+https://api.fibrous.finance/hyperevm
+```
+
+### Rate Limiting
+Please refer to our [Rate Limit](/api-reference/rate-limit) documentation for details about rate limiting.
+
+## Quick Start Guide
+
+Here's a quick example of how to perform a swap using our API:
+
+1. First, get the optimal route:
+```bash
+# Get route for swapping 1 ETH to USDC
+curl -X GET "https://api.fibrous.finance/hyperevm/route \
+  ?amount=1000000000000000000 \
+  &tokenInAddress=0x4200000000000000000000000000000000000006 \
+  &tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+```
+
+2. Then, get the execution calldata:
+```bash
+# Get execution calldata with 0.5% slippage
+curl -X GET "https://api.fibrous.finance/hyperevm/execute \
+  ?amount=1000000000000000000 \
+  &tokenInAddress=0x4200000000000000000000000000000006 \
+  &tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 \
+  &slippage=0.5 \
+  &destination=YOUR_ADDRESS"
+```
+
+## Testing the API
+
+You can test the API directly in this documentation using the "Try it" button for each endpoint. Here are some common test cases:
+
+### Test Case 1: ETH → USDC Swap
+```javascript
+// Route Parameters
+{
+  "amount": "1000000000000000000", // 1 ETH
+  "tokenInAddress": "0x4200000000000000000000000000000000000006",
+  "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+}
+
+// Execute Parameters
+{
+  "amount": "1000000000000000000",
+  "tokenInAddress": "0x4200000000000000000000000000000000000006",
+  "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "slippage": 0.5,
+  "destination": "YOUR_ADDRESS"
+}
+```
+
+### Test Case 2: USDC → ETH Swap
+```javascript
+// Route Parameters
+{
+  "amount": "1000000", // 1 USDC (6 decimals)
+  "tokenInAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "tokenOutAddress": "0x4200000000000000000000000000000000000006"
+}
+
+// Execute Parameters
+{
+  "amount": "1000000",
+  "tokenInAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "tokenOutAddress": "0x4200000000000000000000000000000000000006",
+  "slippage": 0.5,
+  "destination": "YOUR_ADDRESS"
+}
+```
+
+## Common Token Addresses
+
+Here are some commonly used token addresses on Base:
+
+| Token | Address |
+|-------|---------|
+| ETH | 0x4200000000000000000000000000000000000006 |
+| USDC | 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 |
+| USDbC | 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA |
+| WETH | 0x4200000000000000000000000000000000000006 |
+| DAI | 0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb |
+
+## Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | Success - The request was successful |
+| 400  | Bad Request - Check your request parameters |
+| 429  | Too Many Requests - You've hit the rate limit |
+| 500  | Internal Server Error - Something went wrong on our end |
+
+## Best Practices
+
+1. **Slippage Protection**
+   - Always set a reasonable slippage value (0.1% - 1% for stable pairs)
+   - Use higher slippage for volatile pairs or low liquidity tokens
+
+2. **Gas Optimization**
+   - Use the `direct` parameter for simple swaps between major tokens
+   - Set `excludeProtocols` to skip specific protocols if needed
+
+3. **Error Handling**
+   - Always check the `success` field in responses
+   - Implement proper error handling in your code
+
+## API Endpoints
+
+Below you'll find detailed documentation for each endpoint, including parameters, responses, and examples. 

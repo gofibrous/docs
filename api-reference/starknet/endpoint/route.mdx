@@ -1,10 +1,13 @@
 ---
 title: 'Route'
 description: 'Find optimal route for a token swap through Fibrous Finance on Starknet'
-api: 'GET /starknet/route'
 ---
 
-https://api.fibrous.finance/starknet
+<CodeGroup>
+```bash
+https://api.fibrous.finance/starknet/route
+```
+</CodeGroup>
 
 Find the optimal trading route for a token swap through Fibrous Finance's liquidity pools on Starknet. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
 
@@ -142,37 +145,149 @@ axios.get('https://api.fibrous.finance/starknet/route', { params })
 ```json Response
 {
   "success": true,
+  "routeId": "b4a3c7ec-cc7a-4911-8271-3bbc0fd0f74c",
   "inputToken": {
-    "name": "Ethereum",
     "address": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "name": "Ether",
+    "symbol": "ETH",
     "decimals": 18,
-    "price": 1590.87
+    "base": true,
+    "native": true,
+    "price": "4334.93"
   },
+  "inputAmount": "1000000000000000000",
   "outputToken": {
-    "name": "USD Coin",
     "address": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+    "name": "Tether USD",
+    "symbol": "USDT",
     "decimals": 6,
-    "price": 0.999982
+    "base": true,
+    "native": false,
+    "price": "1"
   },
+  "outputAmount": "4294604326",
+  "time": 2.228,
+  "estimatedGasUsed": "452175251237519300",
+  "estimatedGasUsedInUsd": 0.054666630760995635,
   "route": [
     {
-      "percent": "100%",
+      "percent": "97%",
       "swaps": [
-        {
-          "protocol": 5,
-          "poolName": "JediSwap",
-          "poolAddress": "0x...",
-          "percent": "100%",
-          "extraData": {
-            "fee": 500
+        [
+          {
+            "protocol": 5,
+            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0xc25669ed8b70551736c7833dc0fde2d93d7829df3c0969aaadc642a36d4c98",
+            "poolName": "Ekubo",
+            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "74.00%",
+            "tick_spacing": 1000,
+            "fee": "0x20c49ba5e353f80000000000000000",
+            "liquidity": "18192943774893943",
+            "sqrt_price": "22339850386733508665161426074672526",
+            "pool_key": "0xc25669ed8b70551736c7833dc0fde2d93d7829df3c0969aaadc642a36d4c98",
+            "extraData": {
+              "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "protocol": 5,
+            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x0305a929dfbafeb094fe63430e7f14f9b43a86b29831e3f21088e345ee145d91",
+            "poolName": "Ekubo",
+            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "5.00%",
+            "tick_spacing": 5982,
+            "fee": "0xc49ba5e353f7d00000000000000000",
+            "liquidity": "2225131020847155",
+            "sqrt_price": "22340544698589647251040986459872528",
+            "pool_key": "0x0305a929dfbafeb094fe63430e7f14f9b43a86b29831e3f21088e345ee145d91",
+            "extraData": {
+              "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "protocol": 9,
+            "poolId": "9:0x05e03162008d76cf645fe53c6c13a7a5fce745e8991c6ffe94400d60e44c210a:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "poolName": "NostraStable",
+            "poolAddress": "0x05e03162008d76cf645fe53c6c13a7a5fce745e8991c6ffe94400d60e44c210a",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "3.00%",
+            "fee": "5000000000000000",
+            "extraData": {
+              "rate_provider1": "0x05a1b2a3cdd0615a706239804e990af3f07b7fb9ba16cef11fac1552059912b9",
+              "rate_provider2": "0x04d94a9b86d12e61351865c0c1cf7ad8aaa02f45fc6dfddc54869b5de6705e87",
+              "amp_start": 25,
+              "amp_end": 100,
+              "rate1": "4303769280270000000000",
+              "rate2": "1000000000000000000000000000000"
+            }
+          },
+          {
+            "protocol": 2,
+            "poolId": "2:0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "poolName": "JediSwap",
+            "poolAddress": "0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "10.00%",
+            "fee": "0.3",
+            "extraData": {}
+          },
+          {
+            "protocol": 9,
+            "poolId": "9:0x05ef8800d242c5d5e218605d6a10e81449529d4144185f95bf4b8fb669424516:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "poolName": "NostraV2",
+            "poolAddress": "0x05ef8800d242c5d5e218605d6a10e81449529d4144185f95bf4b8fb669424516",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "1.00%",
+            "fee": "0xa",
+            "extraData": {}
+          },
+          {
+            "protocol": 6,
+            "poolId": "6:0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x071273c5c5780b4be42d9e6567b1b1a6934f43ab8abaf975c0c3da219fc4d040",
+            "poolName": "MyswapCL",
+            "poolAddress": "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "6.00%",
+            "tick_spacing": 10,
+            "fee": "0x1f4",
+            "liquidity": "1836583108654633",
+            "sqrt_price": "5199069779344232716823037",
+            "pool_key": "0x071273c5c5780b4be42d9e6567b1b1a6934f43ab8abaf975c0c3da219fc4d040",
+            "extraData": {}
+          },
+          {
+            "protocol": 6,
+            "poolId": "6:0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x018040da4516869bb63f1578b81bf2a7336977b08fb2941de556ca8726913129",
+            "poolName": "MyswapCL",
+            "poolAddress": "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "percent": "1.00%",
+            "tick_spacing": 60,
+            "fee": "0xbb8",
+            "liquidity": "179539876650193",
+            "sqrt_price": "5205773804419241142396309",
+            "pool_key": "0x018040da4516869bb63f1578b81bf2a7336977b08fb2941de556ca8726913129",
+            "extraData": {}
           }
-        }
+        ]
       ]
     }
   ],
-  "time": 0.8,
-  "estimatedGasUsed": "250000",
-  "estimatedGasUsedInUsd": 0.001
+  "bestQuotesByProtocols": [
+    {"name": "", "quote": "", "quoteGasAdjusted": ""},
+    {"name": "", "quote": "", "quoteGasAdjusted": ""},
+    {"name": "", "quote": "", "quoteGasAdjusted": ""}
+  ],
+  "initial": false
 }
 ```
 </ResponseExample>

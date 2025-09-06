@@ -7,7 +7,7 @@ description: 'Find the optimal trading route through Fibrous Finance liquidity p
 
 <CodeGroup>
 ```bash
-https://api.fibrous.finance/base/route
+https://api.fibrous.finance/hyperevm/route
 ```
 </CodeGroup>
 
@@ -123,14 +123,14 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 <RequestExample>
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/base/route?amount=1000000000000000000&tokenInAddress=0x4200000000000000000000000000000000000006&tokenOutAddress=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" \
+  "https://api.fibrous.finance/hyperevm/route?amount=1000000000000000000&tokenInAddress=0x4200000000000000000000000000000000000006&tokenOutAddress=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" \
   --header "Accept: */*"
 ```
 
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/base/route"
+url = "https://api.fibrous.finance/hyperevm/route"
 
 params = {
     "amount": "1000000000000000000",  # 1 ETH
@@ -151,7 +151,7 @@ const params = {
   tokenOutAddress: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
 };
 
-axios.get('https://api.fibrous.finance/base/route', { params })
+axios.get('https://api.fibrous.finance/hyperevm/route', { params })
   .then(response => console.log(response.data))
   .catch(error => console.error(error));
 ```
@@ -166,41 +166,51 @@ axios.get('https://api.fibrous.finance/base/route', { params })
     "name": "Wrapped Ether",
     "address": "0x4200000000000000000000000000000000000006",
     "decimals": 18,
-    "price": 4337.55
+    "price": 1590.87
   },
   "inputAmount": "1000000000000000000",
   "outputToken": {
     "name": "USD Coin",
     "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     "decimals": 6,
-    "price": 0.999796
+    "price": 0.999982
   },
-  "outputAmount": "4303439184",
+  "outputAmount": "1596313860",
+  "time": 1.1,
+  "estimatedGasUsed": "212280540264",
+  "estimatedGasUsedInUsd": 0.0013627561562787743,
   "route": [
     {
-      "percent": "100%",
+      "percent": "89%",
       "swaps": [
         [
           {
-            "protocol": 9,
-            "poolName": "PancakeSwap V3",
-            "poolAddress": "0x72ab388e2e2f6facef59e3c3fa2c4e29011c2d38",
-            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+            "protocol": 5,
+            "poolName": "Uniswap V3",
+            "poolAddress": "0xd0b53d9277642d899df5c87a3966a349a798f224",
+            "fromTokenAddress": "0x4200000000000000000000000000000006",
             "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-            "percent": "100%",
+            "percent": "48.31%",
             "extraData": {
-              "fee": 100
+              "fee": 500
+            }
+          },
+          {
+            "protocol": 7,
+            "poolName": "SushiSwap V3",
+            "poolAddress": "0x57713f7716e0b0f65ec116912f834e49805480d2",
+            "fromTokenAddress": "0x4200000000000000000000000000000006",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "34.83%",
+            "extraData": {
+              "fee": 500
             }
           }
         ]
       ]
     }
   ],
-  "estimatedGasUsed": "347407383168",
-  "estimatedGasUsedInUsd": 0.0031034457390210508,
-  "bestQuotesByProtocols": [],
-  "time": 0.858,
-  "initial": true
+  "bestQuotesByProtocols": []
 }
 ```
 </ResponseExample>
