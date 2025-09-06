@@ -1,10 +1,13 @@
 ---
 title: 'Route'
 description: 'Find the optimal trading route through Fibrous Finance liquidity pools on Scroll'
-api: 'GET /scroll/route'
 ---
 
-https://api.fibrous.finance/scroll
+<CodeGroup>
+```bash
+https://api.fibrous.finance/scroll/route
+```
+</CodeGroup>
 
 Find the optimal trading route through Fibrous Finance's liquidity pools on Scroll to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
 
@@ -117,43 +120,104 @@ axios.get('https://api.fibrous.finance/scroll/route', { params })
   "success": true,
   "routeSwapType": 2,
   "inputToken": {
-    "name": "Wrapped Ether",
     "address": "0x5300000000000000000000000000000000000004",
-    "decimals": 18,
-    "price": 1590.87
+    "name": "Wrapped Ether",
+    "symbol": "WETH",
+    "decimals": "18",
+    "price": "4337.31",
+    "base": true,
+    "native": true,
+    "image_url": "https://coin-images.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "verified": true,
+    "category": null,
+    "ticker": "weth"
   },
   "inputAmount": "1000000000000000000",
   "outputToken": {
+    "address": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
     "name": "USD Coin",
-    "address": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550",
+    "symbol": "USDC",
     "decimals": 6,
-    "price": 0.999982
+    "base": true,
+    "native": false
   },
-  "outputAmount": "1596313860",
-  "time": 1.1,
-  "estimatedGasUsed": "212280540264",
-  "estimatedGasUsedInUsd": 0.0013627561562787743,
+  "outputAmount": "4263279730",
+  "time": 0.372,
+  "estimatedGasUsed": "69993657648",
+  "estimatedGasUsedInUsd": 0.0012143367650129875,
   "route": [
     {
-      "percent": "100%",
+      "percent": "90%",
       "swaps": [
         [
           {
-            "protocol": 5,
-            "poolName": "Uniswap V3",
-            "poolAddress": "0xd0b53d9277642d899df5c87a3966a349a798f224",
+            "protocol": 1,
+            "poolId": "1:0x814a23b053fd0f102aeeda0459215c2444799c70:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolName": "SyncSwap Classic",
             "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550",
-            "percent": "100%",
-            "extraData": {
-              "fee": 500
-            }
+            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "percent": "60.00%"
+          },
+          {
+            "protocol": 5,
+            "poolId": "5:0x6905c59be1a7ea32d1f257e302401ec9a1401c52:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolName": "SpaceFi",
+            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
+            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "percent": "6.67%"
+          },
+          {
+            "protocol": 8,
+            "poolId": "8:0xe64ae4128e725868e8fe52e771e3d272e787b041:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolName": "Sushi CL",
+            "poolAddress": "0xe64ae4128e725868e8fe52e771e3d272e787b041",
+            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
+            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "percent": "11.11%"
+          },
+          {
+            "protocol": 12,
+            "poolId": "12:0x118a84e97620829a6a9666d41acc9e91edf32bd6:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolName": "Zebra CL",
+            "poolAddress": "0x118a84e97620829a6a9666d41acc9e91edf32bd6",
+            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
+            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "percent": "7.78%"
+          },
+          {
+            "protocol": 15,
+            "poolId": "15:0xe0da810f07da1eace7f044afd081f8583dbe9cd3:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolName": "Nuri CL",
+            "poolAddress": "0xe0da810f07da1eace7f044afd081f8583dbe9cd3",
+            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
+            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "percent": "14.44%"
           }
         ]
       ]
     }
   ],
-  "bestQuotesByProtocols": []
+  "bestQuotesByProtocols": [
+    {"name": "Syncswap", "quote": "4235.89419"},
+    {"name": "Skydrome", "quote": "0"},
+    {"name": "Zebra V2", "quote": "1183.484632"},
+    {"name": "Metavault V2", "quote": "79.29063"},
+    {"name": "Space Fi V2", "quote": "3821.560667"},
+    {"name": "Sushi V2", "quote": "2402.596173"},
+    {"name": "Dodo", "quote": "487.734193"},
+    {"name": "Nuri V2", "quote": "102.106455"},
+    {"name": "KyberSwap Classic", "quote": "880.711712"},
+    {"name": "Tokan V2", "quote": "1354.639786"},
+    {"name": "Zada Fi V2", "quote": "2160.433469"},
+    {"name": "Sushi CL", "quote": "4000.797454"},
+    {"name": "Okutrade", "quote": "3288.843421"},
+    {"name": "Izumi", "quote": "3315.196008"},
+    {"name": "Metavault CL", "quote": "152.458258"},
+    {"name": "Zebra CL", "quote": "3890.335024"},
+    {"name": "Keller", "quote": "73.835387"},
+    {"name": "Nuri CL", "quote": "4050.439619"}
+  ],
+  "initial": false
 }
 ```
 </ResponseExample>

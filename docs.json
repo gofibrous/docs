@@ -8,6 +8,9 @@
     "dark": "#11B2BA"
   },
   "favicon": "/logo/default-circle-symbol.svg",
+  "api": {
+    "baseUrl": "https://api.fibrous.finance"
+  },
   "navigation": {
     "tabs": [
       {
@@ -81,6 +84,17 @@
                 ]
               },
               {
+                "group": "HyperEVM",
+                "pages": [
+                  "api-reference/hyperevm/endpoint/healthCheck",
+                  "api-reference/hyperevm/endpoint/route",
+                  "api-reference/hyperevm/endpoint/execute",
+                  "api-reference/hyperevm/endpoint/calldata",
+                  "api-reference/hyperevm/route-params",
+                  "api-reference/hyperevm/execute-params"
+                ]
+              },
+              {
                 "group": "Scroll",
                 "pages": [
                   "api-reference/scroll/endpoint/healthCheck",
@@ -132,6 +146,7 @@
                   "integrate-best-trading/fibrous-smart-contracts/starknet",
                   "integrate-best-trading/fibrous-smart-contracts/scroll",
                   "integrate-best-trading/fibrous-smart-contracts/base",
+                  "integrate-best-trading/fibrous-smart-contracts/hyperevm",
                   "integrate-best-trading/fibrous-smart-contracts/deployed-contracts"
                 ]
               }

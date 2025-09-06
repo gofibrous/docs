@@ -1,33 +1,87 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Overview'
+description: 'Comprehensive guide to Fibrous API endpoints across all supported networks'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+Welcome to the Fibrous API documentation. Our API provides access to advanced DeFi routing and swapping capabilities across multiple blockchain networks.
 
-## Welcome
+## Supported Networks
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+<CardGroup cols={2}>
+  <Card
+    title="Base Network"
+    icon="zap"
+    href="/api-reference/base/endpoint/healthCheck"
+  >
+    Access Fibrous routing on Base network with ETH and USDC support
+  </Card>
+  <Card
+    title="Scroll Network"
+    icon="scroll"
+    href="/api-reference/scroll/endpoint/healthCheck"
+  >
+    Deploy on Scroll L2 with optimized gas fees and fast transactions
+  </Card>
+  <Card
+    title="Starknet Network"
+    icon="cubes"
+    href="/api-reference/starknet/endpoint/healthCheck"
+  >
+    Leverage Starknet's zk-rollup technology for efficient trading
+  </Card>
+  <Card
+    title="HyperEVM Network"
+    icon="rocket"
+    href="/api-reference/hyperevm/endpoint/healthCheck"
+  >
+    Experience next-generation EVM compatibility with HyperEVM
+  </Card>
+</CardGroup>
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Core Endpoints
+
+<CardGroup cols={2}>
+  <Card
+    title="Health Check"
+    icon="heart"
+    href="/api-reference/base/endpoint/healthCheck"
+  >
+    Monitor API status and ensure service availability
+  </Card>
+  <Card
+    title="Route Finding"
+    icon="route"
+    href="/api-reference/base/endpoint/route"
+  >
+    Find optimal trading paths across multiple DEX protocols
+  </Card>
+  <Card
+    title="Execute Swaps"
+    icon="exchange"
+    href="/api-reference/base/endpoint/execute"
+  >
+    Execute token swaps with the best possible rates
+  </Card>
+  <Card
+    title="Generate Calldata"
+    icon="code"
+    href="/api-reference/base/endpoint/calldata"
+  >
+    Get transaction data for direct smart contract interaction
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+1. **Choose your network** - Select from Base, Scroll, Starknet, or HyperEVM
+2. **Check API health** - Use the health check endpoint to verify connectivity
+3. **Find optimal routes** - Query the route endpoint for best trading paths
+4. **Execute transactions** - Use execute or calldata endpoints to complete swaps
+
+## Rate Limits
+
+All API endpoints are rate-limited to ensure fair usage. Please refer to our [rate limiting documentation](/api-reference/rate-limit) for specific details.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+Currently, no authentication is required for public API endpoints. All requests are processed without API keys.
