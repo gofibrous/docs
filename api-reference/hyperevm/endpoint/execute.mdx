@@ -1,6 +1,7 @@
 ---
 title: 'Execute'
-description: 'Execute a swap through Fibrous Finance liquidity pools'
+description: 'Execute a swap through Fibrous liquidity pools'
+api: 'POST /hyperevm/execute'
 ---
 
 ## Endpoint
@@ -15,65 +16,75 @@ Execute a token swap using the optimal route previously found through the route 
 
 ## Request Body Parameters
 
-<ParamField body="route" type="object" required>
-  The route object returned from the `/base/route` endpoint.
+<ParamField body="route" type="RouteResponse" required>
+  The route object returned from the `/hyperevm/route` endpoint.
   This contains all necessary information about the swap path and expected outcomes.
 </ParamField>
 
-<ParamField body="slippageTolerance" type="number" default="0.5">
+<ParamField body="slippage" type="number" default="0.5" required>
   Maximum acceptable slippage in percentage (0.1 to 100).
   Example: `0.5` for 0.5% slippage tolerance
 </ParamField>
 
-<ParamField body="deadline" type="number">
+<ParamField body="destination" type="string" required>
   Unix timestamp (in seconds) after which the transaction will revert.
   Defaults to 20 minutes from the current time if not specified.
 </ParamField>
 
-<ParamField body="recipient" type="string">
-  The address that will receive the output tokens.
-  If not specified, tokens will be sent to the transaction sender.
-</ParamField>
-
 ## Response
 
-<ResponseField name="success" type="boolean">
-  Indicates if the execution request was successful.
-</ResponseField>
-
-<ResponseField name="transactionHash" type="string">
-  The hash of the executed transaction.
-</ResponseField>
 
 <ResponseField name="route" type="object">
   The executed route details.
   <Expandable>
-    <ResponseField name="protocol" type="string">
-      The protocol used for the swap
-    </ResponseField>
-    <ResponseField name="path" type="array">
-      Array of token addresses in the swap path
-    </ResponseField>
-    <ResponseField name="pools" type="array">
-      Array of pool addresses used in the swap
-    </ResponseField>
+  <ResponseField name="amount_in" type="string">
+  The amount of input tokens in wei format.
+ </ResponseField>
+ <ResponseField name="amount_out" type="string">
+  The amount of output tokens in wei format.
+ </ResponseField>
+ <ResponseField name="min_received" type="string">
+  The minimum amount of output token.
+ </ResponseField>
+ <ResponseField name="destination" type="string">
+  The destination address for the swap.
+ </ResponseField>
+ <ResponseField name="swap_type" type="number">
+  The type of swap.
+ </ResponseField>
   </Expandable>
 </ResponseField>
 
-<ResponseField name="execution" type="object">
-  Execution details.
+<ResponseField name="swap_parameters" type="object[]">
+  Swap parameters for every hop in the route.
   <Expandable>
-    <ResponseField name="gasUsed" type="string">
-      Actual gas used by the transaction
-    </ResponseField>
-    <ResponseField name="effectiveGasPrice" type="string">
-      Gas price in wei
-    </ResponseField>
-    <ResponseField name="blockNumber" type="number">
-      Block number where the transaction was included
-    </ResponseField>
-  </Expandable>
+  <ResponseField name="token_in" type="string">
+  The token in address.
+ </ResponseField>
+ <ResponseField name="token_out" type="string">
+  The token out address.
+ </ResponseField>
+ <ResponseField name="rate" type="string">
+  The rate of the swap.
+ </ResponseField>
+ <ResponseField name="protocol_id" type="string">
+  The protocol id of the swap.
+ </ResponseField>
+ <ResponseField name="pool_address" type="string">
+  The pool address of the swap.
+ </ResponseField>
+ <ResponseField name="swap_type" type="number">
+  The type of swap.
+ </ResponseField>
+ <ResponseField name="extra_data" type="string">
+  The extra data of the swap.
+ </ResponseField>
+ </Expandable>
 </ResponseField>
+
+
+
+
 
 ## Error Responses
 
@@ -119,118 +130,294 @@ Execute a token swap using the optimal route previously found through the route 
 
 <RequestExample>
 ```bash cURL
-curl -X POST "https://api.fibrous.finance/hyperevm/execute" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "route": {
-      "inputToken": {
-        "address": "0x4200000000000000000000000000000000000006",
-        "symbol": "ETH",
-        "decimals": 18
-      },
-      "inputAmount": "1000000000000000000",
-      "outputToken": {
-        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "symbol": "USDC",
-        "decimals": 6
-      },
-      "outputAmount": "1650230000",
-      "route": [
-        {
-          "protocol": "uniswap",
-          "poolAddress": "0x...",
-          "tokenIn": "0x4200000000000000000000000000000000000006",
-          "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        }
-      ]
+curl --location 'https://api.fibrous.finance/hyperevm/execute' \
+--header 'Content-Type: application/json' \
+--data '{
+    "route":{
+    "success": true,
+    "routeSwapType": 0,
+    "inputToken": {
+        "name": "Wrapped HYPE",
+        "address": "0x5555555555555555555555555555555555555555",
+        "decimals": 18,
+        "price": "55.16"
     },
-    "slippageTolerance": 0.5,
-    "deadline": 1703980800
-  }'
+    "inputAmount": "10000000000000000000",
+    "outputToken": {
+        "name": "USD₮0",
+        "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+        "decimals": 6,
+        "price": "1.001"
+    },
+    "outputAmount": "551266196",
+    "time": 0.369,
+    "estimatedGasUsed": "44164800000000",
+    "estimatedGasUsedInUsd": 0.00487137744,
+    "route": [
+        {
+            "percent": "100%",
+            "swaps": [
+                [
+                    {
+                        "protocol": 13,
+                        "poolName": "hybraFinanceV3",
+                        "poolAddress": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+                        "fromTokenAddress": "0x5555555555555555555555555555555555555555",
+                        "toTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                        "percent": "100.00%",
+                        "extraData": {
+                            "fee": 25
+                        }
+                    }
+                ],
+                [
+                    {
+                        "protocol": 18,
+                        "poolName": "kittenSwapAlgebraV4",
+                        "poolAddress": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+                        "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                        "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                        "percent": "99.00%",
+                        "extraData": null
+                    },
+                    {
+                        "protocol": 15,
+                        "poolName": "gLiquidV3",
+                        "poolAddress": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+                        "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                        "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                        "percent": "1.00%",
+                        "extraData": null
+                    }
+                ]
+            ]
+        }
+    ],
+    "bestQuotesByProtocols": [],
+    "initial": false
+},
+"slippage":0.1,
+"destination":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+}'
 ```
 
 ```python Python
 import requests
 import json
 
-url = "https://api.fibrous.finance/hyperevm/execute"
+url = "localhost:8001/hyperevm/execute"
 
-data = {
-    "route": {
-        "inputToken": {
-            "address": "0x4200000000000000000000000000000000000006",
-            "symbol": "ETH",
-            "decimals": 18
-        },
-        "inputAmount": "1000000000000000000",
-        "outputToken": {
-            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            "symbol": "USDC",
-            "decimals": 6
-        },
-        "outputAmount": "1650230000",
-        "route": [
-            {
-                "protocol": "uniswap",
-                "poolAddress": "0x...",
-                "tokenIn": "0x4200000000000000000000000000000006",
-                "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-            }
-        ]
+payload = json.dumps({
+  "route": {
+    "success": True,
+    "routeSwapType": 0,
+    "inputToken": {
+      "name": "Wrapped HYPE",
+      "address": "0x5555555555555555555555555555555555555555",
+      "decimals": 18,
+      "price": "55.16"
     },
-    "slippageTolerance": 0.5,
-    "deadline": 1703980800
+    "inputAmount": "10000000000000000000",
+    "outputToken": {
+      "name": "USD₮0",
+      "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+      "decimals": 6,
+      "price": "1.001"
+    },
+    "outputAmount": "551266196",
+    "time": 0.369,
+    "estimatedGasUsed": "44164800000000",
+    "estimatedGasUsedInUsd": 0.00487137744,
+    "route": [
+      {
+        "percent": "100%",
+        "swaps": [
+          [
+            {
+              "protocol": 13,
+              "poolName": "hybraFinanceV3",
+              "poolAddress": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+              "fromTokenAddress": "0x5555555555555555555555555555555555555555",
+              "toTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "percent": "100.00%",
+              "extraData": {
+                "fee": 25
+              }
+            }
+          ],
+          [
+            {
+              "protocol": 18,
+              "poolName": "kittenSwapAlgebraV4",
+              "poolAddress": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+              "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+              "percent": "99.00%",
+              "extraData": None
+            },
+            {
+              "protocol": 15,
+              "poolName": "gLiquidV3",
+              "poolAddress": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+              "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+              "percent": "1.00%",
+              "extraData": None
+            }
+          ]
+        ]
+      }
+    ],
+    "bestQuotesByProtocols": [],
+    "initial": False
+  },
+  "slippage": 0.1,
+  "destination": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+})
+headers = {
+  'Content-Type': 'application/json'
 }
 
-response = requests.post(url, json=data)
-print(json.dumps(response.json(), indent=2))
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+
+
 ```
 
 ```javascript JavaScript
 const axios = require('axios');
-
-const data = {
-  route: {
-    inputToken: {
-      address: '0x4200000000000000000000000000000000000006',
-      symbol: 'ETH',
-      decimals: 18
+let data = JSON.stringify({
+  "route": {
+    "success": true,
+    "routeSwapType": 0,
+    "inputToken": {
+      "name": "Wrapped HYPE",
+      "address": "0x5555555555555555555555555555555555555555",
+      "decimals": 18,
+      "price": "55.16"
     },
-    inputAmount: '1000000000000000000',
-    outputToken: {
-      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      symbol: 'USDC',
-      decimals: 6
+    "inputAmount": "10000000000000000000",
+    "outputToken": {
+      "name": "USD₮0",
+      "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+      "decimals": 6,
+      "price": "1.001"
     },
-    outputAmount: '1650230000',
-    route: [
+    "outputAmount": "551266196",
+    "time": 0.369,
+    "estimatedGasUsed": "44164800000000",
+    "estimatedGasUsedInUsd": 0.00487137744,
+    "route": [
       {
-        protocol: 'uniswap',
-        poolAddress: '0x...',
-        tokenIn: '0x4200000000000000000000000000000006',
-        tokenOut: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        "percent": "100%",
+        "swaps": [
+          [
+            {
+              "protocol": 13,
+              "poolName": "hybraFinanceV3",
+              "poolAddress": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+              "fromTokenAddress": "0x5555555555555555555555555555555555555555",
+              "toTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "percent": "100.00%",
+              "extraData": {
+                "fee": 25
+              }
+            }
+          ],
+          [
+            {
+              "protocol": 18,
+              "poolName": "kittenSwapAlgebraV4",
+              "poolAddress": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+              "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+              "percent": "99.00%",
+              "extraData": null
+            },
+            {
+              "protocol": 15,
+              "poolName": "gLiquidV3",
+              "poolAddress": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+              "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+              "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+              "percent": "1.00%",
+              "extraData": null
+            }
+          ]
+        ]
       }
-    ]
+    ],
+    "bestQuotesByProtocols": [],
+    "initial": false
   },
-  slippageTolerance: 0.5,
-  deadline: 1703980800
+  "slippage": 0.1,
+  "destination": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+});
+
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: 'localhost:8001/hyperevm/execute',
+  headers: { 
+    'Content-Type': 'application/json'
+  },
+  data : data
 };
 
-axios.post('https://api.fibrous.finance/hyperevm/execute', data)
-  .then(response => console.log(response.data))
-  .catch(error => console.error(error));
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
+
 ```
 </RequestExample>
 
 <ResponseExample>
 ```json Response
 {
-  "success": true,
-  "data": {
-    "to": "0x1234...",
-    "data": "0x...",
-    "value": "0"
-  }
+    "route": {
+        "token_in": "0x5555555555555555555555555555555555555555",
+        "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+        "amount_in": "10000000000000000000",
+        "amount_out": "551266196",
+        "min_received": "550714930",
+        "destination": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "swap_type": 0
+    },
+    "swap_parameters": [
+        {
+            "token_in": "0x5555555555555555555555555555555555555555",
+            "token_out": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+            "rate": "1000000",
+            "protocol_id": "13",
+            "pool_address": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+            "swap_type": 0,
+            "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000019"
+        },
+        {
+            "token_in": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+            "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+            "rate": "990000",
+            "protocol_id": "18",
+            "pool_address": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+            "swap_type": 2,
+            "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        {
+            "token_in": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+            "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+            "rate": "10000",
+            "protocol_id": "15",
+            "pool_address": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+            "swap_type": 2,
+            "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        }
+    ]
 }
 ```
 </ResponseExample>
@@ -238,7 +425,7 @@ axios.post('https://api.fibrous.finance/hyperevm/execute', data)
 ## Best Practices
 
 1. **Route Freshness**
-   - Always use a fresh route from the `/base/route` endpoint
+   - Always use a fresh route from the `/hyperevm/route` endpoint
    - Routes can become stale due to market movements
    - Implement retry logic with fresh routes if execution fails
 
@@ -262,6 +449,6 @@ axios.post('https://api.fibrous.finance/hyperevm/execute', data)
 
 ## See Also
 
-- [Route Endpoint](/api-reference/base/endpoint/route) - Find the optimal route for your swap
-- [Calldata Endpoint](/api-reference/base/endpoint/calldata) - Get raw transaction data
+- [Route Endpoint](/api-reference/hyperevm/endpoint/route) - Find the optimal route for your swap
+- [Calldata Endpoint](/api-reference/hyperevm/endpoint/calldata) - Get raw transaction data
 - [Gas Estimation](/api-reference/gas-estimation) - Understanding gas costs

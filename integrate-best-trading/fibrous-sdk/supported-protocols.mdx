@@ -9,11 +9,11 @@ The `supportedProtocols` function returns a list of protocols (AMMs) that are su
 
 ```typescript
 /**
- * Supported protocol list
- * @param chainName Chain ID to get the supported protocols for
- * @returns Promise<Record<string, ProtocolId>>
- */
-async supportedProtocols(chainName: string): Promise<Record<string, ProtocolId>>;
+  * Returns supported protocols.
+  * @param chainId Chain ID.
+  * @returns Mapping of AMM name -> protocol identifier.
+  */
+supportedProtocols(chainId: number): Promise<Record<string, ProtocolId>>;
 ```
 
 ## Example Usage
@@ -21,9 +21,12 @@ async supportedProtocols(chainName: string): Promise<Record<string, ProtocolId>>
 ```typescript
 import { Router as FibrousRouter } from "fibrous-router-sdk";
 
-const router = new FibrousRouter();
-const starknetProtocols = await router.supportedProtocols("starknet");
-const scrollProtocols = await router.supportedProtocols("scroll");
+const router = new FibrousRouter(); 
+const chainId = router.supportedChains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
+}
+const protocols = await router.supportedProtocols(chainId);
 ```
 
 ## Parameters
@@ -47,20 +50,77 @@ type ProtocolId = {
 ## Example Response
 
 ```json
-{
-  "JediSwap": {
-    "id": 1,
-    "name": "JediSwap",
-    "logoURI": "https://jediswap.xyz/logo.png"
-  },
-  "MySwap": {
-    "id": 2,
-    "name": "MySwap",
-    "logoURI": "https://myswap.xyz/logo.png"
-  },
-  "10kSwap": {
-    "id": 3,
-    "name": "10kSwap",
-    "logoURI": "https://10kswap.com/logo.png"
-  }
-}
+[
+ {
+        "protocol": 1,
+        "amm_name": "hyperSwapV2",
+        "display_name": "HyperSwap V2",
+        "image_url": null,
+        "type": "v2"
+    },
+    {
+        "protocol": 2,
+        "amm_name": "hyperSwapV2Stable",
+        "display_name": "HyperSwap V2 Stable",
+        "image_url": null,
+        "type": "stable"
+    },
+    {
+        "protocol": 3,
+        "amm_name": "hyperSwapV3",
+        "display_name": "HyperSwap V3",
+        "image_url": null,
+        "type": "v3"
+    },
+    {
+        "protocol": 4,
+        "amm_name": "kittenSwapV2",
+        "display_name": "KittenSwap V2",
+        "image_url": null,
+        "type": "v2"
+    },
+    {
+        "protocol": 5,
+        "amm_name": "kittenSwapV2Stable",
+        "display_name": "KittenSwap V2 Stable",
+        "image_url": null,
+        "type": "stable"
+    },
+    {
+        "protocol": 6,
+        "amm_name": "kittenSwapV3",
+        "display_name": "KittenSwap V3",
+        "image_url": null,
+        "type": "v3"
+    },
+    {
+        "protocol": 7,
+        "amm_name": "laminarV2",
+        "display_name": "Laminar V2",
+        "image_url": null,
+        "type": "v2"
+    },
+    {
+        "protocol": 8,
+        "amm_name": "laminarV3",
+        "display_name": "Laminar V3",
+        "image_url": null,
+        "type": "v3"
+    },
+    {
+        "protocol": 9,
+        "amm_name": "ramsesV3",
+        "display_name": "Ramses V3",
+        "image_url": null,
+        "type": "v3"
+    },
+    {
+        "protocol": 10,
+        "amm_name": "projectX",
+        "display_name": "Project X",
+        "image_url": null,
+        "type": "v3"
+    }
+    ...
+]
+```

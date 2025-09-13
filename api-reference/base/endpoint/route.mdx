@@ -1,6 +1,7 @@
 ---
 title: 'Route'
 description: 'Find the optimal trading route through Fibrous Finance liquidity pools'
+api: 'GET /base/route'
 ---
 
 ## Endpoint
@@ -33,6 +34,22 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   Example: `"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"` for USDC
 </ParamField>
 
+<ParamField query="reverse" type="boolean" optional>
+  If true, the amount parameter represents the desired output amount instead of input amount.
+  Default: `false`
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional>
+  If true, only direct swaps between the input and output tokens will be considered.
+  Default: `false`
+</ParamField>
+
+
+<ParamField query="excludeProtocols" type="array[string]" optional>
+  Array of protocol names to exclude from routing.
+  Default: `[]`
+</ParamField>
+
 ## Response
 
 <ResponseField name="success" type="boolean">
@@ -40,7 +57,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 </ResponseField>
 
 <ResponseField name="routeSwapType" type="number">
-  Type of swap route (e.g., 2 for split routes).
+  Type of swap route.
 </ResponseField>
 
 <ResponseField name="inputToken" type="object">

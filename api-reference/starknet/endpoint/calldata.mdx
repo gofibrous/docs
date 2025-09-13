@@ -1,0 +1,797 @@
+---
+title: 'Calldata'
+description: 'Get calldata for executing a swap through Fibrous'
+api: 'GET /starknet/calldata'
+
+---
+
+## Endpoint
+
+<CodeGroup>
+```bash
+https://api.fibrous.finance/starknet/calldata
+```
+</CodeGroup>
+
+Generate the calldata required to execute a swap through the Fibrous' router contract. This endpoint provides the raw transaction data that can be used to execute the swap directly through a Web3 provider.
+
+## Request Body Parameters
+
+<ParamField body="amount" type="string " required>
+  The complete response object from the `/starknet/route` endpoint.
+  This contains all the necessary information about the optimal route.
+</ParamField>
+
+<ParamField query="tokenInAddress" type="string" required>
+  The address of the input token.
+  
+  Example: `"0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"` for ETH
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  The address of the output token.
+  
+  Example: `"0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8"` for USDC
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional>
+  If true, the amount parameter represents the desired output amount instead of input amount.
+  Default: `false`
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional>
+  If true, only direct swaps between the input and output tokens will be considered.
+  Default: `false`
+</ParamField>
+
+
+<ParamField query="excludeProtocols" type="array[string]" optional>
+  Array of protocol names to exclude from routing.
+  Default: `[]`
+</ParamField>
+
+<ParamField query="slippage" type="number" required>
+  Maximum acceptable slippage in percentage (0.1 to 49).
+  Example: `0.5` for 0.5% slippage tolerance
+</ParamField>
+
+<ParamField query="destination" type="string" required>
+  The receiver address for the output token.
+</ParamField>
+
+
+## Response
+
+<ResponseField name="route" type="RouteResponse">
+  The complete response object from the `/starknet/route` endpoint.
+  This contains all the necessary information about the optimal route.
+</ResponseField>
+
+<ResponseField name="calldata" type="string[]">
+  The hex-encoded calldata to execute the swap through the router contract.
+</ResponseField>
+
+## Response Types
+```typescript
+export class CalldataResponseDto {
+  route: RouteResponse;
+  calldata: string[];
+}
+
+export type RouteResponse =
+  | {
+      success: false;
+      errorMessage: string;
+    }
+  | {
+      success: true;
+      inputToken: Token;
+      inputAmount: string;
+      outputToken: Token;
+      outputAmount: string;
+      estimatedGasUsed: string;
+      estimatedGasUsedInUsd: number;
+      route: FormattedRoute[];
+      time: number;
+      bestQuotesByProtocols: any[];
+      initial: boolean;
+      routeSwapType: route_swap_type;
+};
+
+export type FormattedRoute = {
+  percent: Percent;
+  swaps: FormattedSwap[][];
+};
+  
+export type FormattedSwap = {
+  protocol: Protocol;
+  poolName: string;
+  poolAddress: string;
+  fromTokenAddress: string;
+  toTokenAddress: string;
+  percent: Percent;
+  extraData?: any;
+};
+
+```
+
+## Error Responses
+
+### Invalid Route
+
+```json
+{
+  "success": false,
+  "error": "Invalid route",
+  "details": "The provided route is invalid or expired"
+}
+```
+
+### Invalid Slippage
+
+```json
+{
+  "success": false,
+  "error": "Invalid slippage",
+  "details": "Slippage must be between 0.1 and 49"
+}
+```
+
+### Invalid Signer
+
+```json
+{
+  "success": false,
+  "error": "Invalid signer",
+  "details": "The provided signer address is not valid"
+}
+```
+
+<RequestExample>
+```bash cURL
+curl --location 'http://api.fibrous.finance/starknet/calldata?amount=0x0de0b6b3a7640000&tokenInAddress=0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&tokenOutAddress=0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8&slippage=0.1&destination=0x01fc039de7d864580b57a575e8e6b7114f4d2a954d7d29f876b2eb3dd09394a0'
+
+```
+
+```python Python
+import requests
+
+url = "http://api.fibrous.finance/starknet/calldata?amount=0x0de0b6b3a7640000&tokenInAddress=0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&tokenOutAddress=0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8&slippage=0.1&destination=0x01fc039de7d864580b57a575e8e6b7114f4d2a954d7d29f876b2eb3dd09394a0"
+
+payload = {}
+headers = {}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+
+print(response.text)
+
+
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+let config = {
+  method: 'get',
+  maxBodyLength: Infinity,
+  url: 'http://api.fibrous.finance/starknet/calldata?amount=0x0de0b6b3a7640000&tokenInAddress=0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&tokenOutAddress=0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8&slippage=0.1&destination=0x01fc039de7d864580b57a575e8e6b7114f4d2a954d7d29f876b2eb3dd09394a0',
+  headers: { }
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
+
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+    "route": {
+        "success": true,
+        "routeId": "6be48ec4-fd72-4848-9853-07e1794aba3e",
+        "inputToken": {
+            "address": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+            "name": "Ether",
+            "symbol": "ETH",
+            "decimals": 18,
+            "base": true,
+            "native": true,
+            "price": "4729.21"
+        },
+        "inputAmount": "1000000000000000000",
+        "outputToken": {
+            "address": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+            "name": "USD Coin",
+            "symbol": "USDC",
+            "decimals": 6,
+            "base": true,
+            "native": false,
+            "price": "0.99981"
+        },
+        "outputAmount": "4699463143",
+        "time": 1.503,
+        "estimatedGasUsed": 344695077882010240,
+        "estimatedGasUsedInUsd": 0.04676826976284701,
+        "route": [
+            {
+                "percent": "89%",
+                "swaps": [
+                    [
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0xc25669ed8b70551736c7833dc0fde2d93d7829df3c0969aaadc642a36d4c98",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "48.31%",
+                            "tick_spacing": 1000,
+                            "fee": "0x20c49ba5e353f80000000000000000",
+                            "liquidity": "18121861980955516",
+                            "sqrt_price": "23356049905020762798410560302878241",
+                            "pool_key": "0xc25669ed8b70551736c7833dc0fde2d93d7829df3c0969aaadc642a36d4c98",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x0305a929dfbafeb094fe63430e7f14f9b43a86b29831e3f21088e345ee145d91",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "4.49%",
+                            "tick_spacing": 5982,
+                            "fee": "0xc49ba5e353f7d00000000000000000",
+                            "liquidity": "1988024409739308",
+                            "sqrt_price": "23376081081853142768426795891866425",
+                            "pool_key": "0x0305a929dfbafeb094fe63430e7f14f9b43a86b29831e3f21088e345ee145d91",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 9,
+                            "poolId": "9:0x05e03162008d76cf645fe53c6c13a7a5fce745e8991c6ffe94400d60e44c210a:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "poolName": "NostraStable",
+                            "poolAddress": "0x05e03162008d76cf645fe53c6c13a7a5fce745e8991c6ffe94400d60e44c210a",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "31.46%",
+                            "fee": "5000000000000000",
+                            "extraData": {
+                                "rate_provider1": "0x05a1b2a3cdd0615a706239804e990af3f07b7fb9ba16cef11fac1552059912b9",
+                                "rate_provider2": "0x04d94a9b86d12e61351865c0c1cf7ad8aaa02f45fc6dfddc54869b5de6705e87",
+                                "amp_start": 25,
+                                "amp_end": 100,
+                                "rate1": "4710063265940000000000",
+                                "rate2": "1000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 2,
+                            "poolId": "2:0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "poolName": "JediSwap",
+                            "poolAddress": "0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "13.48%",
+                            "fee": "0.3",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 6,
+                            "poolId": "6:0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x071273c5c5780b4be42d9e6567b1b1a6934f43ab8abaf975c0c3da219fc4d040",
+                            "poolName": "MyswapCL",
+                            "poolAddress": "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "2.25%",
+                            "tick_spacing": 10,
+                            "fee": "0x1f4",
+                            "liquidity": "680564788479507",
+                            "sqrt_price": "5437758166868390671900215",
+                            "pool_key": "0x071273c5c5780b4be42d9e6567b1b1a6934f43ab8abaf975c0c3da219fc4d040",
+                            "extraData": {}
+                        }
+                    ]
+                ]
+            },
+            {
+                "percent": "8%",
+                "swaps": [
+                    [
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x02d91a3f0b1e68b0d5e6f27fb649dcaef141c4efdedb9305764fe22382fc03f0",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "34.00%",
+                            "tick_spacing": 5982,
+                            "fee": "0xc49ba5e353f7d00000000000000000",
+                            "liquidity": "14679267871345486921322",
+                            "sqrt_price": "1839420092889150566493383193281064031",
+                            "pool_key": "0x02d91a3f0b1e68b0d5e6f27fb649dcaef141c4efdedb9305764fe22382fc03f0",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x0316eb42a44a40a7c3573b6320f72e34777e6b13ac9a13d50c5deb8a713c0e1d",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "31.00%",
+                            "tick_spacing": 1000,
+                            "fee": "0x20c49ba5e353f80000000000000000",
+                            "liquidity": "4854909571773452181057",
+                            "sqrt_price": "1840582997292339075913712767131718070",
+                            "pool_key": "0x0316eb42a44a40a7c3573b6320f72e34777e6b13ac9a13d50c5deb8a713c0e1d",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x01d23cd1b117c9fd7052b4474e7c461589e39ee6f90acebec705f37eb5252471",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "2.00%",
+                            "tick_spacing": 354892,
+                            "fee": "0x20c49ba5e353f80000000000000000",
+                            "liquidity": "139802832210576943847",
+                            "sqrt_price": "1837986790775248850869931843402206401",
+                            "pool_key": "0x01d23cd1b117c9fd7052b4474e7c461589e39ee6f90acebec705f37eb5252471",
+                            "extraData": {
+                                "extension": "0x043e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc"
+                            }
+                        },
+                        {
+                            "protocol": 9,
+                            "poolId": "9:0x068400056dccee818caa7e8a2c305f9a60d255145bac22d6c5c9bf9e2e046b71:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "poolName": "NostraV2",
+                            "poolAddress": "0x068400056dccee818caa7e8a2c305f9a60d255145bac22d6c5c9bf9e2e046b71",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "16.00%",
+                            "fee": "0x5",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 2,
+                            "poolId": "2:0x02ed66297d146ecd91595c3174da61c1397e8b7fcecf25d423b1ba6717b0ece9:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "poolName": "JediSwap",
+                            "poolAddress": "0x02ed66297d146ecd91595c3174da61c1397e8b7fcecf25d423b1ba6717b0ece9",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "3.00%",
+                            "fee": "0.3",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 6,
+                            "poolId": "6:0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x0503f36ee47238549e73e691a840dca44530ed8a2dc98c9bd5adaaacec759536",
+                            "poolName": "MyswapCL",
+                            "poolAddress": "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "10.00%",
+                            "tick_spacing": 60,
+                            "fee": "0xbb8",
+                            "liquidity": "889965366693338926873",
+                            "sqrt_price": "427724815475510363218869165",
+                            "pool_key": "0x0503f36ee47238549e73e691a840dca44530ed8a2dc98c9bd5adaaacec759536",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 8,
+                            "poolId": "8:0x02045ee4ff371166e6b2b8bd185fd35880f2bfdc8f30d4463bf4a324a7edfa04:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x02045ee4ff371166e6b2b8bd185fd35880f2bfdc8f30d4463bf4a324a7edfa04",
+                            "poolName": "JediSwapCL",
+                            "poolAddress": "0x02045ee4ff371166e6b2b8bd185fd35880f2bfdc8f30d4463bf4a324a7edfa04",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "percent": "4.00%",
+                            "tick_spacing": 60,
+                            "fee": "0xbb8",
+                            "liquidity": "106452042755923488126",
+                            "sqrt_price": "426228830747216117099936844",
+                            "pool_key": "0x02045ee4ff371166e6b2b8bd185fd35880f2bfdc8f30d4463bf4a324a7edfa04",
+                            "extraData": {}
+                        }
+                    ],
+                    [
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x0698f3fbabfb7ab97d2b560ba63329917c6aff2be72bc467266a2fee34543366",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "100.00%",
+                            "tick_spacing": 1000,
+                            "fee": "0x20c49ba5e353f80000000000000000",
+                            "liquidity": "2983406692358421895",
+                            "sqrt_price": "126415433958252670078274618966281",
+                            "pool_key": "0x0698f3fbabfb7ab97d2b560ba63329917c6aff2be72bc467266a2fee34543366",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        }
+                    ]
+                ]
+            },
+            {
+                "percent": "3%",
+                "swaps": [
+                    [
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8:0x07fe6f9d2b9f69632211a116ff0749f1277bc214622fc1e772dd280b24dc8473",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "3.00%",
+                            "tick_spacing": 1000,
+                            "fee": "0x20c49ba5e353f80000000000000000",
+                            "liquidity": "42207485427115",
+                            "sqrt_price": "23348532082295602373284849839889066",
+                            "pool_key": "0x07fe6f9d2b9f69632211a116ff0749f1277bc214622fc1e772dd280b24dc8473",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        },
+                        {
+                            "protocol": 2,
+                            "poolId": "2:0x045e7131d776dddc137e30bdd490b431c7144677e97bf9369f629ed8d3fb7dd6:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "poolName": "JediSwap",
+                            "poolAddress": "0x045e7131d776dddc137e30bdd490b431c7144677e97bf9369f629ed8d3fb7dd6",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "86.00%",
+                            "fee": "0.3",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 9,
+                            "poolId": "9:0x052b136b37a7e6ea52ce1647fb5edc64efe23d449fc1561d9994a9f8feaa6753:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "poolName": "NostraV2",
+                            "poolAddress": "0x052b136b37a7e6ea52ce1647fb5edc64efe23d449fc1561d9994a9f8feaa6753",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "7.00%",
+                            "fee": "0xa",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 6,
+                            "poolId": "6:0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8:0x030baaaf1b243f6e74c656f98dcb24b98687dcbe783d25f35854148c4c602d41",
+                            "poolName": "MyswapCL",
+                            "poolAddress": "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "2.00%",
+                            "tick_spacing": 10,
+                            "fee": "0x1f4",
+                            "liquidity": "31214874519446",
+                            "sqrt_price": "5437186117343534920496282",
+                            "pool_key": "0x030baaaf1b243f6e74c656f98dcb24b98687dcbe783d25f35854148c4c602d41",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 8,
+                            "poolId": "8:0x0605b2df3c483412bdb0133fb3b74930a52a532e4ce12b3efaae86be8583390f:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8:0x0605b2df3c483412bdb0133fb3b74930a52a532e4ce12b3efaae86be8583390f",
+                            "poolName": "JediSwapCL",
+                            "poolAddress": "0x0605b2df3c483412bdb0133fb3b74930a52a532e4ce12b3efaae86be8583390f",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "1.00%",
+                            "tick_spacing": 60,
+                            "fee": "0xbb8",
+                            "liquidity": "3802480556742",
+                            "sqrt_price": "5454343979325731925419524",
+                            "pool_key": "0x0605b2df3c483412bdb0133fb3b74930a52a532e4ce12b3efaae86be8583390f",
+                            "extraData": {}
+                        },
+                        {
+                            "protocol": 8,
+                            "poolId": "8:0x068034cb25db1a4d60b7341f17f092596d9a44e01a6739f7428475b723994cf6:0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8:0x068034cb25db1a4d60b7341f17f092596d9a44e01a6739f7428475b723994cf6",
+                            "poolName": "JediSwapCL",
+                            "poolAddress": "0x068034cb25db1a4d60b7341f17f092596d9a44e01a6739f7428475b723994cf6",
+                            "fromTokenAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "toTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "percent": "1.00%",
+                            "tick_spacing": 10,
+                            "fee": "0x1f4",
+                            "liquidity": "1946897994285",
+                            "sqrt_price": "5461347420023146840723167",
+                            "pool_key": "0x068034cb25db1a4d60b7341f17f092596d9a44e01a6739f7428475b723994cf6",
+                            "extraData": {}
+                        }
+                    ],
+                    [
+                        {
+                            "protocol": 5,
+                            "poolId": "5:0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b:0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8:0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8:0x02c86b7abe3dc5c832e59131fb422d5c57215c16d3e51f7adc96e21d31262a1d",
+                            "poolName": "Ekubo",
+                            "poolAddress": "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+                            "fromTokenAddress": "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+                            "toTokenAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+                            "percent": "100.00%",
+                            "tick_spacing": 20,
+                            "fee": "0x14f8b588e368f1000000000000000",
+                            "liquidity": "2755114608573298",
+                            "sqrt_price": "340185810808831823323710136896819153208",
+                            "pool_key": "0x02c86b7abe3dc5c832e59131fb422d5c57215c16d3e51f7adc96e21d31262a1d",
+                            "extraData": {
+                                "extension": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                            }
+                        }
+                    ]
+                ]
+            }
+        ],
+        "bestQuotesByProtocols": [
+            {
+                "name": "",
+                "quote": "",
+                "quoteGasAdjusted": ""
+            },
+            {
+                "name": "",
+                "quote": "",
+                "quoteGasAdjusted": ""
+            },
+            {
+                "name": "",
+                "quote": "",
+                "quoteGasAdjusted": ""
+            }
+        ],
+        "initial": false
+    },
+    "calldata": [
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "1000000000000000000",
+        "0x00",
+        "4694763680",
+        "0x00",
+        "0x01fc039de7d864580b57a575e8e6b7114f4d2a954d7d29f876b2eb3dd09394a0",
+        20,
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "429959",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "0x20c49ba5e353f80000000000000000",
+        "1000",
+        "0x00",
+        "1167802495251038139920528015143912",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "39961",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "0xc49ba5e353f7d00000000000000000",
+        "5982",
+        "0x00",
+        "1168804054092657138421339794593321",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "279994",
+        "9",
+        "0x05e03162008d76cf645fe53c6c13a7a5fce745e8991c6ffe94400d60e44c210a",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "119972",
+        "2",
+        "0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "20025",
+        "6",
+        "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+        "5",
+        "0x071273c5c5780b4be42d9e6567b1b1a6934f43ab8abaf975c0c3da219fc4d040",
+        "1",
+        "1",
+        "271887908343419533595010",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "27200",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0xc49ba5e353f7d00000000000000000",
+        "5982",
+        "0x00",
+        "36788401857783011329867663865621280620",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "24800",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x20c49ba5e353f80000000000000000",
+        "1000",
+        "0x00",
+        "36811659945846781518274255342634361400",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "1600",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x20c49ba5e353f80000000000000000",
+        "354892",
+        "0x00",
+        "36759735815504977017398636868044128020",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "12800",
+        "9",
+        "0x068400056dccee818caa7e8a2c305f9a60d255145bac22d6c5c9bf9e2e046b71",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "2400",
+        "2",
+        "0x02ed66297d146ecd91595c3174da61c1397e8b7fcecf25d423b1ba6717b0ece9",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "8000",
+        "6",
+        "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+        "5",
+        "0x0503f36ee47238549e73e691a840dca44530ed8a2dc98c9bd5adaaacec759536",
+        "0",
+        "1",
+        "8554496309510207264377383300",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "3200",
+        "8",
+        "0x02045ee4ff371166e6b2b8bd185fd35880f2bfdc8f30d4463bf4a324a7edfa04",
+        "3",
+        "0xbb8",
+        "8524576614944322341998736880",
+        "0",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "1000000",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "0x20c49ba5e353f80000000000000000",
+        "1000",
+        "0x00",
+        "6320771697912633503913730948314",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "900",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "0x20c49ba5e353f80000000000000000",
+        "1000",
+        "0x00",
+        "1167426604114780118664242491994453",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "25800",
+        "2",
+        "0x045e7131d776dddc137e30bdd490b431c7144677e97bf9369f629ed8d3fb7dd6",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "2100",
+        "9",
+        "0x052b136b37a7e6ea52ce1647fb5edc64efe23d449fc1561d9994a9f8feaa6753",
+        "0x00",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "600",
+        "6",
+        "0x01114c7103e12c2b2ecbd3a2472ba9c48ddcbf702b1c242dd570057e26212111",
+        "5",
+        "0x030baaaf1b243f6e74c656f98dcb24b98687dcbe783d25f35854148c4c602d41",
+        "1",
+        "1",
+        "271859305867176746024814",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "300",
+        "8",
+        "0x0605b2df3c483412bdb0133fb3b74930a52a532e4ce12b3efaae86be8583390f",
+        "3",
+        "0xbb8",
+        "272717198966286596270976",
+        "0",
+        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "300",
+        "8",
+        "0x068034cb25db1a4d60b7341f17f092596d9a44e01a6739f7428475b723994cf6",
+        "3",
+        "0x1f4",
+        "273067371001157342036158",
+        "0",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "1000000",
+        "5",
+        "0x00000005dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b",
+        "7",
+        "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
+        "0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8",
+        "0x14f8b588e368f1000000000000000",
+        "20",
+        "0x00",
+        "340185810808831823323710136896819153208",
+        "1000000"
+    ]
+}
+```
+</ResponseExample>
+
+
+
+## Tips
+
+1. Always verify the `min_received` amount matches your expectations
+2. Check that the `destination` address is correct
+3. Consider gas costs when splitting across multiple protocols
+4. Store the route response before requesting calldata
+
+## Rate Limits
+
+Please refer to our rate limiting documentation for details about request limits and quotas.
+
+## Related Endpoints
+
+- [Route Endpoint](/api-reference/starknet/endpoint/route) - Get optimal swap routes
+- [Execute Endpoint](/api-reference/starknet/endpoint/execute) - Execute the swap directly

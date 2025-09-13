@@ -1,6 +1,7 @@
 ---
 title: 'Execute'
 description: 'Execute a swap through Fibrous liquidity pools'
+api: 'POST /base/execute'
 ---
 
 ## Endpoint
@@ -15,65 +16,75 @@ Execute a token swap using the optimal route previously found through the route 
 
 ## Request Body Parameters
 
-<ParamField body="route" type="object" required>
+<ParamField body="route" type="RouteResponse" required>
   The route object returned from the `/base/route` endpoint.
   This contains all necessary information about the swap path and expected outcomes.
 </ParamField>
 
-<ParamField body="slippageTolerance" type="number" default="0.5">
+<ParamField body="slippage" type="number" default="0.5" required>
   Maximum acceptable slippage in percentage (0.1 to 100).
   Example: `0.5` for 0.5% slippage tolerance
 </ParamField>
 
-<ParamField body="deadline" type="number">
+<ParamField body="destination" type="string" required>
   Unix timestamp (in seconds) after which the transaction will revert.
   Defaults to 20 minutes from the current time if not specified.
 </ParamField>
 
-<ParamField body="recipient" type="string">
-  The address that will receive the output tokens.
-  If not specified, tokens will be sent to the transaction sender.
-</ParamField>
-
 ## Response
 
-<ResponseField name="success" type="boolean">
-  Indicates if the execution request was successful.
-</ResponseField>
-
-<ResponseField name="transactionHash" type="string">
-  The hash of the executed transaction.
-</ResponseField>
 
 <ResponseField name="route" type="object">
   The executed route details.
   <Expandable>
-    <ResponseField name="protocol" type="string">
-      The protocol used for the swap
-    </ResponseField>
-    <ResponseField name="path" type="array">
-      Array of token addresses in the swap path
-    </ResponseField>
-    <ResponseField name="pools" type="array">
-      Array of pool addresses used in the swap
-    </ResponseField>
+  <ResponseField name="amount_in" type="string">
+  The amount of input tokens in wei format.
+ </ResponseField>
+ <ResponseField name="amount_out" type="string">
+  The amount of output tokens in wei format.
+ </ResponseField>
+ <ResponseField name="min_received" type="string">
+  The minimum amount of output token.
+ </ResponseField>
+ <ResponseField name="destination" type="string">
+  The destination address for the swap.
+ </ResponseField>
+ <ResponseField name="swap_type" type="number">
+  The type of swap.
+ </ResponseField>
   </Expandable>
 </ResponseField>
 
-<ResponseField name="execution" type="object">
-  Execution details.
+<ResponseField name="swap_parameters" type="object[]">
+  Swap parameters for every hop in the route.
   <Expandable>
-    <ResponseField name="gasUsed" type="string">
-      Actual gas used by the transaction
-    </ResponseField>
-    <ResponseField name="effectiveGasPrice" type="string">
-      Gas price in wei
-    </ResponseField>
-    <ResponseField name="blockNumber" type="number">
-      Block number where the transaction was included
-    </ResponseField>
-  </Expandable>
+  <ResponseField name="token_in" type="string">
+  The token in address.
+ </ResponseField>
+ <ResponseField name="token_out" type="string">
+  The token out address.
+ </ResponseField>
+ <ResponseField name="rate" type="string">
+  The rate of the swap.
+ </ResponseField>
+ <ResponseField name="protocol_id" type="string">
+  The protocol id of the swap.
+ </ResponseField>
+ <ResponseField name="pool_address" type="string">
+  The pool address of the swap.
+ </ResponseField>
+ <ResponseField name="swap_type" type="number">
+  The type of swap.
+ </ResponseField>
+ <ResponseField name="extra_data" type="string">
+  The extra data of the swap.
+ </ResponseField>
+ </Expandable>
 </ResponseField>
+
+
+
+
 
 ## Error Responses
 
@@ -119,118 +130,297 @@ Execute a token swap using the optimal route previously found through the route 
 
 <RequestExample>
 ```bash cURL
-curl -X POST "https://api.fibrous.finance/base/execute" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "route": {
-      "inputToken": {
-        "address": "0x4200000000000000000000000000000000000006",
-        "symbol": "ETH",
-        "decimals": 18
-      },
-      "inputAmount": "1000000000000000000",
-      "outputToken": {
-        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "symbol": "USDC",
-        "decimals": 6
-      },
-      "outputAmount": "1650230000",
-      "route": [
-        {
-          "protocol": "uniswap",
-          "poolAddress": "0x...",
-          "tokenIn": "0x4200000000000000000000000000000000000006",
-          "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        }
-      ]
+curl --location 'https:api.fibrous.finance/base/execute' \
+--header 'Content-Type: application/json' \
+--data '{"route": {
+        "success": true,
+        "routeSwapType": 0,
+        "inputToken": {
+            "name": "Wrapped Ether",
+            "address": "0x4200000000000000000000000000000000000006",
+            "decimals": 18,
+            "price": 4729.31
+        },
+        "inputAmount": "100000000000000000",
+        "outputToken": {
+            "name": "USD Base Coin",
+            "address": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+            "decimals": 6,
+            "price": 0.999727
+        },
+        "outputAmount": "471974940",
+        "route": [
+            {
+                "percent": "100%",
+                "swaps": [
+                    [
+                        {
+                            "protocol": 5,
+                            "poolName": "Uniswap V3",
+                            "poolAddress": "0x4c36388be6f416a29c8d8eee81c771ce6be14b18",
+                            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+                            "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+                            "percent": "83%",
+                            "extraData": {
+                                "fee": 500
+                            }
+                        },
+                        {
+                            "protocol": 5,
+                            "poolName": "Uniswap V3",
+                            "poolAddress": "0x3ddf264ac95d19e81f8c25f4c300c4e59e424d43",
+                            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+                            "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+                            "percent": "10%",
+                            "extraData": {
+                                "fee": 3000
+                            }
+                        },
+                        {
+                            "protocol": 9,
+                            "poolName": "PancakeSwap V3",
+                            "poolAddress": "0xe58b73ff901325b8b2056b29712c50237242f520",
+                            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+                            "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+                            "percent": "7%",
+                            "extraData": {
+                                "fee": 500
+                            }
+                        }
+                    ]
+                ]
+            }
+        ],
+        "estimatedGasUsed": "1108171899576",
+        "estimatedGasUsedInUsd": 0.010410898218070664,
+        "bestQuotesByProtocols": [],
+        "time": 0.654,
+        "initial": true
     },
-    "slippageTolerance": 0.5,
-    "deadline": 1703980800
-  }'
+"slippage":0.1,
+"destination":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+}'
 ```
 
 ```python Python
 import requests
 import json
 
-url = "https://api.fibrous.finance/base/execute"
+url = "https:api.fibrous.finance/base/execute"
 
-data = {
-    "route": {
-        "inputToken": {
-            "address": "0x4200000000000000000000000000000000000006",
-            "symbol": "ETH",
-            "decimals": 18
-        },
-        "inputAmount": "1000000000000000000",
-        "outputToken": {
-            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            "symbol": "USDC",
-            "decimals": 6
-        },
-        "outputAmount": "1650230000",
-        "route": [
-            {
-                "protocol": "uniswap",
-                "poolAddress": "0x...",
-                "tokenIn": "0x4200000000000000000000000000000006",
-                "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-            }
-        ]
+payload = json.dumps({
+  "route": {
+    "success": True,
+    "routeSwapType": 0,
+    "inputToken": {
+      "name": "Wrapped Ether",
+      "address": "0x4200000000000000000000000000000000000006",
+      "decimals": 18,
+      "price": 4729.31
     },
-    "slippageTolerance": 0.5,
-    "deadline": 1703980800
+    "inputAmount": "100000000000000000",
+    "outputToken": {
+      "name": "USD Base Coin",
+      "address": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+      "decimals": 6,
+      "price": 0.999727
+    },
+    "outputAmount": "471974940",
+    "route": [
+      {
+        "percent": "100%",
+        "swaps": [
+          [
+            {
+              "protocol": 5,
+              "poolName": "Uniswap V3",
+              "poolAddress": "0x4c36388be6f416a29c8d8eee81c771ce6be14b18",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "83%",
+              "extraData": {
+                "fee": 500
+              }
+            },
+            {
+              "protocol": 5,
+              "poolName": "Uniswap V3",
+              "poolAddress": "0x3ddf264ac95d19e81f8c25f4c300c4e59e424d43",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "10%",
+              "extraData": {
+                "fee": 3000
+              }
+            },
+            {
+              "protocol": 9,
+              "poolName": "PancakeSwap V3",
+              "poolAddress": "0xe58b73ff901325b8b2056b29712c50237242f520",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "7%",
+              "extraData": {
+                "fee": 500
+              }
+            }
+          ]
+        ]
+      }
+    ],
+    "estimatedGasUsed": "1108171899576",
+    "estimatedGasUsedInUsd": 0.010410898218070664,
+    "bestQuotesByProtocols": [],
+    "time": 0.654,
+    "initial": True
+  },
+  "slippage": 0.1,
+  "destination": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+})
+headers = {
+  'Content-Type': 'application/json'
 }
 
-response = requests.post(url, json=data)
-print(json.dumps(response.json(), indent=2))
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+
 ```
 
 ```javascript JavaScript
 const axios = require('axios');
-
-const data = {
-  route: {
-    inputToken: {
-      address: '0x4200000000000000000000000000000000000006',
-      symbol: 'ETH',
-      decimals: 18
+let data = JSON.stringify({
+  "route": {
+    "success": true,
+    "routeSwapType": 0,
+    "inputToken": {
+      "name": "Wrapped Ether",
+      "address": "0x4200000000000000000000000000000000000006",
+      "decimals": 18,
+      "price": 4729.31
     },
-    inputAmount: '1000000000000000000',
-    outputToken: {
-      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      symbol: 'USDC',
-      decimals: 6
+    "inputAmount": "100000000000000000",
+    "outputToken": {
+      "name": "USD Base Coin",
+      "address": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+      "decimals": 6,
+      "price": 0.999727
     },
-    outputAmount: '1650230000',
-    route: [
+    "outputAmount": "471974940",
+    "route": [
       {
-        protocol: 'uniswap',
-        poolAddress: '0x...',
-        tokenIn: '0x4200000000000000000000000000000006',
-        tokenOut: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        "percent": "100%",
+        "swaps": [
+          [
+            {
+              "protocol": 5,
+              "poolName": "Uniswap V3",
+              "poolAddress": "0x4c36388be6f416a29c8d8eee81c771ce6be14b18",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "83%",
+              "extraData": {
+                "fee": 500
+              }
+            },
+            {
+              "protocol": 5,
+              "poolName": "Uniswap V3",
+              "poolAddress": "0x3ddf264ac95d19e81f8c25f4c300c4e59e424d43",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "10%",
+              "extraData": {
+                "fee": 3000
+              }
+            },
+            {
+              "protocol": 9,
+              "poolName": "PancakeSwap V3",
+              "poolAddress": "0xe58b73ff901325b8b2056b29712c50237242f520",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+              "percent": "7%",
+              "extraData": {
+                "fee": 500
+              }
+            }
+          ]
+        ]
       }
-    ]
+    ],
+    "estimatedGasUsed": "1108171899576",
+    "estimatedGasUsedInUsd": 0.010410898218070664,
+    "bestQuotesByProtocols": [],
+    "time": 0.654,
+    "initial": true
   },
-  slippageTolerance: 0.5,
-  deadline: 1703980800
+  "slippage": 0.1,
+  "destination": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+});
+
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: 'https:api.fibrous.finance/base/execute',
+  headers: { 
+    'Content-Type': 'application/json'
+  },
+  data : data
 };
 
-axios.post('https://api.fibrous.finance/base/execute', data)
-  .then(response => console.log(response.data))
-  .catch(error => console.error(error));
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
 ```
 </RequestExample>
 
 <ResponseExample>
 ```json Response
 {
-  "success": true,
-  "data": {
-    "to": "0x1234...",
-    "data": "0x...",
-    "value": "0"
-  }
+    "route": {
+        "token_in": "0x4200000000000000000000000000000000000006",
+        "token_out": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+        "amount_in": "100000000000000000",
+        "amount_out": "471974940",
+        "min_received": "471502966",
+        "destination": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "swap_type": 0
+    },
+    "swap_parameters": [
+        {
+            "token_in": "0x4200000000000000000000000000000000000006",
+            "token_out": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+            "rate": "830000",
+            "protocol_id": "5",
+            "pool_address": "0x4c36388be6f416a29c8d8eee81c771ce6be14b18",
+            "swap_type": 0,
+            "extra_data": "0x00000000000000000000000000000000000000000000000000000000000001f4"
+        },
+        {
+            "token_in": "0x4200000000000000000000000000000000000006",
+            "token_out": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+            "rate": "100000",
+            "protocol_id": "5",
+            "pool_address": "0x3ddf264ac95d19e81f8c25f4c300c4e59e424d43",
+            "swap_type": 0,
+            "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000bb8"
+        },
+        {
+            "token_in": "0x4200000000000000000000000000000000000006",
+            "token_out": "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+            "rate": "70000",
+            "protocol_id": "9",
+            "pool_address": "0xe58b73ff901325b8b2056b29712c50237242f520",
+            "swap_type": 0,
+            "extra_data": "0x00000000000000000000000000000000000000000000000000000000000001f4"
+        }
+    ]
 }
 ```
 </ResponseExample>

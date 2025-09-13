@@ -7,6 +7,7 @@ description: 'Learn how to install and setup Fibrous Router SDK'
 
 You can install Fibrous Router SDK using npm, yarn, or pnpm:
 
+Latest stable version: 0.6.1
 <CodeGroup>
 ```bash npm
 npm install fibrous-router-sdk
@@ -27,37 +28,52 @@ Here's a simple example of how to initialize and use the SDK:
 
 ```typescript
 import { Router as FibrousRouter } from "fibrous-router-sdk";
+import { parseUnits } from "ethers";
 
-// Initialize the router
-const router = new FibrousRouter();
+// Create a new router instance
+const fibrous = new FibrousRouter();
+const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
+}
 
-// Example: Get supported tokens for Base chain
-const tokens = await router.supportedTokens("base");
-
-// Example: Get best route for a swap
-const route = await router.getBestRoute(
-  amount,          // BigNumber: Amount to swap
-  tokenInAddress,  // string: Input token address
-  tokenOutAddress, // string: Output token address
-  "base",          // string: Chain name
+// Build route options
+const tokens = await fibrous.supportedTokens(chainId);
+// Get input token from tokens map
+const inputToken = tokens.get("hype");
+if (!inputToken) {
+    throw new Error("Input token not found");
+}
+// Get output token by address (for unverified tokens)
+const outputToken = await fibrous.getToken(
+    "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+    chainId,
 );
+if (!outputToken) {
+    throw new Error("Output token not found");
+}
+const tokenInAddress = inputToken.address;
+const tokenOutAddress = outputToken.address;
+const tokenInDecimals = Number(inputToken.decimals);
+const inputAmount = BigInt(parseUnits("1", tokenInDecimals)); // 1 Hype
 
-// Example: Build a transaction
-const tx = await router.buildTransaction(
-  amount,          // BigNumber: Amount to swap
-  tokenInAddress,  // string: Input token address
-  tokenOutAddress, // string: Output token address
-  1,               // number: Slippage percentage (1 = 1%)
-  receiverAddress, // string: Address to receive tokens
-  "base"           // string: Chain name
+const route = await fibrous.getBestRoute(
+    inputAmount,
+    tokenInAddress,
+    tokenOutAddress,
+    "hyperevm", // chainName will be deprecated in the future, use chainId instead
+    {
+        reverse: false,
+    },
+    chainId,
 );
 ```
 
 # Requirements
 
-- Node.js version 14 or higher
+- Node.js version 18.x or higher
 - A Web3 provider (like ethers.js) for transaction signing
-- Access to supported blockchain networks (Base, Scroll, or Starknet)
+- Access to supported blockchain networks (Base, Scroll,HyperEVM or Starknet)
 
 # Next Steps
 

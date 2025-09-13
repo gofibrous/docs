@@ -21,66 +21,40 @@ First, let's set up the router and get the token information:
 
 ```typescript
 import { Router as FibrousRouter } from "fibrous-router-sdk";
-import { BigNumber } from "@ethersproject/bignumber";
 import { parseUnits } from "ethers";
 
 const fibrous = new FibrousRouter();
+const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "starknet")?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
+}
+// Get the supported tokens for the Starknet chain
+const tokens = await fibrous.supportedTokens(chainId);
 
-const tokens = await fibrous.supportedTokens("starknet");
-const tokenInAddress_1 = tokens["eth"].address;
-const tokenInAddress_2 = tokens["strk"].address;
-const tokenInAddress_3 = tokens["usdc"].address;
+const ethToken = tokens.get("eth");
+const strkToken = tokens.get("strk");
+const usdcToken = tokens.get("usdc");
+const usdtToken = tokens.get("usdt");
 
-const tokenOutAddress = tokens["usdt"].address;
+if (!ethToken || !strkToken || !usdcToken || !usdtToken) {
+    throw new Error("Required tokens not found");
+}
 
-const tokenInDecimals_1 = tokens["eth"].decimals;
-const tokenInDecimals_2 = tokens["strk"].decimals;
-const tokenInDecimals_3 = tokens["usdc"].decimals;
+const tokenInAddress_1 = ethToken.address;
+const tokenInAddress_2 = strkToken.address;
+const tokenInAddress_3 = usdcToken.address;
+
+const tokenOutAddress = usdtToken.address;
+
+const tokenInDecimals_1 = ethToken.decimals;
+const tokenInDecimals_2 = strkToken.decimals;
+const tokenInDecimals_3 = usdcToken.decimals;
 
 const inputAmounts = [
-    BigNumber.from(1n * 10n ** BigInt(tokenInDecimals_1 - 3)), // 0.001 ETH
-    BigNumber.from(10n * 10n ** BigInt(tokenInDecimals_2)), // 0.001 STRK
-    BigNumber.from(5n * 10n ** BigInt(tokenInDecimals_3)), // 5 USDC
-]; // 0.001 ETH
-```
-
-## Usage on Frontend
-
-Here's how to execute batch swaps using the Argent wallet on frontend:
-
-```typescript
-// Usage on your website
-const starknet = await connect({ showList: false })
-
-await starknet.enable()
-
-if (starknet.isConnected) {
-  // Call the buildTransaction method in order to build the transaction
-  // slippage: The maximum acceptable slippage of the buyAmount amount.
-  const slippage = 1; // 1%
-  const destination = starknet.selectedAddress; // The address to receive the tokens after
-
-  const tokenInAddresses = [tokenInAddress_1, tokenInAddress_2, tokenInAddress_3];
-  const tokenOutAddresses = [tokenOutAddress];
-  const swapCalls = await fibrous.buildBatchTransaction(
-    inputAmounts,
-    tokenInAddresses,
-    tokenOutAddresses,
-    slippage,
-    destination,
-    "starknet",
-  );
-
-  const approveCalls: Call[] = [];
-  for(let i = 0; i < inputAmounts.length; i++) {
-    const approveCall: Call = await fibrous.buildApproveStarknet(
-      inputAmounts[i],
-      tokenInAddresses[i],
-    );
-    approveCalls.push(approveCall);
-  }
-  await starknet.account.execute([...approveCall, ...swapCalls]);
-}
+    BigInt(parseUnits("0.001", tokenInDecimals_1)), // 0.001 ETH
+    BigInt(parseUnits("10", tokenInDecimals_2)), // 10 STRK
+    BigInt(parseUnits("5", tokenInDecimals_3)), // 5 USDC
+];
 ```
 
 ## Usage on Backend
@@ -88,41 +62,95 @@ if (starknet.isConnected) {
 For backend implementations on Starknet:
 
 ```typescript
-import { Account, Provider } from "starknet";
+import { Router as FibrousRouter } from "fibrous-router-sdk";
 import { Call } from "starknet";
+import { parseUnits } from "ethers";
+import { account } from "./account";
 
-const provider = new Provider();
-const privateKey0 = "YOUR_PRIVATE_KEY";
-const accountAddress = "YOUR_WALLET_ADDRESS";
-// https://www.starknetjs.com/docs/guides/connect_account
-// If this account is based on a Cairo v2 contract (for example OpenZeppelin account 0.7.0)
-const RPC_URL = "RPC_URL";
-const account0 = account(privateKey, public_key, "1", RPC_URL);
+const fibrous = new FibrousRouter();
+const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "starknet")?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
+}
+// Get the supported tokens for the Starknet chain
+const tokens = await fibrous.supportedTokens(chainId);
 
-// Call the buildTransaction method in order to build the transaction
-// slippage: The maximum acceptable slippage of the buyAmount amount.
-const slippage = 1; // %1
+const ethToken = tokens.get("eth");
+const strkToken = tokens.get("strk");
+const usdcToken = tokens.get("usdc");
+const usdtToken = tokens.get("usdt");
 
-const swapCalls = await fibrous.buildBatchTransaction(
-  inputAmounts,
-  tokenInAddresses,
-  tokenOutAddresses,
-  slippage,
-  destination,
-  "starknet",
-);
-
-const approveCalls: Call[] = [];
-for(let i = 0; i < inputAmounts.length; i++) {
-  const approveCall: Call = await fibrous.buildApproveStarknet(
-    inputAmounts[i],
-    tokenInAddresses[i],
-  );
-  approveCalls.push(approveCall);
+if (!ethToken || !strkToken || !usdcToken || !usdtToken) {
+    throw new Error("Required tokens not found");
 }
 
-const resp = await account0.execute([...approveCalls, ...swapCalls]);
-console.log(`https://voyager.online/tx/${resp.transaction_hash}`);
+const tokenInAddress_1 = ethToken.address;
+const tokenInAddress_2 = strkToken.address;
+const tokenInAddress_3 = usdcToken.address;
+
+const tokenOutAddress = usdtToken.address;
+
+const tokenInDecimals_1 = ethToken.decimals;
+const tokenInDecimals_2 = strkToken.decimals;
+const tokenInDecimals_3 = usdcToken.decimals;
+
+const inputAmounts = [
+    BigInt(parseUnits("0.001", tokenInDecimals_1)), // 0.001 ETH
+    BigInt(parseUnits("10", tokenInDecimals_2)), // 10 STRK
+    BigInt(parseUnits("5", tokenInDecimals_3)), // 5 USDC
+];
+const public_key = process.env.STARKNET_PUBLIC_KEY;
+const privateKey = process.env.STARKNET_PRIVATE_KEY;
+const RPC_URL = process.env.STARKNET_RPC_URL;
+const destination = process.env.STARKNET_PUBLIC_KEY; // The address to receive the tokens after the swap is completed (required)
+if (!privateKey || !public_key || !RPC_URL || !destination) {
+    throw new Error("Missing environment variables");
+}
+// Call the buildTransaction method in order to build the transaction
+// slippage: The maximum acceptable slippage of the buyAmount amount.
+const slippage = 1; // 1%
+const tokenInAddresses = [
+    tokenInAddress_1,
+    tokenInAddress_2,
+    tokenInAddress_3,
+];
+const tokenOutAddresses = [tokenOutAddress];
+const swapCalls = await fibrous.buildBatchTransaction(
+    inputAmounts,
+    tokenInAddresses,
+    tokenOutAddresses,
+    slippage,
+    destination,
+    "starknet", // chainName will be deprecated in the next version, use chainId instead
+    {reverse: false, direct: false, excludeProtocols: []},
+    chainId,
+);
+
+// https://www.starknetjs.com/docs/guides/connect_account
+// If this account is based on a Cairo v2 contract (for example OpenZeppelin account 0.7.0 or later), do not forget to add the parameter "1" after the privateKey parameter
+
+const account0 = account(privateKey, public_key, "1", RPC_URL);
+const approveCalls: Call[] = [];
+for (let i = 0; i < inputAmounts.length; i++) {
+    const approveCall: Call = await fibrous.buildApproveStarknet(
+        inputAmounts[i],
+        tokenInAddresses[i],
+    );
+    approveCalls.push(approveCall);
+}
+// Type guard: Starknet chains return Call[]
+if (
+    Array.isArray(swapCalls) &&
+    swapCalls.every(
+        (call) => "contractAddress" in call && "entrypoint" in call,
+    )
+) {
+    const resp = await account0.execute([...approveCalls, ...swapCalls]);
+    console.log(`https://voyager.online/tx/${resp.transaction_hash}`);
+} else {
+    console.error("Invalid swap call data for Starknet batch transaction");
+}
+
 ```
 
 The swap call returns a transaction object with the following structure:

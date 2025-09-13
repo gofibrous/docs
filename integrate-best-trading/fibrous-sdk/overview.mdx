@@ -3,77 +3,194 @@ title: 'Overview'
 description: 'Overview of Fibrous Router SDK main functions'
 ---
 
-## supportedTokens
+## Supported Chains
+
+- Starknet
+- Base
+- Scroll
+- HyperEVM
+```typescript
+/**
+* List of supported chains and their router addresses.
+*/
+supportedChains: CHAIN_MAP[];
+```
+
+## Supported Tokens
 
 Returns the list of Tokens supported by Fibrous
 
 ```typescript
 /**
- * Supported token list
- * @param chainName Chain ID to get the supported tokens for
- * @returns Promise<Record<string, Token>>
- */
-async supportedTokens(chainName: string): Promise<Record<string, Token>>;
+* Returns the supported token list for a given chain.
+* @param chainId Chain ID.
+* @returns Map of lowercased symbol -> Token.
+*/
+supportedTokens(chainId: number): Promise<Map<string, Token>>;
 ```
 
-## supportedProtocols
+## Supported Protocols
 
 Returns the list of Protocols supported by Fibrous
 
 ```typescript
 /**
- * Supported protocol list
- * @param chainName Chain ID to get the supported protocols for
- * @returns Promise<Record<string, ProtocolId>>
- */
-async supportedProtocols(chainName: string): Promise<Record<string, ProtocolId>>;
+* Returns supported protocols.
+* @param chainId Chain ID.
+* @returns Mapping of AMM name -> protocol identifier.
+*/
+supportedProtocols(chainId: number): Promise<Record<string, ProtocolId>>;
 ```
 
-## getBestRoute
+## Best Route
 
 Returns the best route via Fibrous
 
 ```typescript
 /**
- * Gets the best route from the API
- * @param amount: Amount to swap, formatted
- * @param tokenInAddress: Token to swap from
- * @param tokenOutAddress: Token to swap to
- * @param chainName: Chain name where the transaction will take place
- * @param options: Optional parameters such as slippage and excluded protocols
- * @returns Promise<RouteResponse>
- * @throws Error if the API returns an error
- */
-async getBestRoute(
-    amount: BigNumber,
+* Fetches the best route from the API.
+* @param amount Amount to swap.
+* @param tokenInAddress Input token address.
+* @param tokenOutAddress Output token address.
+* @param chainName Chain name (e.g. "starknet", "scroll").
+* @param options Optional route parameters and overrides.
+* @param chainId Chain ID (may be used instead of `chainName` for backward compatibility).
+* @returns Route response.
+* @throws Error if the chain is not supported.
+*/
+getBestRoute(
+    amount: AmountType,
     tokenInAddress: string,
     tokenOutAddress: string,
     chainName: string,
-    options?: Partial<RouteOverrides>
+    options?: Partial<RouteOverrides>,
+    chainId?: number,
 ): Promise<RouteResponse>;
 ```
 
-## buildTransaction
+## Build Transaction
 
 Returns calldata with best route to transaction via Fibrous
 
 ```typescript
 /**
- * Builds a Starknet or Scroll transaction out of the route response
- * @param amount: Amount to swap, formatted
- * @param tokenInAddress: Token to swap from
- * @param tokenOutAddress: Token to swap to
- * @param slippage: Slippage percentage (1 = 1%)
- * @param receiverAddress: Address to receive the tokens
- * @returns Call (for Starknet) or calldata (for EVM)
- */
-async buildTransaction(
-    amount: BigNumber,
+* Legacy method that builds a route and calldata to prepare a transaction.
+* Note: This will be deprecated; prefer `buildRouteAndCalldata`.
+* @param inputAmount Input amount.
+* @param tokenInAddress Input token address.
+* @param tokenOutAddress Output token address.
+* @param slippage Slippage percentage (1 = 1%).
+* @param destination Receiver address.
+* @param chainName Chain name.
+* @param options Optional parameters.
+* @param chainId Chain ID (for backward compatibility).
+* @returns Starknet `Call` or EVM calldata/transaction structure.
+*/
+buildTransaction(
+    inputAmount: AmountType,
     tokenInAddress: string,
     tokenOutAddress: string,
     slippage: number,
-    receiverAddress: string,
-    chainName: string
-): Promise<Call | any>;
+    destination: string,
+    chainName: string,
+    options?: Partial<RouteOverrides>,
+    chainId?: number,
+): Promise<Call | unknown>;
+```
+## Build Route and Calldata
+```typescript
+/**
+* Returns the best route and executable calldata in a single call.
+* @param inputAmount Input amount.
+* @param tokenInAddress Input token address.
+* @param tokenOutAddress Output token address.
+* @param slippage Slippage percentage (1 = 1%).
+* @param destination Receiver address.
+* @param chainId Chain ID.
+* @param options Optional parameters.
+* @returns Route and calldata structure (includes Starknet swap call when applicable).
+*/
+buildRouteAndCalldata(
+    inputAmount: AmountType,
+    tokenInAddress: string,
+    tokenOutAddress: string,
+    slippage: number,
+    destination: string,
+    chainId: number,
+    options?: Partial<RouteOverrides>,
+): Promise<Call | unknown>;
 ```
 
+## Build Approve Starknet
+```typescript
+/**
+* Builds Starknet approve call parameters.
+* @param amount Amount to approve (will be converted to hex).
+* @param tokenAddress ERC-20 token address.
+*/
+buildApproveStarknet(amount: AmountType, tokenAddress: string): Promise<Call>;
+```
+
+## Build Approve EVM
+```typescript
+/**
+* Performs EVM approve if needed and returns the result.
+* @param amount Amount to approve.
+* @param tokenAddress ERC-20 token address.
+* @param account Wallet/signer used for the transaction.
+* @param chainId Chain ID.
+* @returns `true` if allowance is sufficient or approve succeeded.
+*/
+buildApproveEVM(
+    amount: AmountType,
+    tokenAddress: string,
+    account: Wallet,
+    chainId?: number,
+): Promise<boolean>;
+```
+
+## Best Route Batch
+```typescript
+/**
+* Fetches best routes in batch for multiple inputs (Starknet and Base for now).
+* @param amounts List of input amounts.
+* @param tokenInAddresses Input token addresses.
+* @param tokenOutAddresses Output token addresses.
+* @param chainName Chain name.
+* @param options Optional route parameters.
+* @returns List of route responses.
+*/
+getBestRouteBatch(
+    amounts: bigint[] | string[] | number[] | BigNumberish[],
+    tokenInAddresses: string[],
+    tokenOutAddresses: string[],
+    chainName: string,
+    options?: Partial<RouteOverrides>,
+): Promise<RouteResponse[]>;
+```
+
+## Build Batch Transaction
+```typescript
+/**
+* Builds calldata/call list for batch transactions (Starknet for now).
+* @param inputAmounts Input amounts.
+* @param tokenInAddresses Input token addresses.
+* @param tokenOutAddresses Output token addresses.
+* @param slippage Slippage percentage.
+* @param destination Receiver address.
+* @param chainName Chain name.
+* @param options Optional parameters.
+* @param chainId Chain ID (for backward compatibility).
+* @returns Array of Starknet `Call`s or chain-specific payload.
+*/
+buildBatchTransaction(
+    inputAmounts: AmountType[],
+    tokenInAddresses: string[],
+    tokenOutAddresses: string[],
+    slippage: number,
+    destination: string,
+    chainName: string,
+    options?: Partial<RouteOverrides>,
+    chainId?: number,
+): Promise<Call[] | unknown>;
+```

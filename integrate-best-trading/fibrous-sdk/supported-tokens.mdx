@@ -9,11 +9,11 @@ The `supportedTokens` function returns a list of tokens supported by Fibrous on 
 
 ```typescript
 /**
- * Supported token list
- * @param chainName Chain ID to get the supported tokens for
- * @returns Promise<Record<string, Token>>
- */
-async supportedTokens(chainName: string): Promise<Record<string, Token>>;
+  * Returns the supported token list for a given chain.
+  * @param chainId Chain ID.
+  * @returns Map of lowercased symbol -> Token.
+  */
+supportedTokens(chainId: number): Promise<Map<string, Token>>;
 ```
 
 ## Example Usage
@@ -22,27 +22,60 @@ async supportedTokens(chainName: string): Promise<Record<string, Token>>;
 import { Router as FibrousRouter } from "fibrous-router-sdk";
 
 const router = new FibrousRouter();
-const starknetTokens = await router.supportedTokens("starknet");
-const scrollTokens = await router.supportedTokens("scroll");
+const chainId = router.supportedChains.find(
+    (chain) => chain.chain_name == "starknet",
+)?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
+}
+const tokens = await router.supportedTokens(chainId);
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| chainName | string | The chain name to get supported tokens for (e.g., "starknet", "scroll", "base") |
+| chainId | number | The chain id to get supported tokens for (e.g. 8453, 84532) |
 
 ## Response
 
 Returns a Promise that resolves to a Record mapping token symbols to Token objects. Each Token object contains:
 
 ```typescript
-type Token = {
-  name: string;        // Token name
-  symbol: string;      // Token symbol
-  address: string;     // Token contract address
-  decimals: number;    // Token decimals
-  logoURI?: string;    // Optional logo URL
+export type Token = {
+    // Address of the token contract
+    address: string;
+
+    // Name of the token
+    name: string;
+
+    // Symbol of the token
+    symbol: string;
+
+    // Decimal points of the token (can be string from API)
+    decimals: string;
+
+    // Price in USD (can be null or string from API)
+    price: string | null;
+
+    // Image URL for the token icon
+    image_url?: string;
+
+    // Base token flag (can be null)
+    base?: boolean | null;
+
+    // Native token flag (can be null)
+    native?: boolean | null;
+
+    // Verification status
+    verified?: boolean;
+
+    // Token category
+    category?: string | null;
+
+    // Legacy fields for backward compatibility
+    isBase?: boolean;
+    isNative?: boolean;
 };
 ```
 
@@ -55,13 +88,15 @@ type Token = {
     "symbol": "ETH",
     "address": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     "decimals": 18,
-    "logoURI": "https://tokens.1inch.io/0x0000000000000000000000000000000000000000.png"
+    "price": null,
+    "image_url": "https://tokens.1inch.io/0x0000000000000000000000000000000000000000.png"
   },
   "USDC": {
     "name": "USD Coin",
     "symbol": "USDC",
     "address": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5eb06f3ecf368a8",
     "decimals": 6,
-    "logoURI": "https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"
+    "price": null,
+    "image_url": "https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"
   }
 }

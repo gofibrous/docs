@@ -79,8 +79,7 @@
                   "api-reference/base/endpoint/route",
                   "api-reference/base/endpoint/execute",
                   "api-reference/base/endpoint/calldata",
-                  "api-reference/base/route-params",
-                  "api-reference/base/execute-params"
+                  "api-reference/base/route-params"
                 ]
               },
               {
@@ -90,8 +89,7 @@
                   "api-reference/hyperevm/endpoint/route",
                   "api-reference/hyperevm/endpoint/execute",
                   "api-reference/hyperevm/endpoint/calldata",
-                  "api-reference/hyperevm/route-params",
-                  "api-reference/hyperevm/execute-params"
+                  "api-reference/hyperevm/route-params"
                 ]
               },
               {
@@ -112,6 +110,7 @@
                   "api-reference/starknet/endpoint/route",
                   "api-reference/starknet/endpoint/routeBatch",
                   "api-reference/starknet/endpoint/execute",
+                  "api-reference/starknet/endpoint/calldata",
                   "api-reference/starknet/route-params",
                   "api-reference/starknet/batch-route-params",
                   "api-reference/starknet/execute-params"
@@ -131,7 +130,7 @@
                   "integrate-best-trading/fibrous-sdk/supported-tokens",
                   "integrate-best-trading/fibrous-sdk/supported-protocols",
                   "integrate-best-trading/fibrous-sdk/best-route",
-                  "integrate-best-trading/fibrous-sdk/execute-swap",
+                  "integrate-best-trading/fibrous-sdk/route-and-calldata",
                   "integrate-best-trading/fibrous-sdk/execute-batch-swap"
                 ]
               }

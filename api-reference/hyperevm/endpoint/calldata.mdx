@@ -1,6 +1,7 @@
 ---
 title: 'Calldata'
-description: 'Get calldata for executing a swap through Fibrous Finance'
+description: 'Get calldata for executing a swap through Fibrous'
+api: 'GET /hyperevm/calldata'
 ---
 
 ## Endpoint
@@ -11,34 +12,107 @@ https://api.fibrous.finance/hyperevm/calldata
 ```
 </CodeGroup>
 
-Generate the calldata required to execute a swap through the Fibrous Finance router contract. This endpoint provides the raw transaction data that can be used to execute the swap directly through a Web3 provider.
+Generate the calldata required to execute a swap through the Fibrous' router contract. This endpoint provides the raw transaction data that can be used to execute the swap directly through a Web3 provider.
 
 ## Request Body Parameters
 
-<ParamField body="route_response" type="object" required>
-  The complete response object from the `/base/route` endpoint.
+<ParamField body="amount" type="string " required>
+  The complete response object from the `/hyperevm/route` endpoint.
   This contains all the necessary information about the optimal route.
 </ParamField>
 
-<ParamField body="slippage" type="number" required>
+<ParamField query="tokenInAddress" type="string" required>
+  The address of the input token.
+  
+  Example: `"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"` for ETH
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  The address of the output token.
+  
+  Example: `"0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"` for USDC
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional>
+  If true, the amount parameter represents the desired output amount instead of input amount.
+  Default: `false`
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional>
+  If true, only direct swaps between the input and output tokens will be considered.
+  Default: `false`
+</ParamField>
+
+
+<ParamField query="excludeProtocols" type="array[string]" optional>
+  Array of protocol names to exclude from routing.
+  Default: `[]`
+</ParamField>
+
+<ParamField query="slippage" type="number" required>
   Maximum acceptable slippage in percentage (0.1 to 49).
   Example: `0.5` for 0.5% slippage tolerance
 </ParamField>
 
-<ParamField body="signer" type="string" required>
-  The address that will sign and execute the transaction.
-  This address must have sufficient balance of the input token.
+<ParamField query="destination" type="string" required>
+  The receiver address for the output token.
 </ParamField>
+
 
 ## Response
 
-<ResponseField name="success" type="boolean">
-  Indicates if the request was successful.
+<ResponseField name="route" type="RouteResponse">
+  The complete response object from the `/hyperevm/route` endpoint.
+  This contains all the necessary information about the optimal route.
 </ResponseField>
 
-<ResponseField name="calldata" type="string">
+<ResponseField name="calldata" type="CalldataResponse">
   The hex-encoded calldata to execute the swap through the router contract.
 </ResponseField>
+
+## Response Types
+```typescript
+export class CalldataResponseDto {
+  route: RouteResponse;
+  calldata: CalldataResponse;
+}
+
+export type RouteResponse =
+  | {
+      success: false;
+      errorMessage: string;
+    }
+  | {
+      success: true;
+      inputToken: Token;
+      inputAmount: string;
+      outputToken: Token;
+      outputAmount: string;
+      estimatedGasUsed: string;
+      estimatedGasUsedInUsd: number;
+      route: FormattedRoute[];
+      time: number;
+      bestQuotesByProtocols: any[];
+      initial: boolean;
+      routeSwapType: route_swap_type;
+};
+
+export type FormattedRoute = {
+  percent: Percent;
+  swaps: FormattedSwap[][];
+};
+  
+export type FormattedSwap = {
+  protocol: Protocol;
+  poolName: string;
+  poolAddress: string;
+  fromTokenAddress: string;
+  toTokenAddress: string;
+  percent: Percent;
+  extraData?: any;
+};
+
+```
 
 ## Error Responses
 
@@ -74,145 +148,161 @@ Generate the calldata required to execute a swap through the Fibrous Finance rou
 
 <RequestExample>
 ```bash cURL
-curl -X POST "https://api.fibrous.finance/hyperevm/calldata" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "route_response": {
-      "success": true,
-      "inputToken": {
-        "address": "0x4200000000000000000000000000000000000006",
-        "symbol": "ETH",
-        "decimals": 18
-      },
-      "inputAmount": "1000000000000000000",
-      "outputToken": {
-        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "symbol": "USDC",
-        "decimals": 6
-      },
-      "outputAmount": "1650230000",
-      "route": [
-        {
-          "protocol": "uniswap",
-          "poolAddress": "0x...",
-          "tokenIn": "0x4200000000000000000000000000000006",
-          "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        }
-      ]
-    },
-    "slippage": 0.5,
-    "signer": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-  }'
+curl --location 'https://api.fibrous.finance/hyperevm/calldata?amount=100000000000000000&tokenInAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenOutAddress=0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb&slippage=0.1&destination=0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca' \
+--header 'Origin: application/javascript'
+ 
+
 ```
 
 ```python Python
 import requests
-import json
 
-url = "https://api.fibrous.finance/hyperevm/calldata"
+url = "https://api.fibrous.finance/hyperevm/calldata?amount=100000000000000000&tokenInAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenOutAddress=0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb&slippage=0.1&destination=0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca"
 
-data = {
-    "route_response": {
-        "success": True,
-        "inputToken": {
-            "address": "0x4200000000000000000000000000000000000006",
-            "symbol": "ETH",
-            "decimals": 18
-        },
-        "inputAmount": "1000000000000000000",
-        "outputToken": {
-            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            "symbol": "USDC",
-            "decimals": 6
-        },
-        "outputAmount": "1650230000",
-        "route": [
-            {
-                "protocol": "uniswap",
-                "poolAddress": "0x...",
-                "tokenIn": "0x4200000000000000000000000000000006",
-                "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-            }
-        ]
-    },
-    "slippage": 0.5,
-    "signer": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+payload = {}
+headers = {
+  'Origin': 'application/javascript'
 }
 
-response = requests.post(url, json=data)
-print(json.dumps(response.json(), indent=2))
+response = requests.request("GET", url, headers=headers, data=payload)
+
+print(response.text)
+
 ```
 
 ```javascript JavaScript
 const axios = require('axios');
 
-const data = {
-  route_response: {
-    success: true,
-    inputToken: {
-      address: '0x4200000000000000000000000000000000000006',
-      symbol: 'ETH',
-      decimals: 18
-    },
-    inputAmount: '1000000000000000000',
-    outputToken: {
-      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      symbol: 'USDC',
-      decimals: 6
-    },
-    outputAmount: '1650230000',
-    route: [
-      {
-        protocol: 'uniswap',
-        poolAddress: '0x...',
-        tokenIn: '0x4200000000000000000000000000000006',
-        tokenOut: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-      }
-    ]
-  },
-  slippage: 0.5,
-  signer: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+let config = {
+  method: 'get',
+  url: 'https://api.fibrous.finance/hyperevm/calldata?amount=100000000000000000&tokenInAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenOutAddress=0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb&slippage=0.1&destination=0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
+  headers: { 
+    'Origin': 'application/javascript'
+  }
 };
 
-axios.post('https://api.fibrous.finance/hyperevm/calldata', data)
-  .then(response => console.log(response.data))
-  .catch(error => console.error(error));
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
 ```
 </RequestExample>
 
 <ResponseExample>
 ```json Response
 {
-  "success": true,
-  "data": {
-    "to": "0x1234...",
-    "data": "0x...",
-    "value": "0"
-  }
+    "route": {
+        "success": true,
+        "routeSwapType": 0,
+        "inputToken": {
+            "name": "Wrapped HYPE",
+            "address": "0x5555555555555555555555555555555555555555",
+            "decimals": 18,
+            "price": "55.18"
+        },
+        "inputAmount": "10000000000000000000",
+        "outputToken": {
+            "name": "USD₮0",
+            "address": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+            "decimals": 6,
+            "price": "1.001"
+        },
+        "outputAmount": "551472578",
+        "time": 0.261,
+        "estimatedGasUsed": "45273855416400",
+        "estimatedGasUsedInUsd": 0.005058900604228536,
+        "route": [
+            {
+                "percent": "100%",
+                "swaps": [
+                    [
+                        {
+                            "protocol": 13,
+                            "poolName": "hybraFinanceV3",
+                            "poolAddress": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+                            "fromTokenAddress": "0x5555555555555555555555555555555555555555",
+                            "toTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                            "percent": "100.00%",
+                            "extraData": {
+                                "fee": 25
+                            }
+                        }
+                    ],
+                    [
+                        {
+                            "protocol": 18,
+                            "poolName": "kittenSwapAlgebraV4",
+                            "poolAddress": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+                            "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                            "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                            "percent": "98.00%",
+                            "extraData": null
+                        },
+                        {
+                            "protocol": 15,
+                            "poolName": "gLiquidV3",
+                            "poolAddress": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+                            "fromTokenAddress": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                            "toTokenAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                            "percent": "2.00%",
+                            "extraData": null
+                        }
+                    ]
+                ]
+            }
+        ],
+        "bestQuotesByProtocols": [],
+        "initial": false
+    },
+    "calldata": {
+        "route": {
+            "token_in": "0x5555555555555555555555555555555555555555",
+            "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+            "amount_in": "10000000000000000000",
+            "amount_out": "551472578",
+            "min_received": "550921106",
+            "destination": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+            "swap_type": 0
+        },
+        "swap_parameters": [
+            {
+                "token_in": "0x5555555555555555555555555555555555555555",
+                "token_out": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                "rate": "1000000",
+                "protocol_id": "13",
+                "pool_address": "0x5a716e045421b0977ca5bfb4f3394139c6a069bc",
+                "swap_type": 0,
+                "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000019"
+            },
+            {
+                "token_in": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                "rate": "980000",
+                "protocol_id": "18",
+                "pool_address": "0x3cf44ef1500c1d559c8e81dffd6baeb0966b2712",
+                "swap_type": 2,
+                "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            {
+                "token_in": "0xfd739d4e423301ce9385c1fb8850539d657c296d",
+                "token_out": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+                "rate": "20000",
+                "protocol_id": "15",
+                "pool_address": "0x5e43a757ba769d4cd5fe568ae2429d4ae69e0ecf",
+                "swap_type": 2,
+                "extra_data": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+        ]
+    }
 }
 ```
 </ResponseExample>
 
-## Usage with Web3
 
-Once you have the calldata, you can execute the swap using any Web3 library:
-
-```javascript
-// Using ethers.js
-const tx = await signer.sendTransaction({
-  to: ROUTER_ADDRESS,
-  data: calldata,
-  value: inputAmount // if swapping ETH
-});
-
-// Using web3.js
-const tx = await web3.eth.sendTransaction({
-  from: signerAddress,
-  to: ROUTER_ADDRESS,
-  data: calldata,
-  value: inputAmount // if swapping ETH
-});
-```
 
 ## Tips
 
@@ -227,5 +317,4 @@ Please refer to our rate limiting documentation for details about request limits
 
 ## Related Endpoints
 
-- [Route Endpoint](/api-reference/base/endpoint/route) - Get optimal swap routes
-- [Execute Endpoint](/api-reference/base/endpoint/execute) - Execute the swap directly
+- [Route Endpoint](/api-reference/hyperevm/endpoint/route) - Get optimal swap routes

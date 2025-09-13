@@ -9,21 +9,23 @@ The `getBestRoute` function finds the optimal trading route for a token swap thr
 
 ```typescript
 /**
- * Gets the best route from the API
- * @param amount: Amount to swap, formatted
- * @param tokenInAddress: Token to swap from
- * @param tokenOutAddress: Token to swap to
- * @param chainName: Chain name where the transaction will take place
- * @param options: Optional parameters such as slippage and excluded protocols
- * @returns Promise<RouteResponse>
- * @throws Error if the API returns an error
- */
-async getBestRoute(
-    amount: BigNumber,
+  * Fetches the best route from the API.
+  * @param amount Amount to swap.
+  * @param tokenInAddress Input token address.
+  * @param tokenOutAddress Output token address.
+  * @param chainName Chain name (e.g. "starknet", "scroll").
+  * @param options Optional route parameters and overrides.
+  * @param chainId Chain ID (may be used instead of `chainName` for backward compatibility).
+  * @returns Route response.
+  * @throws Error if the chain is not supported.
+  */
+getBestRoute(
+    amount: AmountType,
     tokenInAddress: string,
     tokenOutAddress: string,
     chainName: string,
-    options?: Partial<RouteOverrides>
+    options?: Partial<RouteOverrides>,
+    chainId?: number,
 ): Promise<RouteResponse>;
 ```
 
@@ -34,8 +36,9 @@ async getBestRoute(
 | amount | BigNumber | Amount to swap, formatted according to token decimals |
 | tokenInAddress | string | Token address to swap from |
 | tokenOutAddress | string | Token address to swap to |
-| chainName | string | Chain name where the transaction will take place |
+| chainName | string | Chain name where the transaction will take place (will be deprecated in the future, use chainId instead) |
 | options | RouteOverrides | Optional parameters for route customization |
+| chainId | number | Chain ID (may be used instead of `chainName` for backward compatibility) |
 
 ### RouteOverrides Type
 
@@ -70,30 +73,43 @@ type RouteResponse = {
 
 ```typescript
 import { Router as FibrousRouter } from "fibrous-router-sdk";
-import { BigNumber } from "@ethersproject/bignumber";
 import { parseUnits } from "ethers";
 
-const router = new FibrousRouter();
-const chainName = "base";
-const inputToken = await fibrous.getToken(
-  "0xfde4c96c8593536e31f229ea8f37b2ada2699bb2",
-  "base",
-);
-
-if (!inputToken) {
-  throw new Error("Input token not found");
+const fibrous = new FibrousRouter();
+const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
+if (!chainId) {
+    throw new Error("Chain not supported");
 }
 
+// Build route options
+const tokens = await fibrous.supportedTokens(chainId);
+// Get input token from tokens map
+const inputToken = tokens.get("hype");
+if (!inputToken) {
+    throw new Error("Input token not found");
+}
+// Get output token by address (for unverified tokens)
+const outputToken = await fibrous.getToken(
+    "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
+    chainId,
+);
+if (!outputToken) {
+    throw new Error("Output token not found");
+}
 const tokenInAddress = inputToken.address;
-const tokenOutAddress = tokens["usdc"].address;
+const tokenOutAddress = outputToken.address;
 const tokenInDecimals = Number(inputToken.decimals);
-const inputAmount = BigNumber.from(parseUnits("5", tokenInDecimals));
+const inputAmount = BigInt(parseUnits("1", tokenInDecimals)); // 1 Hype
 
 const route = await fibrous.getBestRoute(
-  inputAmount, // amount
-  tokenInAddress, // token input
-  tokenOutAddress, // token output
-  chainName,
+  inputAmount,
+  tokenInAddress,
+  tokenOutAddress,
+  "hyperevm", // chainName will be deprecated in the future, use chainId instead
+  {
+      reverse: false,
+  },
+  chainId,
 );
 // returns route type (src/types/route.ts)
 ```

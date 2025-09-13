@@ -8,11 +8,12 @@ description: 'Route Params Page'
 | Parameter name | Type | Description |
 |---------------|------|-------------|
 | amount * | string | amount of a token to sell, for 1 ETH set as `1000000000000000000` |
-| tokenInAddress * | string | contract address of a token to sell e.g.: `0x4200000000000000000000000000000000000006` |
-| tokenOutAddress * | string | contract address of a token to buy e.g.: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| tokenInAddress * | string | contract address of a token to sell e.g.: `0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` |
+| tokenOutAddress * | string | contract address of a token to buy e.g.: `0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb` |
 | reverse | boolean | Default `false`. It's not supported yet. |
 | direct | boolean | Default `false`. If it's true direct route |
 | excludeProtocols | [string] | The protocol ID |
+
 
 ### Additional Information
 
@@ -28,6 +29,11 @@ description: 'Route Params Page'
 | inputToken | Token | details of a token to sell |
 | inputAmount | string | details of a token to buy |
 | outputToken | Token | details of a token to buy |
+| outputAmount | string | details of a token to buy |
+| estimatedGasUsed | string | details of a token to buy |
 | route | [Route] | the best route for the swap |
 | time | number | execute time |
 | bestQuotesByProtocols | [string] | quotes from supported AMMs | 
+
+
+
