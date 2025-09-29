@@ -1,22 +1,16 @@
 ---
 title: 'Overview'
-description: 'Overview of the Base API endpoints and common concepts'
+description: 'Overview of the Starknet API endpoints and common concepts'
 ---
 
-# Base API Overview
+# Starknet API Overview
 
-Welcome to the Base API documentation. Our API provides powerful endpoints for finding optimal trading routes and executing swaps on Base network.
+Welcome to the Starknet API documentation. Our API provides powerful endpoints for finding optimal trading routes and executing swaps on Base network.
 
-Api accept ETH addresses are listedbelow.
-
-| Token | Address |
-|-------|---------|
-| ETH | 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE |
-| ETH | 0x0000000000000000000000000000000000000000 |
-## Base URL
+## Starknet URL
 
 ```bash
-https://api.fibrous.finance/base
+https://api.fibrous.finance/starknet
 ```
 
 ## Common Concepts
@@ -29,15 +23,13 @@ Please refer to our [Rate Limit](/api-reference/rate-limit) documentation for de
 
 ### Common Token Addresses
 
-Here are some commonly used token addresses on Base:
+Here are some commonly used token addresses on Starknet:
 
 | Token | Address | Decimals |
 |-------|---------|----------|
-| ETH | 0x0000000000000000000000000000000000000000 | 18 |
-| USDC | 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 | 6 |
-| USDbC | 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA | 6 |
-| WETH | 0x4200000000000000000000000000000000000006 | 18 |
-| DAI | 0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb | 18 |
+| ETH | 0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7 | 18 |
+| USDC | 0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8 | 6 |
+| STRK | 0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d | 18 |
 
 ### Response Codes
 
@@ -50,13 +42,13 @@ Here are some commonly used token addresses on Base:
 
 ## Available Endpoints
 
-### [Route](/api-reference/base/endpoint/route)
+### [Route](/api-reference/starknet/endpoint/route)
 Find the optimal trading route through Fibrous' liquidity pools to maximize output and minimize slippage.
 
-### [Execute](/api-reference/base/endpoint/execute)
+### [Execute](/api-reference/starknet/endpoint/execute)
 Generate calldata for the Fibrous router contract to execute the swap.
 
-### [Calldata](/api-reference/base/endpoint/calldata)
+### [Calldata](/api-reference/starknet/endpoint/calldata)
 Get the calldata for executing the swap transaction.
 
 ## Best Practices
@@ -82,23 +74,23 @@ Here's a complete example of how to perform a swap using our API:
 
 1. First, get the optimal route:
 ```bash
-curl -X GET "https://api.fibrous.finance/base/route" \
+curl -X GET "https://api.fibrous.finance/starknet/route" \
   -H "Content-Type: application/json" \
   -d '{
-    "amount": "1000000000000000000",  # 1 WETH
-    "tokenInAddress": "0x4200000000000000000000000000000000000006",
-    "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    "amount": "1000000000000000000",  # 1 ETH
+    "tokenInAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "tokenOutAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8"
   }'
 ```
 
 2. Then, get the execution calldata:
 ```bash
-curl -X GET "https://api.fibrous.finance/base/execute" \
+curl -X GET "https://api.fibrous.finance/starknet/execute" \
   -H "Content-Type: application/json" \
   -d '{
     "amount": "1000000000000000000",
-    "tokenInAddress": "0x4200000000000000000000000000000000000006",
-    "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "tokenInAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "tokenOutAddress": "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
     "slippage": 0.5,
     "destination": "YOUR_ADDRESS"
   }'

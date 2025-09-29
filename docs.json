@@ -75,6 +75,7 @@
               {
                 "group": "Base",
                 "pages": [
+                  "api-reference/base/endpoint/overview",
                   "api-reference/base/endpoint/healthCheck",
                   "api-reference/base/endpoint/route",
                   "api-reference/base/endpoint/execute",
@@ -107,6 +108,7 @@
               {
                 "group": "Starknet",
                 "pages": [
+                  "api-reference/starknet/endpoint/overview",
                   "api-reference/starknet/endpoint/healthCheck",
                   "api-reference/starknet/endpoint/route",
                   "api-reference/starknet/endpoint/routeBatch",
