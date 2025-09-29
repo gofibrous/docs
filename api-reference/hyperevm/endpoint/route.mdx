@@ -18,13 +18,13 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 <ParamField query="amount" type="string" required>
   The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
   
-  Example: `"1000000000000000000"` for 1 ETH
+  Example: `"1000000000000000000"` for 1 HYPE
 </ParamField>
 
 <ParamField query="tokenInAddress" type="string" required>
   The address of the input token.
   
-  Example: `"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"` for ETH
+  Example: `"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"` for HYPE
 </ParamField>
 
 <ParamField query="tokenOutAddress" type="string" required>
@@ -150,7 +150,7 @@ import requests
 url = "https://api.fibrous.finance/hyperevm/route"
 
 params = {
-    "amount": "1000000000000000000",  # 1 ETH
+    "amount": "1000000000000000000",  # 1 HYPE
     "tokenInAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     "tokenOutAddress": "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"
 }
@@ -163,7 +163,7 @@ print(response.json())
 const axios = require('axios');
 
 const params = {
-  amount: '1000000000000000000', // 1 ETH
+  amount: '1000000000000000000', // 1 HYPE
   tokenInAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
   tokenOutAddress: '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
 };

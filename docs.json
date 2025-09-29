@@ -85,6 +85,7 @@
               {
                 "group": "HyperEVM",
                 "pages": [
+                  "api-reference/hyperevm/endpoint/overview",
                   "api-reference/hyperevm/endpoint/healthCheck",
                   "api-reference/hyperevm/endpoint/route",
                   "api-reference/hyperevm/endpoint/execute",
