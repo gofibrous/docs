@@ -1,18 +1,19 @@
 ---
-title: 'Overview'
-description: 'Overview of the Base API endpoints and common concepts'
+title: "Overview"
+description: "Overview of the Base API endpoints and common concepts"
 ---
 
 # Base API Overview
 
 Welcome to the Base API documentation. Our API provides powerful endpoints for finding optimal trading routes and executing swaps on Base network.
 
-Api accept ETH addresses are listedbelow.
+ETH addresses accepted by the API are listed below
 
-| Token | Address |
-|-------|---------|
-| ETH | 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE |
-| ETH | 0x0000000000000000000000000000000000000000 |
+| Token | Address                                    |
+| ----- | ------------------------------------------ |
+| ETH   | 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE |
+| ETH   | 0x0000000000000000000000000000000000000000 |
+
 ## Base URL
 
 ```bash
@@ -22,56 +23,64 @@ https://api.fibrous.finance/base
 ## Common Concepts
 
 ### Authentication
+
 No authentication is required for the API endpoints.
 
 ### Rate Limiting
+
 Please refer to our [Rate Limit](/api-reference/rate-limit) documentation for details about rate limiting.
 
 ### Common Token Addresses
 
 Here are some commonly used token addresses on Base:
 
-| Token | Address | Decimals |
-|-------|---------|----------|
-| ETH | 0x0000000000000000000000000000000000000000 | 18 |
-| USDC | 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 | 6 |
-| USDbC | 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA | 6 |
-| WETH | 0x4200000000000000000000000000000000000006 | 18 |
-| DAI | 0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb | 18 |
+| Token | Address                                    | Decimals |
+| ----- | ------------------------------------------ | -------- |
+| ETH   | 0x0000000000000000000000000000000000000000 | 18       |
+| USDC  | 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 | 6        |
+| USDbC | 0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA | 6        |
+| WETH  | 0x4200000000000000000000000000000000000006 | 18       |
+| DAI   | 0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb | 18       |
 
 ### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200  | Success - The request was successful |
-| 400  | Bad Request - Check your request parameters |
-| 429  | Too Many Requests - You've hit the rate limit |
+| Code | Description                                             |
+| ---- | ------------------------------------------------------- |
+| 200  | Success - The request was successful                    |
+| 400  | Bad Request - Check your request parameters             |
+| 429  | Too Many Requests - You've hit the rate limit           |
 | 500  | Internal Server Error - Something went wrong on our end |
 
 ## Available Endpoints
 
 ### [Route](/api-reference/base/endpoint/route)
+
 Find the optimal trading route through Fibrous' liquidity pools to maximize output and minimize slippage.
 
 ### [Execute](/api-reference/base/endpoint/execute)
+
 Generate calldata for the Fibrous router contract to execute the swap.
 
 ### [Calldata](/api-reference/base/endpoint/calldata)
+
 Get the calldata for executing the swap transaction.
 
 ## Best Practices
 
 ### Slippage Protection
+
 - Always set a reasonable slippage value (0.1% - 1% for stable pairs)
 - Use higher slippage for volatile pairs or low liquidity tokens
 - Monitor price impact to ensure favorable trades
 
 ### Gas Optimization
+
 - Use the `direct` parameter for simple swaps between major tokens
 - Set `excludeProtocols` to skip specific protocols if needed
 - Consider batch swaps for multiple transactions
 
 ### Error Handling
+
 - Always check the `success` field in responses
 - Implement proper error handling in your code
 - Monitor transaction status after execution
@@ -81,6 +90,7 @@ Get the calldata for executing the swap transaction.
 Here's a complete example of how to perform a swap using our API:
 
 1. First, get the optimal route:
+
 ```bash
 curl -X GET "https://api.fibrous.finance/base/route" \
   -H "Content-Type: application/json" \
@@ -92,6 +102,7 @@ curl -X GET "https://api.fibrous.finance/base/route" \
 ```
 
 2. Then, get the execution calldata:
+
 ```bash
 curl -X GET "https://api.fibrous.finance/base/execute" \
   -H "Content-Type: application/json" \
@@ -110,4 +121,4 @@ curl -X GET "https://api.fibrous.finance/base/execute" \
 
 - Check our [FAQ](/essentials/faq) for common questions
 - Join our [Discord](https://discord.gg/fibrous) for community support
-- Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) for direct support 
+- Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) for direct support
