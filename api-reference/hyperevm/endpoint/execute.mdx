@@ -1,15 +1,17 @@
 ---
-title: 'Execute'
-description: 'Execute a swap through Fibrous liquidity pools'
-api: 'POST /hyperevm/execute'
+title: "Execute"
+description: "Execute a swap through Fibrous liquidity pools"
+api: "POST /hyperevm/execute"
 ---
 
 ## Endpoint
 
 <CodeGroup>
+
 ```bash
 https://api.fibrous.finance/hyperevm/execute
 ```
+
 </CodeGroup>
 
 Execute a token swap using the optimal route previously found through the route endpoint. This endpoint handles the actual transaction execution and ensures the swap is performed with the best possible outcome.
@@ -17,74 +19,68 @@ Execute a token swap using the optimal route previously found through the route 
 ## Request Body Parameters
 
 <ParamField body="route" type="RouteResponse" required>
-  The route object returned from the `/hyperevm/route` endpoint.
-  This contains all necessary information about the swap path and expected outcomes.
+  The route object returned from the `/hyperevm/route` endpoint. This contains all necessary information about the swap path and expected outcomes.
 </ParamField>
 
-<ParamField body="slippage" type="number" default="0.5" required>
-  Maximum acceptable slippage in percentage (0.1 to 100).
-  Example: `0.5` for 0.5% slippage tolerance
+<ParamField body="slippage" default="0.5" type="number" required>
+  Maximum acceptable slippage in percentage (0.1 to 100). Example: `0.5` for 0.5% slippage tolerance
 </ParamField>
 
 <ParamField body="destination" type="string" required>
-  Unix timestamp (in seconds) after which the transaction will revert.
-  Defaults to 20 minutes from the current time if not specified.
+  Unix timestamp (in seconds) after which the transaction will revert. Defaults to 20 minutes from the current time if not specified.
 </ParamField>
 
 ## Response
 
-
 <ResponseField name="route" type="object">
   The executed route details.
+
   <Expandable>
-  <ResponseField name="amount_in" type="string">
-  The amount of input tokens in wei format.
- </ResponseField>
- <ResponseField name="amount_out" type="string">
-  The amount of output tokens in wei format.
- </ResponseField>
- <ResponseField name="min_received" type="string">
-  The minimum amount of output token.
- </ResponseField>
- <ResponseField name="destination" type="string">
-  The destination address for the swap.
- </ResponseField>
- <ResponseField name="swap_type" type="number">
-  The type of swap.
- </ResponseField>
+    <ResponseField name="amount_in" type="string">
+      The amount of input tokens in wei format.
+    </ResponseField>
+    <ResponseField name="amount_out" type="string">
+      The amount of output tokens in wei format.
+    </ResponseField>
+    <ResponseField name="min_received" type="string">
+      The minimum amount of output token.
+    </ResponseField>
+    <ResponseField name="destination" type="string">
+      The destination address for the swap.
+    </ResponseField>
+    <ResponseField name="swap_type" type="number">
+      The type of swap.
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
 <ResponseField name="swap_parameters" type="object[]">
   Swap parameters for every hop in the route.
+
   <Expandable>
-  <ResponseField name="token_in" type="string">
-  The token in address.
- </ResponseField>
- <ResponseField name="token_out" type="string">
-  The token out address.
- </ResponseField>
- <ResponseField name="rate" type="string">
-  The rate of the swap.
- </ResponseField>
- <ResponseField name="protocol_id" type="string">
-  The protocol id of the swap.
- </ResponseField>
- <ResponseField name="pool_address" type="string">
-  The pool address of the swap.
- </ResponseField>
- <ResponseField name="swap_type" type="number">
-  The type of swap.
- </ResponseField>
- <ResponseField name="extra_data" type="string">
-  The extra data of the swap.
- </ResponseField>
- </Expandable>
+    <ResponseField name="token_in" type="string">
+      The token in address.
+    </ResponseField>
+    <ResponseField name="token_out" type="string">
+      The token out address.
+    </ResponseField>
+    <ResponseField name="rate" type="string">
+      The rate of the swap.
+    </ResponseField>
+    <ResponseField name="protocol_id" type="string">
+      The protocol id of the swap.
+    </ResponseField>
+    <ResponseField name="pool_address" type="string">
+      The pool address of the swap.
+    </ResponseField>
+    <ResponseField name="swap_type" type="number">
+      The type of swap.
+    </ResponseField>
+    <ResponseField name="extra_data" type="string">
+      The extra data of the swap.
+    </ResponseField>
+  </Expandable>
 </ResponseField>
-
-
-
-
 
 ## Error Responses
 
@@ -129,6 +125,7 @@ Execute a token swap using the optimal route previously found through the route 
 ```
 
 <RequestExample>
+
 ```bash cURL
 curl --location 'https://api.fibrous.finance/hyperevm/execute' \
 --header 'Content-Type: application/json' \
@@ -201,11 +198,12 @@ curl --location 'https://api.fibrous.finance/hyperevm/execute' \
 }'
 ```
 
+
 ```python Python
 import requests
 import json
 
-url = "localhost:8001/hyperevm/execute"
+url = "https://api.fibrous.finance/hyperevm/execute"
 
 payload = json.dumps({
   "route": {
@@ -282,8 +280,8 @@ response = requests.request("POST", url, headers=headers, data=payload)
 
 print(response.text)
 
-
 ```
+
 
 ```javascript JavaScript
 const axios = require('axios');
@@ -358,7 +356,7 @@ let data = JSON.stringify({
 let config = {
   method: 'post',
   maxBodyLength: Infinity,
-  url: 'localhost:8001/hyperevm/execute',
+  url: 'https://api.fibrous.finance/hyperevm/execute',
   headers: { 
     'Content-Type': 'application/json'
   },
@@ -373,11 +371,12 @@ axios.request(config)
   console.log(error);
 });
 
-
 ```
+
 </RequestExample>
 
 <ResponseExample>
+
 ```json Response
 {
     "route": {
@@ -420,6 +419,7 @@ axios.request(config)
     ]
 }
 ```
+
 </ResponseExample>
 
 ## Best Practices
@@ -428,7 +428,6 @@ axios.request(config)
    - Always use a fresh route from the `/hyperevm/route` endpoint
    - Routes can become stale due to market movements
    - Implement retry logic with fresh routes if execution fails
-
 2. **Slippage Management**
    - Set appropriate slippage tolerance based on:
      - Token pair volatility
@@ -436,12 +435,10 @@ axios.request(config)
      - Market conditions
    - Higher values increase success rate but may result in worse prices
    - Lower values ensure better prices but may cause more failed transactions
-
 3. **Deadline Setting**
    - Set reasonable deadlines to prevent stale transactions
    - Consider network congestion when setting deadlines
    - Default of 20 minutes is suitable for most cases
-
 4. **Gas Optimization**
    - Monitor `gasUsed` in responses to optimize future transactions
    - Consider using direct routes for major pairs
