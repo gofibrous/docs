@@ -1,6 +1,6 @@
 ---
 title: "SDK Overview"
-description: "Integrate Fibrous Finance into your application with our powerful TypeScript SDK"
+description: "Integrate Fibrous into your application with our powerful TypeScript SDK"
 ---
 
 ## Introduction
@@ -13,15 +13,12 @@ The Fibrous Router SDK is a TypeScript library that provides a simple and effici
   <Card title="Type Safety" icon="shield-check">
     Full TypeScript support with comprehensive type definitions
   </Card>
-  
   <Card title="Multi-Chain" icon="network-wired">
     Single interface for Base, HyperEVM, Scroll, and Starknet
   </Card>
-  
   <Card title="Easy Integration" icon="plug">
     Simple API that abstracts away complex routing logic
   </Card>
-  
   <Card title="Optimized Routes" icon="route">
     Automatically finds the best swap paths across all DEXs
   </Card>
@@ -31,12 +28,12 @@ The Fibrous Router SDK is a TypeScript library that provides a simple and effici
 
 The SDK supports the following blockchain networks:
 
-| Chain | Chain ID | Status |
-|-------|----------|--------|
-| **Starknet** | SN_MAIN | ✅ Full Support |
-| **Base** | 8453 | ✅ Full Support |
-| **Scroll** | 534352 | ✅ Full Support |
-| **HyperEVM** | 998 | ✅ Full Support |
+| Chain        | Chain ID |
+| ------------ | -------- |
+| **Starknet** | SN_MAIN  |
+| **Base**     | 8453     |
+| **Scroll**   | 534352   |
+| **HyperEVM** | 998      |
 
 ## Quick Start
 
@@ -46,7 +43,6 @@ The SDK supports the following blockchain networks:
     npm install fibrous-router-sdk
     ```
   </Step>
-  
   <Step title="Initialize the Router">
     ```typescript
     import { Router as FibrousRouter } from "fibrous-router-sdk";
@@ -54,7 +50,6 @@ The SDK supports the following blockchain networks:
     const fibrous = new FibrousRouter();
     ```
   </Step>
-  
   <Step title="Get the Best Route">
     ```typescript
     const route = await fibrous.getBestRoute(
@@ -65,7 +60,6 @@ The SDK supports the following blockchain networks:
     );
     ```
   </Step>
-  
   <Step title="Execute the Swap">
     ```typescript
     const tx = await fibrous.buildTransaction(
@@ -85,12 +79,13 @@ The SDK supports the following blockchain networks:
 ### 🔍 Smart Routing
 
 The SDK automatically finds the optimal route by:
+
 - Aggregating liquidity from multiple DEX protocols
 - Splitting large trades across multiple paths
 - Minimizing price impact and slippage
 - Considering gas costs in route optimization
 
-### 🔄 Batch Operations
+### Batch Operations
 
 Execute multiple swaps in a single transaction (Starknet):
 
@@ -103,7 +98,7 @@ const routes = await fibrous.getBestRouteBatch(
 );
 ```
 
-### 🎯 Token Management
+### Token Management
 
 Easy access to supported tokens:
 
@@ -112,7 +107,7 @@ const tokens = await fibrous.supportedTokens(chainId);
 const usdc = tokens.get("usdc");
 ```
 
-### ⚡ Protocol Flexibility
+### Protocol Flexibility
 
 Exclude specific protocols or use only certain ones:
 
@@ -201,7 +196,6 @@ async function swapTokens() {
     );
     ```
   </Tab>
-  
   <Tab title="HyperEVM">
     ```typescript
     const fibrous = new FibrousRouter();
@@ -215,7 +209,6 @@ async function swapTokens() {
     );
     ```
   </Tab>
-  
   <Tab title="Scroll">
     ```typescript
     const fibrous = new FibrousRouter();
@@ -229,7 +222,6 @@ async function swapTokens() {
     );
     ```
   </Tab>
-  
   <Tab title="Starknet">
     ```typescript
     const fibrous = new FibrousRouter();
@@ -249,16 +241,17 @@ async function swapTokens() {
 
 <Tabs>
   <Tab title="When to Use SDK">
-    ✅ **Use the SDK when:**
+    **Use the SDK when:**
+
     - Building a TypeScript/JavaScript application
     - You want type safety and autocomplete
     - You need simplified integration
     - Working with multiple chains
     - You want built-in error handling
   </Tab>
-  
   <Tab title="When to Use API">
-    ✅ **Use the API when:**
+    **Use the API when:**
+
     - Building in a different language
     - You need maximum flexibility
     - Building a lightweight integration
@@ -281,9 +274,11 @@ async function swapTokens() {
 npm install fibrous-router-sdk
 ```
 
+
 ```bash yarn
 yarn add fibrous-router-sdk
 ```
+
 
 ```bash pnpm
 pnpm add fibrous-router-sdk
@@ -297,15 +292,12 @@ pnpm add fibrous-router-sdk
   <Card title="Installation Guide" icon="download" href="/integrate-best-trading/fibrous-sdk/installation">
     Detailed installation and setup instructions
   </Card>
-  
   <Card title="Core Functions" icon="code" href="/integrate-best-trading/fibrous-sdk/overview">
     Explore all available SDK methods
   </Card>
-  
   <Card title="Get Best Route" icon="route" href="/integrate-best-trading/fibrous-sdk/best-route">
     Learn how to find optimal swap routes
   </Card>
-  
   <Card title="Execute Swaps" icon="play" href="/integrate-best-trading/fibrous-sdk/route-and-calldata">
     Build and execute swap transactions
   </Card>
