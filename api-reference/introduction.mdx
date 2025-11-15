@@ -1,4 +1,211 @@
 ---
-title: "Introduction"
-description: "The Fibrous Router API is a cutting-edge discovery and routing algorithm that offers asset exchanges at the best rates on the market. Our API finds the most efficient paths for token swaps, capable of splitting between different protocols and even different market depths within one protocol in the shortest possible time."
+title: "API Overview"
+description: "The Fibrous Router API provides optimal token swap routing across multiple blockchain networks with the best rates on the market."
 ---
+
+## Introduction
+
+The Fibrous Router API is a cutting-edge discovery and routing algorithm that offers asset exchanges at the best rates on the market. Our API finds the most efficient paths for token swaps, capable of splitting between different protocols and even different market depths within one protocol in the shortest possible time.
+
+## Supported Networks
+
+Fibrous Finance API is available on multiple blockchain networks:
+
+- **Starknet** - Cairo-based Layer 2 with batch operations support
+- **Base** - Optimistic rollup on Ethereum with low fees
+- **HyperEVM** - High-performance EVM chain with ultra-fast execution
+- **Scroll** - zkEVM Layer 2 solution with zero-knowledge proofs
+
+For detailed network information, see [Supported Chains](/api-reference/chains-tokens-contracts/supported-chains).
+
+## Core Endpoints
+
+All networks (except Starknet) share the same endpoint structure:
+
+<CardGroup cols={2}>
+  <Card title="Get Route" icon="route" href="/api-reference/endpoints/route">
+    Find the optimal trading route
+  </Card>
+  
+  <Card title="Execute Swap" icon="play" href="/api-reference/endpoints/execute">
+    Execute a token swap
+  </Card>
+  
+  <Card title="Get Calldata" icon="code" href="/api-reference/endpoints/calldata">
+    Get route and calldata in one call
+  </Card>
+  
+  <Card title="Health Check" icon="heart-pulse" href="/api-reference/endpoints/health-check">
+    Check API and network status
+  </Card>
+</CardGroup>
+
+<Note>
+  Starknet has a different architecture and additional capabilities. See [Starknet API](/api-reference/starknet/endpoint/overview) for details.
+</Note>
+
+## Quick Start
+
+Here's a complete example of how to perform a swap:
+
+<Steps>
+  <Step title="Get the optimal route">
+    ```bash
+    curl -X GET "https://api.fibrous.finance/base/route" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "amount": "1000000000000000000",
+        "tokenInAddress": "0x0000000000000000000000000000000000000000",
+        "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "slippage": 0.5
+      }'
+    ```
+  </Step>
+  
+  <Step title="Execute the swap">
+    ```bash
+    curl -X POST "https://api.fibrous.finance/base/execute" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "route": { ... },
+        "slippage": 0.5,
+        "destination": "0xYourAddress"
+      }'
+    ```
+  </Step>
+  
+  <Step title="Send the transaction">
+    Use the returned calldata to send a transaction using your preferred Web3 library.
+  </Step>
+</Steps>
+
+## Base URL
+
+```
+https://api.fibrous.finance
+```
+
+All endpoints follow the pattern: `/{network}/{endpoint}`
+
+**Examples:**
+- `https://api.fibrous.finance/base/route`
+- `https://api.fibrous.finance/hyperevm/execute`
+- `https://api.fibrous.finance/scroll/calldata`
+- `https://api.fibrous.finance/starknet/route`
+
+## Authentication
+
+No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage.
+
+<Card title="Rate Limits" icon="gauge" href="/api-reference/rate-limit">
+  Learn about API rate limits and best practices
+</Card>
+
+## Key Features
+
+<AccordionGroup>
+  <Accordion title="Multi-Protocol Routing">
+    Fibrous aggregates liquidity from multiple DEX protocols on each network, finding the best possible route for your swap.
+  </Accordion>
+  
+  <Accordion title="Split Routing">
+    Large swaps can be split across multiple protocols and pools to minimize price impact and maximize output.
+  </Accordion>
+  
+  <Accordion title="Real-Time Optimization">
+    Routes are calculated in real-time based on current liquidity and prices across all integrated protocols.
+  </Accordion>
+  
+  <Accordion title="Gas Optimization">
+    Our routing algorithm considers gas costs to ensure the best net outcome for your swap.
+  </Accordion>
+  
+  <Accordion title="Slippage Protection">
+    Set custom slippage tolerance to protect against unfavorable price movements during execution.
+  </Accordion>
+</AccordionGroup>
+
+## Response Format
+
+All API responses follow a consistent JSON format:
+
+```json
+{
+  "success": true,
+  "data": {
+    // Endpoint-specific data
+  },
+  "timestamp": 1699564800
+}
+```
+
+Error responses include detailed information:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INSUFFICIENT_LIQUIDITY",
+    "message": "Not enough liquidity available for this swap amount",
+    "details": {}
+  },
+  "timestamp": 1699564800
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Fresh Routes" icon="clock">
+    Always fetch a new route before executing. Routes can become stale within 30-60 seconds.
+  </Card>
+  
+  <Card title="Appropriate Slippage" icon="percent">
+    Set slippage based on token volatility and liquidity. Stable pairs: 0.1-0.5%, Volatile: 1-3%
+  </Card>
+  
+  <Card title="Error Handling" icon="triangle-exclamation">
+    Implement proper error handling and retry logic for production applications.
+  </Card>
+  
+  <Card title="Gas Estimation" icon="gas-pump">
+    Use the estimated gas from API responses and add a 10-20% buffer for safety.
+  </Card>
+</CardGroup>
+
+
+## Need Help?
+
+<CardGroup cols={3}>
+  <Card title="Discord" icon="discord" href="https://discord.gg/fibrous">
+    Join our community
+  </Card>
+  
+  <Card title="Documentation" icon="book" href="/essentials/faq">
+    Read the FAQ
+  </Card>
+  
+  <Card title="Support" icon="envelope" href="mailto:contact@fibrous.finance">
+    Contact us
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Endpoints" icon="compass" href="/api-reference/endpoints/route">
+    Learn about each endpoint in detail
+  </Card>
+  
+  <Card title="SDK Integration" icon="code" href="/integrate-best-trading/fibrous-sdk/installation">
+    Use our SDK for easier integration
+  </Card>
+  
+  <Card title="Smart Contracts" icon="file-contract" href="/integrate-best-trading/fibrous-smart-contracts/deployed-contracts">
+    View deployed contract addresses
+  </Card>
+  
+  <Card title="Status Page" icon="signal" href="https://status.fibrous.finance">
+    Check real-time API status
+  </Card>
+</CardGroup>

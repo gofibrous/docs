@@ -1,0 +1,186 @@
+---
+title: "Supported Chains"
+description: "Fibrous Finance is currently supported on the following blockchain networks"
+---
+
+# Supported Chains
+
+Fibrous Finance provides optimal token swap routing across multiple blockchain networks. Each network is fully integrated with our routing algorithm to ensure the best possible trading experience.
+
+## Mainnets
+
+| Chain Name | Chain ID | Chain Tag |
+|------------|----------|-----------|
+| **Starknet** | SN_MAIN | `starknet` |
+| **Base** | 8453 | `base` |
+| **Scroll** | 534352 | `scroll` |
+| **HyperEVM** | 998 | `hyperevm` |
+
+## Chain Details
+
+<AccordionGroup>
+  <Accordion title="Starknet" icon="layer-group">
+    ### Overview
+    Starknet is a permissionless Layer 2 network that uses Cairo VM and STARK proofs for scalability.
+    
+    ### Key Features
+    - **VM Type**: Cairo VM
+    - **Native Token**: ETH
+    - **Block Time**: ~10 seconds
+    - **Unique Features**: Batch swaps, Cairo-specific transaction format
+    
+    ### Network Information
+    - **RPC Endpoint**: `https://starknet-mainnet.public.blastapi.io`
+    - **Explorer**: [Starkscan](https://starkscan.co)
+    - **API Base URL**: `https://api.fibrous.finance/starknet`
+    
+    ### Common Tokens
+    | Token | Address | Decimals |
+    |-------|---------|----------|
+    | ETH | `0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7` | 18 |
+    | USDC | `0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8` | 6 |
+    | STRK | `0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d` | 18 |
+    
+    <Note>
+      Starknet uses a different address format and transaction structure compared to EVM chains.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Base" icon="cube">
+    ### Overview
+    Base is an Ethereum Layer 2 optimistic rollup developed by Coinbase, offering low fees and fast transactions.
+    
+    ### Key Features
+    - **VM Type**: EVM Compatible
+    - **Native Token**: ETH
+    - **Block Time**: ~2 seconds
+    - **Unique Features**: Low fees, Coinbase ecosystem integration
+    
+    ### Network Information
+    - **Chain ID**: 8453
+    - **RPC Endpoint**: `https://mainnet.base.org`
+    - **Explorer**: [Basescan](https://basescan.org)
+    - **API Base URL**: `https://api.fibrous.finance/base`
+    
+    ### Common Tokens
+    | Token | Address | Decimals |
+    |-------|---------|----------|
+    | ETH | `0x0000000000000000000000000000000000000000` | 18 |
+    | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | 6 |
+    | USDbC | `0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA` | 6 |
+    | WETH | `0x4200000000000000000000000000000000000006` | 18 |
+    | DAI | `0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb` | 18 |
+    
+    <Tip>
+      Base accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native ETH.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Scroll" icon="scroll">
+    ### Overview
+    Scroll is a zkEVM Layer 2 solution that uses zero-knowledge proofs to ensure transaction validity.
+    
+    ### Key Features
+    - **VM Type**: zkEVM (EVM Equivalent)
+    - **Native Token**: ETH
+    - **Block Time**: ~3 seconds
+    - **Unique Features**: Zero-knowledge proofs, EVM equivalence
+    
+    ### Network Information
+    - **Chain ID**: 534352
+    - **RPC Endpoint**: `https://rpc.scroll.io`
+    - **Explorer**: [Scrollscan](https://scrollscan.com)
+    - **API Base URL**: `https://api.fibrous.finance/scroll`
+    
+    ### Common Tokens
+    | Token | Address | Decimals |
+    |-------|---------|----------|
+    | ETH | `0x0000000000000000000000000000000000000000` | 18 |
+    | USDC | `0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4` | 6 |
+    | WETH | `0x5300000000000000000000000000000000000004` | 18 |
+    
+    <Note>
+      Scroll is EVM equivalent, meaning existing Ethereum tools work seamlessly without modification.
+    </Note>
+  </Accordion>
+
+  <Accordion title="HyperEVM" icon="bolt">
+    ### Overview
+    HyperEVM is a high-performance EVM-compatible blockchain optimized for speed and efficiency.
+    
+    ### Key Features
+    - **VM Type**: EVM Compatible
+    - **Native Token**: HYPE
+    - **Block Time**: ~2 seconds
+    - **Unique Features**: Ultra-fast execution, native HYPE token
+    
+    ### Network Information
+    - **Chain ID**: 998
+    - **RPC Endpoint**: Contact HyperEVM for details
+    - **API Base URL**: `https://api.fibrous.finance/hyperevm`
+    
+    ### Common Tokens
+    | Token | Address | Decimals |
+    |-------|---------|----------|
+    | HYPE | `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` | 18 |
+    | USDC | `0xb88339cb7199b77e23db6e890353e22632ba630f` | 6 |
+    | WHYPE | `0x5555555555555555555555555555555555555555` | 18 |
+    
+    <Tip>
+      HyperEVM accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native HYPE.
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+
+## Integration Support
+
+### API Support
+All chains are fully supported through our unified API:
+- ✅ Route optimization
+- ✅ Swap execution
+- ✅ Calldata generation
+- ✅ Health monitoring
+
+### SDK Support
+Our TypeScript SDK supports all chains:
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+const fibrous = new FibrousRouter();
+const chains = fibrous.supportedChains;
+
+// Supported chains:
+// - starknet (SN_MAIN)
+// - base (8453)
+// - scroll (534352)
+// - hyperevm (998)
+```
+
+### Smart Contract Support
+Router contracts are deployed on all supported chains. See [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses) for details.
+
+## Adding New Chains
+
+Interested in adding Fibrous Finance to your chain? We're always looking to expand to new networks.
+
+<Card title="Contact Us" icon="envelope" href="mailto:contact@fibrous.finance">
+  Reach out to learn more about adding Fibrous to your chain
+</Card>
+
+## Network Status
+
+Check the real-time status of all supported networks:
+
+<Card title="Status Page" icon="signal" href="https://status.fibrous.finance">
+  View live network status and uptime
+</Card>
+
+## Related Resources
+
+- [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses) - Router and token addresses
+- [Supported Tokens](/api-reference/chains-tokens-contracts/supported-tokens) - Available tokens per chain
+- [API Reference](/api-reference/introduction) - API documentation
+- [SDK Reference](/integrate-best-trading/fibrous-sdk/index) - SDK integration guide
+
+

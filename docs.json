@@ -14,7 +14,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "User Guides",
+        "tab": "Overview",
         "groups": [
           {
             "group": "Get Started",
@@ -55,7 +55,6 @@
               "external-links/app",
               "external-links/github",
               "external-links/blog",
-              "external-links/status",
               "external-links/twitter",
               "external-links/discord",
               "external-links/farcaster",
@@ -66,49 +65,38 @@
         ]
       },
       {
-        "tab": "Integrate Best Trading",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "Fibrous Router API",
+            "group": "Getting Started",
             "pages": [
               "api-reference/introduction",
+              "api-reference/rate-limit"
+            ]
+          },
+          {
+            "group": "Chains, Tokens, Contracts",
+            "pages": [
+              "api-reference/chains-tokens-contracts/supported-chains",
+              "api-reference/chains-tokens-contracts/contract-addresses",
+              "api-reference/chains-tokens-contracts/supported-tokens"
+            ]
+          },
+          {
+            "group": "Core Endpoints",
+            "pages": [
+              "api-reference/endpoints/route",
+              "api-reference/endpoints/execute",
+              "api-reference/endpoints/calldata",
+              "api-reference/endpoints/health-check"
+            ]
+          },
+          {
+            "group": "Starknet API",
+            "pages": [
               {
-                "group": "Base",
+                "group": "Endpoints and Parameters",
                 "pages": [
-                  "api-reference/base/endpoint/overview",
-                  "api-reference/base/endpoint/healthCheck",
-                  "api-reference/base/endpoint/route",
-                  "api-reference/base/endpoint/execute",
-                  "api-reference/base/endpoint/calldata",
-                  "api-reference/base/route-params"
-                ]
-              },
-              {
-                "group": "HyperEVM",
-                "pages": [
-                  "api-reference/hyperevm/endpoint/overview",
-                  "api-reference/hyperevm/endpoint/healthCheck",
-                  "api-reference/hyperevm/endpoint/route",
-                  "api-reference/hyperevm/endpoint/execute",
-                  "api-reference/hyperevm/endpoint/calldata",
-                  "api-reference/hyperevm/route-params"
-                ]
-              },
-              {
-                "group": "Scroll",
-                "pages": [
-                  "api-reference/scroll/endpoint/healthCheck",
-                  "api-reference/scroll/endpoint/route",
-                  "api-reference/scroll/endpoint/execute",
-                  "api-reference/scroll/endpoint/calldata",
-                  "api-reference/scroll/route-params",
-                  "api-reference/scroll/execute-params"
-                ]
-              },
-              {
-                "group": "Starknet",
-                "pages": [
-                  "api-reference/starknet/endpoint/overview",
                   "api-reference/starknet/endpoint/healthCheck",
                   "api-reference/starknet/endpoint/route",
                   "api-reference/starknet/endpoint/routeBatch",
@@ -118,46 +106,35 @@
                   "api-reference/starknet/batch-route-params",
                   "api-reference/starknet/execute-params"
                 ]
-              },
-              "api-reference/rate-limit"
-            ]
-          },
-          {
-            "group": "Fibrous SDK",
-            "pages": [
-              {
-                "group": "Integrate Fibrous SDK",
-                "pages": [
-                  "integrate-best-trading/fibrous-sdk/installation",
-                  "integrate-best-trading/fibrous-sdk/overview",
-                  "integrate-best-trading/fibrous-sdk/supported-tokens",
-                  "integrate-best-trading/fibrous-sdk/supported-protocols",
-                  "integrate-best-trading/fibrous-sdk/best-route",
-                  "integrate-best-trading/fibrous-sdk/route-and-calldata",
-                  "integrate-best-trading/fibrous-sdk/execute-batch-swap"
-                ]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "SDK Reference",
+        "groups": [
           {
-            "group": "Fibrous Smart Contracts",
+            "group": "Getting Started",
             "pages": [
-              {
-                "group": "Smart Contracts",
-                "pages": [
-                  "integrate-best-trading/fibrous-smart-contracts/starknet",
-                  "integrate-best-trading/fibrous-smart-contracts/scroll",
-                  "integrate-best-trading/fibrous-smart-contracts/base",
-                  "integrate-best-trading/fibrous-smart-contracts/hyperevm",
-                  "integrate-best-trading/fibrous-smart-contracts/deployed-contracts"
-                ]
-              }
+              "integrate-best-trading/fibrous-sdk/index",
+              "integrate-best-trading/fibrous-sdk/installation",
+              "integrate-best-trading/fibrous-sdk/overview"
             ]
           },
           {
-            "group": "Fibrous Widget",
+            "group": "Core Functions",
             "pages": [
-              "fibrous-solutions/fibrous-widget"
+              "integrate-best-trading/fibrous-sdk/best-route",
+              "integrate-best-trading/fibrous-sdk/route-and-calldata",
+              "integrate-best-trading/fibrous-sdk/execute-batch-swap"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "integrate-best-trading/fibrous-sdk/supported-tokens",
+              "integrate-best-trading/fibrous-sdk/supported-protocols"
             ]
           }
         ]

@@ -1,0 +1,221 @@
+---
+title: "Health Check"
+description: "Check the API status and network availability"
+api: "GET /{network}/healthcheck"
+---
+
+## Overview
+
+The Health Check endpoint allows you to verify the API status and check if a specific network is operational. This is useful for monitoring, debugging, and implementing fallback logic in your application.
+
+## Supported Networks
+
+<Tabs>
+  <Tab title="Base">
+    ```bash
+    https://api.fibrous.finance/base/healthcheck
+    ```
+  </Tab>
+  <Tab title="HyperEVM">
+    ```bash
+    https://api.fibrous.finance/hyperevm/healthcheck
+    ```
+  </Tab>
+  <Tab title="Scroll">
+    ```bash
+    https://api.fibrous.finance/scroll/healthcheck
+    ```
+  </Tab>
+  <Tab title="Starknet">
+    ```bash
+    https://api.fibrous.finance/starknet/healthcheck
+    ```
+  </Tab>
+</Tabs>
+
+## Response
+
+<ResponseField name="staus" type="number">
+  HTTP status code (200 = healthy)
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Health status message indicating the API is operational
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl "https://api.fibrous.finance/base/healthcheck"
+```
+
+```javascript JavaScript
+const checkHealth = async (network = 'base') => {
+  const response = await fetch(
+    `https://api.fibrous.finance/${network}/healthcheck`
+  );
+  const data = await response.json();
+  
+  if (data.staus === 200) {
+    console.log(`${network} API is healthy`);
+    console.log(data.message);
+  }
+  
+  return data;
+};
+
+// Check health
+await checkHealth('base');
+```
+
+```python Python
+import requests
+
+def check_health(network='base'):
+    url = f"https://api.fibrous.finance/{network}/healthcheck"
+    response = requests.get(url)
+    data = response.json()
+    
+    if data['staus'] == 200:
+        print(f"{network} API is healthy")
+        print(data['message'])
+    
+    return data
+
+# Check health
+check_health('base')
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json
+{
+  "staus": 200,
+  "message": "{Base} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\""
+}
+```
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Monitoring" icon="chart-line">
+    Monitor API availability in your application dashboard
+  </Card>
+  
+  <Card title="Fallback Logic" icon="rotate">
+    Implement fallback to alternative networks if one is down
+  </Card>
+  
+  <Card title="Load Balancing" icon="scale-balanced">
+    Route traffic based on network latency
+  </Card>
+  
+  <Card title="Debugging" icon="bug">
+    Verify API connectivity when troubleshooting
+  </Card>
+</CardGroup>
+
+## Implementation Example
+
+```javascript
+class FibrousClient {
+  constructor() {
+    this.networks = ['base', 'hyperevm', 'scroll', 'starknet'];
+  }
+  
+  async getHealthyNetwork() {
+    const healthChecks = await Promise.all(
+      this.networks.map(async (network) => {
+        try {
+          const response = await fetch(
+            `https://api.fibrous.finance/${network}/health`
+          );
+          const data = await response.json();
+          return {
+            network,
+            status: data.status,
+            latency: data.latency?.rpc || Infinity
+          };
+        } catch (error) {
+          return {
+            network,
+            status: 'unhealthy',
+            latency: Infinity
+          };
+        }
+      })
+    );
+    
+    // Find the healthiest network with lowest latency
+    const healthy = healthChecks
+      .filter(check => check.status === 'healthy')
+      .sort((a, b) => a.latency - b.latency);
+    
+    return healthy[0]?.network || null;
+  }
+  
+  async executeSwapWithFallback(swapParams) {
+    const network = await this.getHealthyNetwork();
+    
+    if (!network) {
+      throw new Error('No healthy networks available');
+    }
+    
+    console.log(`Using ${network} network`);
+    
+    // Execute swap on the selected network
+    return this.executeSwap(network, swapParams);
+  }
+}
+```
+
+## Status Page
+
+For real-time status updates and historical uptime data, visit our status page:
+
+[https://status.fibrous.finance](https://status.fibrous.finance)
+
+## Best Practices
+
+1. **Periodic Checks**
+   - Check health before critical operations
+   - Implement periodic health checks (every 30-60 seconds)
+   - Cache health status with appropriate TTL
+
+2. **Timeout Handling**
+   - Set reasonable timeout for health checks (2-5 seconds)
+   - Treat timeouts as unhealthy status
+   - Implement exponential backoff for retries
+
+3. **Graceful Degradation**
+   - Have fallback networks configured
+   - Show user-friendly messages during downtime
+   - Queue operations when possible
+
+4. **Monitoring Integration**
+   ```javascript
+   // Example: Datadog monitoring
+   async function monitorHealth() {
+     const health = await checkHealth('base');
+     
+     statsd.gauge('fibrous.api.latency.rpc', health.latency.rpc);
+     statsd.gauge('fibrous.api.latency.database', health.latency.database);
+     
+     if (health.status !== 'healthy') {
+       statsd.increment('fibrous.api.unhealthy');
+       // Alert your team
+     }
+   }
+   ```
+
+## Related Resources
+
+- [API Status Page](https://status.fibrous.finance)
+- [Rate Limits](/api-reference/rate-limit)
+- [Support](/external-links/discord)
+
+

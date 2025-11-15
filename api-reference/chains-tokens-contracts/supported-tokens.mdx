@@ -1,0 +1,266 @@
+---
+title: "Supported Tokens & Routes"
+description: "Fibrous Finance supports token swaps across multiple chains with comprehensive token coverage"
+---
+
+# Supported Tokens & Routes
+
+Fibrous Finance aggregates liquidity from multiple DEX protocols on each supported chain, enabling optimal token swaps with the best possible rates.
+
+## Token Support Overview
+
+| Chain | Native Token |
+|-------|--------------|
+| **Starknet** | ETH |
+| **Base** | ETH |
+| **Scroll** | ETH |
+| **HyperEVM** | HYPE |
+
+## Common Tokens by Chain
+
+### Starknet
+
+| Token | Symbol | Address | Decimals |
+|-------|--------|---------|----------|
+| Ether | ETH | `0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7` | 18 |
+| USD Coin | USDC | `0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8` | 6 |
+| Starknet Token | STRK | `0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d` | 18 |
+| Dai Stablecoin | DAI | `0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3` | 18 |
+| Tether USD | USDT | `0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8` | 6 |
+
+### Base
+
+| Token | Symbol | Address | Decimals |
+|-------|--------|---------|----------|
+| Ether | ETH | `0x0000000000000000000000000000000000000000` | 18 |
+| USD Coin | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | 6 |
+| USD Base Coin | USDbC | `0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA` | 6 |
+| Wrapped Ether | WETH | `0x4200000000000000000000000000000000000006` | 18 |
+| Dai Stablecoin | DAI | `0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb` | 18 |
+| Tether USD | USDT | `0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2` | 6 |
+
+<Tip>
+  Base accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native ETH.
+</Tip>
+
+### Scroll
+
+| Token | Symbol | Address | Decimals |
+|-------|--------|---------|----------|
+| Ether | ETH | `0x0000000000000000000000000000000000000000` | 18 |
+| USD Coin | USDC | `0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4` | 6 |
+| Wrapped Ether | WETH | `0x5300000000000000000000000000000000000004` | 18 |
+| Tether USD | USDT | `0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df` | 6 |
+
+### HyperEVM
+
+| Token | Symbol | Address | Decimals |
+|-------|--------|---------|----------|
+| Hype | HYPE | `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` | 18 |
+| USD Coin | USDC | `0xb88339cb7199b77e23db6e890353e22632ba630f` | 6 |
+| Wrapped Hype | WHYPE | `0x5555555555555555555555555555555555555555` | 18 |
+
+## Getting Token Information
+
+### Using the API
+
+You can query supported tokens through our API:
+
+```bash
+# Get all supported tokens for a chain
+curl "https://api.fibrous.finance/base/tokens"
+```
+
+### Using the SDK
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+const fibrous = new FibrousRouter();
+const chainId = 8453; // Base
+
+// Get all supported tokens
+const tokens = await fibrous.supportedTokens(chainId);
+
+// Access specific token
+const usdc = tokens.get("usdc");
+console.log(usdc);
+// {
+//   address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+//   decimals: 6,
+//   symbol: "USDC",
+//   name: "USD Coin"
+// }
+
+// Get token by address (for unverified tokens)
+const customToken = await fibrous.getToken(
+  "0x...",
+  chainId
+);
+```
+
+## Supported Liquidity Sources
+
+Fibrous aggregates liquidity from multiple DEX protocols on each chain. You can query available protocols through our API:
+
+<Tabs>
+  <Tab title="Base">
+    ```bash
+    curl https://graph.fibrous.finance/base/protocols
+    ```
+    
+    **Example Response:**
+    ```json
+    [
+      {
+        "amm_name": "aerodromeV2Stable",
+        "protocol": 1,
+        "type": "Stable",
+        "display_name": "Aerodrome Stable",
+        "image_url": ""
+      },
+      {
+        "amm_name": "uniswapV3",
+        "protocol": 5,
+        "type": "V3",
+        "display_name": "Uniswap V3",
+        "image_url": ""
+      }
+      // ... more protocols
+    ]
+    ```
+    
+    **Available Sources:** Aerodrome (Stable, Volatile, Slipstream), Uniswap V2/V3/V4, SushiSwap V2/V3, AlienBase V2/V3, PancakeSwap V2/V3, BaseSwap V2/V3, RocketSwap V2, SmarDex V2, IzumiSwap V3, Baso Finance (V2, Stable), BMX, BVM (V2, Stable), DackieSwap V2/V3, SoSwap V2, Infusion (Stable, Classic), Solidly V3, Curve (Stable NG, Stable Meta, TriCrypto, TwoCrypto), Balancer (V2/V3 Stable, Composable, Weighted, Gyro ECLP), Dodo (CP, DPP, DSP, DVM), Equalizer (V2/V3, Stable), Spark PSM, Fluid Dex, Hydrex
+  </Tab>
+  
+  <Tab title="HyperEVM">
+    ```bash
+    curl https://graph.fibrous.finance/hyperevm/protocols
+    ```
+    
+    **Example Response:**
+    ```json
+    [
+      {
+        "protocol": 1,
+        "amm_name": "hyperSwapV2",
+        "display_name": "HyperSwap V2",
+        "image_url": null,
+        "type": "v2"
+      },
+      {
+        "protocol": 3,
+        "amm_name": "hyperSwapV3",
+        "display_name": "HyperSwap V3",
+        "image_url": null,
+        "type": "v3"
+      }
+      // ... more protocols
+    ]
+    ```
+    
+    **Available Sources:** HyperSwap (V2, V2 Stable, V3), KittenSwap (V2, V2 Stable, V3, Algebra V4), Laminar (V2, V3), Ramses (CL, V3), Project X, Hybra Finance (V2, V2 Stable, V3, V4), Hyper Cat V3, GLiquid V3, Curve (TwoCrypto, Stable, TriCrypto), Balancer (Gyro ECLP, ReCCLAMM, Stable, Stable Surge, Weighted, LB Pool), HyperBrick LB, Valantis, BrownFi V2, Upheaval V3, UltraSolid (V2, V3), RingSwap, Funnel (V1, V2), SpinUp (V2, Stable)
+  </Tab>
+  
+  <Tab title="Scroll">
+    ```bash
+    curl https://graph.fibrous.finance/scroll/protocols
+    ```
+    
+    **Example Response:**
+    ```json
+    [
+      {
+        "amm_name": "syncSwapStable",
+        "protocol": 1,
+        "type": "Stable",
+        "display_name": "SyncSwap Stable",
+        "image_url": "https://raw.githubusercontent.com/..."
+      },
+      {
+        "amm_name": "uniswapV3",
+        "protocol": 10,
+        "type": "V3",
+        "display_name": "Uniswap CL",
+        "image_url": "https://raw.githubusercontent.com/..."
+      }
+      // ... more protocols
+    ]
+    ```
+    
+    **Available Sources:** SyncSwap (Stable, Classic), SkyDrome (Classic, Stable), Metavault (V2, V3), SpaceFi V2, Dodo (DPP, DSP, DVM, CP), Sushi (V2, V3), Zebra V2, Uniswap V3, KyberSwap (Classic, Elastic), Nuri Exchange, PancakeSwap V3, Izumi (Classic, V3), Zada Fi, Oku Trade V3, Keller V3
+  </Tab>
+  
+  <Tab title="Starknet">
+    ```bash
+    curl https://graph.fibrous.finance/starknet/protocols
+    ```
+    
+    **Example Response:**
+    ```json
+    [
+      {
+        "protocol_id": "jediswap",
+        "name": "JediSwap",
+        "type": "AMM"
+      },
+      {
+        "protocol_id": "ekubo",
+        "name": "Ekubo",
+        "type": "Concentrated Liquidity"
+      }
+      // ... more protocols
+    ]
+    ```
+    
+    **Available Sources:** JediSwap, mySwap, 10KSwap, SithSwap, Ekubo, Haiko, StarkDeFi
+  </Tab>
+</Tabs>
+
+### Response Structure
+
+Each protocol response includes:
+- **amm_name** / **protocol_id**: Unique identifier for the protocol
+- **protocol**: Protocol number used in routing
+- **type**: Protocol type (V2, V3, Stable, etc.)
+- **display_name** / **name**: Human-readable protocol name
+- **image_url**: Logo URL (when available)
+
+## Route Support
+
+### Single-Hop Routes
+
+Direct swaps between two tokens through a single liquidity pool:
+
+```
+ETH → USDC (via Uniswap V3 ETH/USDC pool)
+```
+
+### Multi-Hop Routes
+
+Swaps that route through multiple tokens to find the best price:
+
+```
+TokenA → WETH → USDC → TokenB
+```
+
+### Split Routes
+
+Large swaps split across multiple protocols to minimize price impact:
+
+```
+1000 ETH → USDC:
+  - 600 ETH via Uniswap V3
+  - 300 ETH via Aerodrome
+  - 100 ETH via SushiSwap
+```
+
+
+## Related Resources
+
+- [Supported Chains](/api-reference/chains-tokens-contracts/supported-chains) - Network details
+- [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses) - Router addresses
+- [API Reference](/api-reference/introduction) - API documentation
+- [SDK Reference](/integrate-best-trading/fibrous-sdk/index) - SDK integration
+
+

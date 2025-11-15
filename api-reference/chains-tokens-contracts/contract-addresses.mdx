@@ -1,0 +1,89 @@
+---
+title: "Contract Addresses"
+description: "Fibrous Finance router contract addresses across all supported chains"
+---
+
+# Contract Addresses
+
+Fibrous Finance's router contract addresses can be found below for each supported blockchain network.
+
+<Warning>
+  Please note that router contracts have different addresses on each chain. Always verify you are using the correct contract address for the chain you are working with.
+</Warning>
+
+## Starknet
+
+| Contract | Mainnet Address | Testnet Address |
+|----------|----------------|-----------------|
+| **RouterV2** | `0x00f6f4CF62E3C010E0aC2451cC7807b5eEc19a40b0FaaCd00CCA3914280FDf5a` [Voyager](https://voyager.online/contract/0x00f6f4cf62e3c010e0ac2451cc7807b5eec19a40b0faacd00cca3914280fdf5a) [Starkscan](https://starkscan.co/contract/0x00f6f4cf62e3c010e0ac2451cc7807b5eec19a40b0faacd00cca3914280fdf5a) | `0x0144701728b210ccb78b3b50f963e5bc6c22159d90161d821344bcab22fadd2d` [Voyager](https://voyager.online/contract/0x0144701728b210ccb78b3b50f963e5bc6c22159d90161d821344bcab22fadd2d) [Starkscan](https://starkscan.co/contract/0x0144701728b210ccb78b3b50f963e5bc6c22159d90161d821344bcab22fadd2d) |
+| **RouterV1** | `0x01b23ed400b210766111ba5b1e63e33922c6ba0c45e6ad56ce112e5f4c578e62` [Voyager](https://voyager.online/contract/0x01b23ed400b210766111ba5b1e63e33922c6ba0c45e6ad56ce112e5f4c578e62) [Starkscan](https://starkscan.co/contract/0x01b23ed400b210766111ba5b1e63e33922c6ba0c45e6ad56ce112e5f4c578e62) | - |
+| **Limit Order Chef** | `0x6895ac06993e5eb4531600e959622d74017e8259310ef98d8c471557815890b` [Voyager](https://voyager.online/contract/0x6895ac06993e5eb4531600e959622d74017e8259310ef98d8c471557815890b) [Starkscan](https://starkscan.co/contract/0x6895ac06993e5eb4531600e959622d74017e8259310ef98d8c471557815890b) | `0x026627b1fb3cb387a0f1b26aebb57033e487e51a5aab1d065bea8f3806396734` [Voyager](https://goerli.voyager.online/contract/0x026627b1fb3cb387a0f1b26aebb57033e487e51a5aab1d065bea8f3806396734) [Starkscan](https://testnet.starkscan.co/contract/0x026627b1fb3cb387a0f1b26aebb57033e487e51a5aab1d065bea8f3806396734) |
+
+<Tip>
+  Starknet uses Cairo contract format. Addresses are in felt252 format.
+</Tip>
+
+## Base
+
+| Contract | Mainnet Address |
+|----------|----------------|
+| **Router** | `0x274602a953847d807231d2370072f5f4e4594b44` [BaseScan](https://basescan.org/address/0x274602a953847d807231d2370072f5f4e4594b44) |
+
+## Scroll
+
+| Contract | Mainnet Address |
+|----------|----------------|
+| **Router** | `0x4bb92d3f730d5a7976707570228f5cb7e09094c5` [ScrollScan](https://scrollscan.com/address/0x4bb92d3f730d5a7976707570228f5cb7e09094c5) |
+
+## HyperEVM
+
+| Contract | Mainnet Address |
+|----------|----------------|
+| **Router** | `0x274602a953847d807231d2370072f5f4e4594b44` [HyperEVMScan](https://hyperevmscan.io/address/0x274602a953847d807231d2370072f5f4e4594b44) |
+
+<Note>
+  Router addresses are automatically included in API responses. You don't need to hardcode them in your application.
+</Note>
+
+## Getting Router Address Programmatically
+
+### Using the API
+
+The router address is always included in API responses:
+
+```bash
+curl -X POST "https://api.fibrous.finance/base/execute" \
+  -H "Content-Type: application/json" \
+  -d '{...}'
+```
+
+Response includes:
+```json
+{
+  "to": "0x274602a953847d807231d2370072f5f4e4594b44", // Router address
+  "calldata": "0x...",
+  "value": "0"
+}
+```
+
+### Using the SDK
+
+```typescript
+import { Router as FibrousRouter } from "fibrous-router-sdk";
+
+const fibrous = new FibrousRouter();
+const chains = fibrous.supportedChains;
+
+// Get router address for a specific chain
+const baseChain = chains.find(c => c.chain_id === 8453);
+console.log("Base Router:", baseChain?.router_address);
+```
+
+## Related Resources
+
+- [Supported Chains](/api-reference/chains-tokens-contracts/supported-chains) - Network details
+- [Supported Tokens](/api-reference/chains-tokens-contracts/supported-tokens) - Token addresses
+- [API Reference](/api-reference/introduction) - API documentation
+- [SDK Reference](/integrate-best-trading/fibrous-sdk/index) - SDK integration
+
+
