@@ -15,6 +15,7 @@ Fibrous Finance provides optimal token swap routing across multiple blockchain n
 | **Base** | 8453 | `base` |
 | **Scroll** | 534352 | `scroll` |
 | **HyperEVM** | 998 | `hyperevm` |
+| **Monad** | 41454 | `monad` |
 
 ## Chain Details
 
@@ -130,6 +131,34 @@ Fibrous Finance provides optimal token swap routing across multiple blockchain n
       HyperEVM accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native HYPE.
     </Tip>
   </Accordion>
+
+  <Accordion title="Monad" icon="rocket">
+    ### Overview
+    Monad is a high-performance EVM-compatible Layer 1 blockchain designed for parallel execution and optimized throughput.
+    
+    ### Key Features
+    - **VM Type**: EVM Compatible
+    - **Native Token**: MON
+    - **Block Time**: ~1 second
+    - **Unique Features**: Parallel execution, high throughput, EVM compatibility
+    
+    ### Network Information
+    - **Chain ID**: 41454
+    - **RPC Endpoint**: `https://rpc.monad.xyz`
+    - **Explorer**: [Monad Explorer](https://explorer.monad.xyz)
+    - **API Base URL**: `https://api.fibrous.finance/monad`
+    
+    ### Common Tokens
+    | Token | Address | Decimals |
+    |-------|---------|----------|
+    | MON | `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` | 18 |
+    | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | 6 |
+    | WMON | `0x4200000000000000000000000000000000000006` | 18 |
+    
+    <Tip>
+      Monad accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native MON.
+    </Tip>
+  </Accordion>
 </AccordionGroup>
 
 
@@ -155,6 +184,7 @@ const chains = fibrous.supportedChains;
 // - base (8453)
 // - scroll (534352)
 // - hyperevm (998)
+// - monad (41454)
 ```
 
 ### Smart Contract Support

@@ -15,6 +15,7 @@ Fibrous Finance aggregates liquidity from multiple DEX protocols on each support
 | **Base** | ETH |
 | **Scroll** | ETH |
 | **HyperEVM** | HYPE |
+| **Monad** | MON |
 
 ## Common Tokens by Chain
 
@@ -59,6 +60,18 @@ Fibrous Finance aggregates liquidity from multiple DEX protocols on each support
 | Hype | HYPE | `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` | 18 |
 | USD Coin | USDC | `0xb88339cb7199b77e23db6e890353e22632ba630f` | 6 |
 | Wrapped Hype | WHYPE | `0x5555555555555555555555555555555555555555` | 18 |
+
+### Monad
+
+| Token | Symbol | Address | Decimals |
+|-------|--------|---------|----------|
+| Monad | MON | `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` | 18 |
+| USD Coin | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | 6 |
+| Wrapped Monad | WMON | `0x4200000000000000000000000000000000000006` | 18 |
+
+<Tip>
+  Monad accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native MON.
+</Tip>
 
 ## Getting Token Information
 
@@ -189,6 +202,35 @@ Fibrous aggregates liquidity from multiple DEX protocols on each chain. You can 
     ```
     
     **Available Sources:** SyncSwap (Stable, Classic), SkyDrome (Classic, Stable), Metavault (V2, V3), SpaceFi V2, Dodo (DPP, DSP, DVM, CP), Sushi (V2, V3), Zebra V2, Uniswap V3, KyberSwap (Classic, Elastic), Nuri Exchange, PancakeSwap V3, Izumi (Classic, V3), Zada Fi, Oku Trade V3, Keller V3
+  </Tab>
+  
+  <Tab title="Monad">
+    ```bash
+    curl https://graph.fibrous.finance/monad/protocols
+    ```
+    
+    **Example Response:**
+    ```json
+    [
+      {
+        "protocol": 1,
+        "amm_name": "AethonswapV3",
+        "display_name": "Aethonswap V3",
+        "image_url": null,
+        "type": "v3"
+      },
+      {
+        "protocol": 12,
+        "amm_name": "UniswapV3",
+        "display_name": "Uniswap V3",
+        "image_url": null,
+        "type": "v3"
+      }
+      // ... more protocols
+    ]
+    ```
+    
+    **Available Sources:** Aethonswap V3, Octoswap (V2, V3), PancakeSwap (V2, V3), PinotFinance (V2, V3), Purpswap V2, Swyrl (V2, V3), Uniswap (V2, V3, V4), Capricorn CL, Atlantis Algebra, Lfj V1, Dyor Swap
   </Tab>
   
   <Tab title="Starknet">
