@@ -111,12 +111,17 @@
           {
             "group": "Smart Contracts",
             "pages": [
-              "integrate-best-trading/fibrous-smart-contracts/deployed-contracts",
-              "integrate-best-trading/fibrous-smart-contracts/starknet",
-              "integrate-best-trading/fibrous-smart-contracts/base",
-              "integrate-best-trading/fibrous-smart-contracts/hyperevm",
-              "integrate-best-trading/fibrous-smart-contracts/scroll",
-              "integrate-best-trading/fibrous-smart-contracts/monad"
+              {
+                "group": "Deployed Contracts",
+                "pages": [
+                  "integrate-best-trading/fibrous-smart-contracts/deployed-contracts",
+                  "integrate-best-trading/fibrous-smart-contracts/starknet",
+                  "integrate-best-trading/fibrous-smart-contracts/base",
+                  "integrate-best-trading/fibrous-smart-contracts/hyperevm",
+                  "integrate-best-trading/fibrous-smart-contracts/scroll",
+                  "integrate-best-trading/fibrous-smart-contracts/monad"
+                ]
+              }
             ]
           }
         ]
