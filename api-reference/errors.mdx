@@ -1,0 +1,436 @@
+---
+title: "API Errors"
+description: "Complete reference for API error codes and error handling"
+---
+
+## Overview
+
+The Fibrous Router API uses standard HTTP status codes and provides detailed error messages to help you understand and resolve issues. All error responses follow a consistent format.
+
+## Error Response Format
+
+All error responses follow this structure:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Error message describing what went wrong",
+  "error": "Bad Request"
+}
+```
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes to indicate the type of error:
+
+| Status Code | Name | Description |
+|-------------|------|-------------|
+| 200 | OK | Request succeeded |
+| 400 | Bad Request | Invalid request parameters or validation failed |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server-side error occurred |
+
+## Error Codes
+
+### 400 Bad Request
+
+Bad Request errors occur when the request parameters are invalid or validation fails.
+
+#### Token Same Error
+
+**Error Code:** `400`  
+**Message:** `Token in and token out cannot be the same`
+
+**Description:** The input token and output token addresses are identical.
+
+**Example:**
+```json
+{
+  "statusCode": 400,
+  "message": "Token in and token out cannot be the same",
+  "error": "Bad Request"
+}
+```
+
+**Solution:** Ensure `tokenInAddress` and `tokenOutAddress` are different addresses.
+
+---
+
+#### Integrator Fee and Surplus Percentage Conflict
+
+**Error Code:** `400`  
+**Message:** `Integrator fee and integrator surplus percentage cannot be provided together`
+
+**Description:** You cannot specify both `integratorFeePercentageBps` and `integratorSurplusPercentageBps` in the same request.
+
+**Example:**
+```json
+{
+  "statusCode": 400,
+  "message": "Integrator fee and integrator surplus percentage cannot be provided together",
+  "error": "Bad Request"
+}
+```
+
+**Solution:** Use either `integratorFeePercentageBps` OR `integratorSurplusPercentageBps`, but not both.
+
+---
+
+
+#### Validation Errors
+
+Validation errors occur when request parameters don't meet the required format or constraints:
+
+**Common Validation Errors:**
+
+| Field | Validation Rule | Error Message |
+|-------|----------------|---------------|
+| `amount` | Required | `amount should not be null or undefined` |
+| `tokenInAddress` | Required, Valid Ethereum Address | `tokenInAddress must be an Ethereum address` |
+| `tokenOutAddress` | Required, Valid Ethereum Address | `tokenOutAddress must be an Ethereum address` |
+| `slippage` | Required, 0-49 | `slippage must be a number conforming to the specified constraints` |
+| `destination` | Required, Valid Ethereum Address | `destination must be an Ethereum address` |
+| `integratorFeePercentageBps` | 0-500 | `integratorFeePercentageBps must not be greater than 500` |
+| `integratorSurplusPercentageBps` | 0-5000 | `integratorSurplusPercentageBps must not be greater than 5000` |
+
+**Example Validation Error:**
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "tokenInAddress must be an Ethereum address",
+    "slippage must be a number conforming to the specified constraints"
+  ],
+  "error": "Bad Request"
+}
+```
+
+**Solution:** Review the validation rules for each parameter and ensure your request meets all requirements.
+
+---
+
+#### Invalid Route
+
+**Error Code:** `400`  
+**Message:** `Invalid route` or custom error message
+
+**Description:** The provided route is invalid, expired, or cannot be processed.
+
+**Example:**
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid route",
+  "error": "Bad Request"
+}
+```
+
+**Solution:** Fetch a fresh route from the `/route` endpoint before generating calldata.
+
+---
+
+### 429 Too Many Requests
+
+**Error Code:** `429`  
+**Message:** `ThrottlerException: Too Many Requests`
+
+**Description:** You have exceeded the rate limit for API requests. The default rate limit is 200 requests per minute.
+
+**Example:**
+```json
+{
+  "statusCode": 429,
+  "message": "ThrottlerException: Too Many Requests",
+  "error": "Too Many Requests"
+}
+```
+
+**Response Headers:**
+- `X-RateLimit-Limit`: Maximum number of requests allowed
+- `X-RateLimit-Remaining`: Number of requests remaining in the current window
+- `X-RateLimit-Reset`: Time when the rate limit resets (Unix timestamp)
+- `Retry-After`: Seconds to wait before retrying
+
+**Solution:**
+- Wait for the rate limit to reset (check `Retry-After` header)
+- Implement exponential backoff in your retry logic
+- Consider requesting an API key for higher rate limits
+- Contact [contact@fibrous.finance](mailto:contact@fibrous.finance) for enterprise rate limits
+
+<Info>
+API keys provide higher rate limits. Contact us to obtain an API key for your integration.
+</Info>
+
+---
+
+### 500 Internal Server Error
+
+**Error Code:** `500`  
+**Message:** `Internal server error`
+
+**Description:** An unexpected error occurred on the server side. This could be due to:
+- Temporary service unavailability
+- Database connectivity issues
+- Internal processing errors
+
+**Example:**
+```json
+{
+  "statusCode": 500,
+  "message": "Internal server error",
+  "error": "Internal Server Error"
+}
+```
+
+**Solution:**
+- Retry the request after a short delay
+- Check our [Status Page](https://status.fibrous.finance) for service status
+- If the issue persists, contact support at [contact@fibrous.finance](mailto:contact@fibrous.finance)
+
+---
+
+## Error Handling Best Practices
+
+### 1. Check Status Codes
+
+Always check the HTTP status code before processing the response:
+
+```javascript
+const response = await fetch('https://api.fibrous.finance/monad/v2/route?...');
+
+if (!response.ok) {
+  const error = await response.json();
+  
+  switch (response.status) {
+    case 400:
+      console.error('Bad Request:', error.message);
+      // Handle validation or parameter errors
+      break;
+    case 429:
+      console.error('Rate Limited:', error.message);
+      // Implement retry logic with backoff
+      break;
+    case 500:
+      console.error('Server Error:', error.message);
+      // Retry after delay
+      break;
+  }
+}
+```
+
+### 2. Handle Rate Limiting
+
+Implement exponential backoff for rate limit errors:
+
+```javascript
+async function fetchWithRetry(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const response = await fetch(url, options);
+    
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After') || Math.pow(2, i);
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      continue;
+    }
+    
+    return response;
+  }
+  
+  throw new Error('Max retries exceeded');
+}
+```
+
+### 3. Validate Input Before Request
+
+Validate parameters before making API calls to avoid unnecessary requests:
+
+```javascript
+function validateRouteParams(params) {
+  const errors = [];
+  
+  if (!params.amount || params.amount === '0') {
+    errors.push('amount is required and must be greater than 0');
+  }
+  
+  if (!params.tokenInAddress || !isValidAddress(params.tokenInAddress)) {
+    errors.push('tokenInAddress must be a valid Ethereum address');
+  }
+  
+  if (!params.tokenOutAddress || !isValidAddress(params.tokenOutAddress)) {
+    errors.push('tokenOutAddress must be a valid Ethereum address');
+  }
+  
+  if (params.tokenInAddress === params.tokenOutAddress) {
+    errors.push('tokenInAddress and tokenOutAddress cannot be the same');
+  }
+  
+  if (params.integratorFeePercentageBps && params.integratorSurplusPercentageBps) {
+    errors.push('Cannot use both integratorFeePercentageBps and integratorSurplusPercentageBps');
+  }
+  
+  return errors;
+}
+```
+
+### 4. Handle Validation Errors
+
+Validation errors may return an array of error messages:
+
+```javascript
+const response = await fetch('https://api.fibrous.finance/monad/v2/route?...');
+const data = await response.json();
+
+if (response.status === 400) {
+  if (Array.isArray(data.message)) {
+    // Multiple validation errors
+    data.message.forEach(error => console.error(error));
+  } else {
+    // Single error message
+    console.error(data.message);
+  }
+}
+```
+
+### 5. Log Errors for Debugging
+
+Log error details for debugging while being careful not to expose sensitive information:
+
+```javascript
+function handleError(error, context) {
+  console.error('API Error:', {
+    status: error.statusCode,
+    message: error.message,
+    context: context,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Send to error tracking service (e.g., Sentry)
+  // trackError(error, context);
+}
+```
+
+## Common Error Scenarios
+
+### Scenario 1: Invalid Token Address
+
+**Request:**
+```bash
+GET /monad/v2/route?amount=1000&tokenInAddress=invalid&tokenOutAddress=0x...
+```
+
+**Response:**
+```json
+{
+  "statusCode": 400,
+  "message": ["tokenInAddress must be an Ethereum address"],
+  "error": "Bad Request"
+}
+```
+
+**Fix:** Use a valid Ethereum address format (0x followed by 40 hex characters).
+
+---
+
+### Scenario 2: Same Token Addresses
+
+**Request:**
+```bash
+GET /monad/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
+```
+
+**Response:**
+```json
+{
+  "statusCode": 400,
+  "message": "Token in and token out cannot be the same",
+  "error": "Bad Request"
+}
+```
+
+**Fix:** Use different addresses for input and output tokens.
+
+---
+
+### Scenario 3: Rate Limit Exceeded
+
+**Request:** Multiple rapid requests
+
+**Response:**
+```json
+{
+  "statusCode": 429,
+  "message": "ThrottlerException: Too Many Requests",
+  "error": "Too Many Requests"
+}
+```
+
+**Fix:** Implement rate limiting in your application or request an API key for higher limits.
+
+---
+
+### Scenario 4: Missing Required Parameters
+
+**Request:**
+```bash
+GET /monad/v2/route?amount=1000
+```
+
+**Response:**
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "tokenInAddress should not be empty",
+    "tokenOutAddress should not be empty"
+  ],
+  "error": "Bad Request"
+}
+```
+
+**Fix:** Include all required parameters in your request.
+
+---
+
+## Error Codes Summary
+
+<AccordionGroup>
+  <Accordion title="400 Bad Request Errors">
+    - Token addresses are the same
+    - Invalid Ethereum address format
+    - Missing required parameters
+    - Invalid parameter values (out of range, wrong type)
+    - Integrator parameter conflicts
+    - Route amount exceeds maximum
+    - Invalid route provided
+  </Accordion>
+  
+  <Accordion title="429 Too Many Requests">
+    - Rate limit exceeded
+    - Too many requests in a short time period
+  </Accordion>
+  
+  <Accordion title="500 Internal Server Error">
+    - Server-side processing error
+    - Temporary service unavailability
+    - Database connectivity issues
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+If you encounter errors that aren't covered in this documentation:
+
+1. **Check the Error Message**: The error message usually provides specific information about what went wrong
+2. **Review Request Parameters**: Ensure all parameters meet the validation requirements
+3. **Check Service Status**: Visit our [Status Page](https://status.fibrous.finance)
+4. **Contact Support**: 
+   - Email: [contact@fibrous.finance](mailto:contact@fibrous.finance)
+   - Discord: [Join our Discord](https://discord.gg/fibrous)
+
+## Related Documentation
+
+- [Rate Limits](/api-reference/rate-limit) - Learn about rate limiting
+- [V2 Migration Guide](/api-reference/v2-migration) - Common issues during migration
+- [Route V2](/api-reference/endpoints/route-v2) - Route endpoint documentation
+- [Calldata V2](/api-reference/endpoints/calldata-v2) - Calldata endpoint documentation
+

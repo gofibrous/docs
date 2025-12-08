@@ -7,6 +7,23 @@ description: "Guide to migrating from V1 to V2 API endpoints"
 
 The Fibrous Router API V2 introduces enhanced features and improved response structure while maintaining backward compatibility with V1 endpoints. This guide will help you migrate your integration to take advantage of V2 features.
 
+## Quick Reference: Endpoint Mapping
+
+<Warning>
+**Important**: V2 endpoint names have changed to better reflect their functionality. Pay special attention to these mappings:
+</Warning>
+
+| V1 Endpoint | V2 Endpoint | HTTP Method | What Changed |
+|-------------|-------------|-------------|--------------|
+| `/{network}/route` | `/{network}/v2/route` | GET | Same functionality, added integrator support |
+| `/{network}/calldata` | `/{network}/v2/routeAndCallData` | GET | **Renamed** - Same functionality (route + calldata in one call) |
+| `/{network}/execute` | `/{network}/v2/calldata` | POST | **Renamed** - Same functionality (generate calldata from route) |
+| `/{network}/healthcheck` | `/{network}/v2/healthcheck` | GET | Same functionality, added meta field |
+
+**Key Changes:**
+- **V1 `/calldata`** → **V2 `/routeAndCallData`**: Endpoint renamed for clarity (still GET, still returns route + calldata)
+- **V1 `/execute`** → **V2 `/calldata`**: Endpoint renamed for clarity (still POST, still generates calldata from route)
+
 ## What's New in V2
 
 <CardGroup cols={2}>
@@ -18,8 +35,8 @@ The Fibrous Router API V2 introduces enhanced features and improved response str
     All responses include API version and timestamp for better tracking
   </Card>
   
-  <Card title="Route and Calldata" icon="bolt">
-    New GET endpoint to get route and calldata in a single request
+  <Card title="Endpoint Reorganization" icon="bolt">
+    Endpoints renamed for clarity: `/calldata` → `/routeAndCallData`, `/execute` → `/calldata`
   </Card>
   
   <Card title="Improved Structure" icon="code">
@@ -56,11 +73,22 @@ The Fibrous Router API V2 introduces enhanced features and improved response str
 }
 ```
 
-### New Endpoints
+### Endpoint Mapping
 
-V2 introduces a new endpoint that combines route finding and calldata generation:
+V2 API reorganizes endpoint names for better clarity. Here's how V2 endpoints map to V1:
 
-- **GET `/monad/v2/routeAndCallData`** - Get route and calldata in one request
+| V1 Endpoint | V2 Endpoint | Description | HTTP Method |
+|-------------|-------------|-------------|-------------|
+| `/{network}/route` | `/{network}/v2/route` | Find optimal route | GET |
+| `/{network}/calldata` | `/{network}/v2/routeAndCallData` | Get route and calldata in one request | GET |
+| `/{network}/execute` | `/{network}/v2/calldata` | Generate calldata from existing route | POST |
+| `/{network}/healthcheck` | `/{network}/v2/healthcheck` | Health check | GET |
+
+<Info>
+**Important**: The V2 endpoint names better reflect their functionality:
+- `routeAndCallData` (V2) replaces `calldata` (V1) - combines route finding and calldata generation
+- `calldata` (V2) replaces `execute` (V1) - generates calldata from a pre-calculated route
+</Info>
 
 ### Integrator Features
 
@@ -70,18 +98,22 @@ V2 supports monetization through integrator fees or surplus sharing:
 - **Integrator Surplus**: Share in surplus value (0-50%) when routing finds better prices
 - **Note**: You cannot use both fee and surplus in the same request
 
+<Warning>
+**API Key Required**: Integrator features require an API key from Fibrous Finance. Partners must obtain an API key before using these monetization features. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+</Warning>
+
 ## Migration Steps
 
 ### Step 1: Update Base URL
 
 Change your base URL from:
 ```bash
-https://api.fibrous.finance/monad
+https://api.fibrous.finance/{network}
 ```
 
 To:
 ```bash
-https://api.fibrous.finance/monad/v2
+https://api.fibrous.finance/{network}/v2
 ```
 
 ### Step 2: Handle Meta Field
@@ -102,49 +134,61 @@ console.log(`Response Time: ${meta.timestamp}`);
 
 **V1:**
 ```javascript
-GET /monad/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
+GET /{network}/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
 ```
 
 **V2:**
 ```javascript
-GET /monad/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
+GET /{network}/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
 ```
 
 Optional integrator parameters:
 ```javascript
-GET /monad/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&integratorAddress=0x...&integratorFeePercentageBps=100
+GET /{network}/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&integratorAddress=0x...&integratorFeePercentageBps=100
 ```
 
-### Step 4: Use New Route and Calldata Endpoint
+### Step 4: Update Calldata Endpoint (V1 → routeAndCallData V2)
 
-Instead of making two separate calls:
+**Important**: V1's `/calldata` endpoint is now `/routeAndCallData` in V2.
 
-**V1 (2 calls):**
+**V1 `/calldata` endpoint:**
 ```javascript
-// 1. Get route
-const route = await fetch('/monad/route?...');
-
-// 2. Get calldata
-const calldata = await fetch('/monad/calldata?...');
+// V1: GET request with query parameters
+GET /{network}/calldata?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&slippage=0.5&destination=0x...
 ```
 
-**V2 (1 call):**
+**V2 `/routeAndCallData` endpoint:**
 ```javascript
-// Get route and calldata in one call
-const response = await fetch('/monad/v2/routeAndCallData?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&slippage=0.5&destination=0x...');
+// V2: Same functionality, renamed for clarity
+GET /{network}/v2/routeAndCallData?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&slippage=0.5&destination=0x...
+
+// Response includes both route and calldata
 const { route, calldata, router_address, meta } = await response.json();
 ```
 
-### Step 5: Update Calldata Endpoint
+<Note>
+**Migration Note**: If you were using V1's `/calldata` endpoint, update your code to use `/v2/routeAndCallData`. The functionality is the same - it gets route and calldata in one request.
+</Note>
 
-**V1:**
+### Step 5: Update Execute Endpoint (V1 → calldata V2)
+
+**Important**: V1's `/execute` endpoint is now `/calldata` in V2.
+
+**V1 `/execute` endpoint:**
 ```javascript
-GET /monad/calldata?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...&slippage=0.5&destination=0x...
+// V1: POST request with route object
+POST /{network}/execute
+Body: {
+  "route": {...},
+  "slippage": 0.5,
+  "destination": "0x..."
+}
 ```
 
-**V2:**
+**V2 `/calldata` endpoint:**
 ```javascript
-POST /monad/v2/calldata
+// V2: Same functionality, renamed for clarity
+POST /{network}/v2/calldata
 Body: {
   "route": {...},
   "slippage": 0.5,
@@ -154,7 +198,15 @@ Body: {
 }
 ```
 
+<Note>
+**Migration Note**: If you were using V1's `/execute` endpoint, update your code to use `/v2/calldata`. The functionality is the same - it generates calldata from a pre-calculated route.
+</Note>
+
 ### Step 6: Handle Integrator Features (Optional)
+
+<Warning>
+**API Key Required**: To use integrator features, you must first obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+</Warning>
 
 If you want to monetize your integration:
 
@@ -165,7 +217,7 @@ const headers = {
 };
 
 // Use integrator fee
-const response = await fetch('/monad/v2/route', {
+const response = await fetch('/{network}/v2/route', {
   headers,
   params: {
     amount: '1000',
@@ -193,6 +245,8 @@ All V2 endpoints support these optional integrator parameters:
 | `integratorSurplusPercentageBps` | number | Surplus percentage in basis points (0-5000, max 50%) |
 
 <Warning>
+**API Key Required**: Integrator parameters require an API key from Fibrous Finance. Partners must obtain an API key before using these features. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+
 You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentageBps` in the same request.
 </Warning>
 
@@ -216,26 +270,26 @@ You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentag
 async function swapV1(amount, tokenIn, tokenOut, slippage, destination) {
   // Step 1: Get route
   const routeResponse = await fetch(
-    `https://api.fibrous.finance/monad/route?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}`
+    `https://api.fibrous.finance/{network}/route?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}`
   );
   const route = await routeResponse.json();
   
-  // Step 2: Get calldata
+  // Step 2: Get calldata (V1 endpoint name)
   const calldataResponse = await fetch(
-    `https://api.fibrous.finance/monad/calldata?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}&slippage=${slippage}&destination=${destination}`
+    `https://api.fibrous.finance/{network}/calldata?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}&slippage=${slippage}&destination=${destination}`
   );
   const calldata = await calldataResponse.json();
   
   return { route, calldata };
 }
 
-// V2 Implementation
-async function swapV2(amount, tokenIn, tokenOut, slippage, destination, apiKey = null) {
+// V2 Implementation - Option 1: Using routeAndCallData (replaces V1 calldata)
+async function swapV2_Option1(amount, tokenIn, tokenOut, slippage, destination, apiKey = null) {
   const headers = apiKey ? { 'X-API-Key': apiKey } : {};
   
-  // Single call to get route and calldata
+  // Single call to get route and calldata (V1's /calldata → V2's /routeAndCallData)
   const response = await fetch(
-    `https://api.fibrous.finance/monad/v2/routeAndCallData?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}&slippage=${slippage}&destination=${destination}`,
+    `https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}&slippage=${slippage}&destination=${destination}`,
     { headers }
   );
   
@@ -249,6 +303,42 @@ async function swapV2(amount, tokenIn, tokenOut, slippage, destination, apiKey =
     calldata: data.calldata,
     routerAddress: data.router_address,
     meta: data.meta
+  };
+}
+
+// V2 Implementation - Option 2: Using route + calldata (replaces V1 execute)
+async function swapV2_Option2(amount, tokenIn, tokenOut, slippage, destination, apiKey = null) {
+  const headers = apiKey ? { 'X-API-Key': apiKey } : {};
+  
+  // Step 1: Get route
+  const routeResponse = await fetch(
+    `https://api.fibrous.finance/{network}/v2/route?amount=${amount}&tokenInAddress=${tokenIn}&tokenOutAddress=${tokenOut}`,
+    { headers }
+  );
+  const route = await routeResponse.json();
+  
+  // Step 2: Generate calldata from route (V1's /execute → V2's /calldata)
+  const calldataResponse = await fetch(
+    `https://api.fibrous.finance/{network}/v2/calldata`,
+    {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        route,
+        slippage,
+        destination
+      })
+    }
+  );
+  const calldata = await calldataResponse.json();
+  
+  return {
+    route,
+    calldata,
+    meta: calldata.meta
   };
 }
 ```
@@ -270,7 +360,7 @@ async function swapWithIntegratorFee(amount, tokenIn, tokenOut, slippage, destin
   });
   
   const response = await fetch(
-    `https://api.fibrous.finance/monad/v2/route?${params}`,
+    `https://api.fibrous.finance/{network}/v2/route?${params}`,
     { headers }
   );
   
@@ -294,8 +384,8 @@ async function swapWithIntegratorFee(amount, tokenIn, tokenOut, slippage, destin
 V1 endpoints remain available and fully functional. You can migrate at your own pace without breaking existing integrations.
 </Info>
 
-- V1 endpoints: `https://api.fibrous.finance/monad/*`
-- V2 endpoints: `https://api.fibrous.finance/monad/v2/*`
+- V1 endpoints: `https://api.fibrous.finance/{network}/*`
+- V2 endpoints: `https://api.fibrous.finance/{network}/v2/*`
 
 Both versions will continue to be supported, but we recommend migrating to V2 to take advantage of new features.
 
@@ -321,22 +411,43 @@ Both versions will continue to be supported, but we recommend migrating to V2 to
 
 **Problem:** Response doesn't include `meta` field
 
-**Solution:** Ensure you're using `/monad/v2/*` endpoints, not `/monad/*`
+**Solution:** Ensure you're using `/{network}/v2/*` endpoints, not `/{network}/*`
 
 ### Issue: Integrator Features Not Working
 
 **Problem:** Integrator parameters are ignored
 
 **Solution:** 
-- Verify API key is included in request headers
+- **Obtain an API key**: Integrator features require an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key
+- Verify API key is included in request headers as `X-API-Key`
 - Check that integrator address is valid
 - Ensure only one of fee or surplus is set
 
 ### Issue: Route and Calldata Endpoint Returns 404
 
-**Problem:** `/monad/v2/routeAndCallData` not found
+**Problem:** `/{network}/v2/routeAndCallData` not found
 
-**Solution:** This endpoint is V2-only. Use `/monad/v2/routeAndCallData` (not `/monad/routeAndCallData`)
+**Solution:** This endpoint is V2-only. Use `/{network}/v2/routeAndCallData` (not `/{network}/routeAndCallData`)
+
+**Note:** If you were using V1's `/calldata` endpoint, remember it's now `/v2/routeAndCallData` in V2.
+
+---
+
+### Issue: Endpoint Name Confusion
+
+**Problem:** Confused about which V2 endpoint to use
+
+**Solution:** Use this mapping guide:
+
+| What You Need | V1 Endpoint | V2 Endpoint |
+|---------------|-------------|-------------|
+| Get route only | `/{network}/route` | `/{network}/v2/route` |
+| Get route + calldata in one call | `/{network}/calldata` | `/{network}/v2/routeAndCallData` |
+| Generate calldata from existing route | `/{network}/execute` | `/{network}/v2/calldata` |
+
+**Key Points:**
+- V1's `/calldata` → V2's `/routeAndCallData` (GET request, gets route and calldata together)
+- V1's `/execute` → V2's `/calldata` (POST request, generates calldata from route)
 
 ## Next Steps
 

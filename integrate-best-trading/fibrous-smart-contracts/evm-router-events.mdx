@@ -1,0 +1,468 @@
+---
+title: "EVM Router - Events"
+description: "Complete reference for all EVM Router contract events"
+---
+
+# EVM Router Events
+
+EVM Router emits events for all important contract operations, including swaps, integrator fee distributions, and handler management. These events are essential for tracking contract activity, monitoring integrations, and building analytics.
+
+---
+
+## Event: `Swap`
+
+Emitted whenever a swap is executed successfully, regardless of whether it uses `swap`, `swapIntegrator`, or `swapWithPermit`.
+
+### Signature
+
+```solidity
+event Swap(
+    address sender,
+    uint256 amount_in,
+    uint256 amount_out,
+    address token_in,
+    address token_out,
+    address destination
+);
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|----------|------|-------------|
+| `sender` | `address` | Address that executed the swap transaction (`msg.sender`) |
+| `amount_in` | `uint256` | Amount of input tokens swapped (in token's smallest unit) |
+| `amount_out` | `uint256` | Amount of output tokens received by the destination (after surplus capping, before integrator fees) |
+| `token_in` | `address` | Contract address of the input token |
+| `token_out` | `address` | Contract address of the output token |
+| `destination` | `address` | Address that received the output tokens (or `msg.sender` if `route.destination == address(0)`) |
+
+### When Emitted
+
+- After successful execution of `swap()`
+- After successful execution of `swapIntegrator()` (amount_out is user amount after integrator fee)
+- After successful execution of `swapWithPermit()`
+
+### Usage Example
+
+```javascript
+// Listen for Swap events
+router.on("Swap", (sender, amountIn, amountOut, tokenIn, tokenOut, destination, event) => {
+  console.log(`Swap executed:`);
+  console.log(`  From: ${sender}`);
+  console.log(`  Input: ${amountIn} of ${tokenIn}`);
+  console.log(`  Output: ${amountOut} of ${tokenOut}`);
+  console.log(`  Recipient: ${destination}`);
+  console.log(`  Transaction: ${event.transactionHash}`);
+});
+
+// Query past events
+const filter = router.filters.Swap(null, null, null, TOKEN_A, TOKEN_B, null);
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### Important Notes
+
+- **Surplus Handling**: `amount_out` reflects the actual amount sent to destination, which may be capped at `route.amount_out` if surplus exists
+- **Integrator Fees**: When using `swapIntegrator` with fee-based model, `amount_out` is the user amount AFTER integrator fee deduction
+- **Indexed Fields**: None of the fields are indexed, so filtering requires querying all Swap events and filtering in application code
+
+---
+
+## Event: `IntegratorFeeDistribution`
+
+Emitted when integrator fees or surplus are distributed during a `swapIntegrator` call.
+
+### Signature
+
+```solidity
+event IntegratorFeeDistribution(
+    address indexed integrator,
+    uint256 integrator_amount,
+    uint256 user_amount
+);
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|----------|------|-------------|
+| `integrator` | `address indexed` | Address of the integrator receiving the fee/surplus share |
+| `integrator_amount` | `uint256` | Amount of tokens sent to the integrator |
+| `user_amount` | `uint256` | Amount of tokens sent to the user (matches `amount_out` in the corresponding `Swap` event) |
+
+### When Emitted
+
+- Only emitted when `swapIntegrator()` is called
+- Emitted when `integrator_amount > 0` (either fee or surplus share)
+- Not emitted if integrator parameters are provided but no fee/surplus is distributed
+
+### Usage Example
+
+```javascript
+// Listen for integrator fee distributions
+router.on("IntegratorFeeDistribution", (integrator, integratorAmount, userAmount, event) => {
+  console.log(`Integrator fee distributed:`);
+  console.log(`  Integrator: ${integrator}`);
+  console.log(`  Integrator received: ${integratorAmount}`);
+  console.log(`  User received: ${userAmount}`);
+  console.log(`  Total: ${integratorAmount + userAmount}`);
+});
+
+// Query events for specific integrator
+const filter = router.filters.IntegratorFeeDistribution(INTEGRATOR_ADDRESS);
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### Important Notes
+
+- **Indexed Field**: `integrator` is indexed, allowing efficient filtering by integrator address
+- **Fee vs Surplus**: The event doesn't distinguish between fee-based and surplus-based distributions
+- **Zero Amounts**: Event is not emitted if `integrator_amount == 0`
+- **Correlation**: Always check for a corresponding `Swap` event in the same transaction
+
+---
+
+## Event: `AddHandler`
+
+Emitted when a new swap handler is set for a protocol ID.
+
+### Signature
+
+```solidity
+event AddHandler(int24 protocol_id, address handler);
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|----------|------|-------------|
+| `protocol_id` | `int24` | Protocol identifier for which the handler is set |
+| `handler` | `address` | Address of the swap handler contract |
+
+### When Emitted
+
+- When `setSwapHandler()` is called successfully
+- Only emitted by the contract owner
+- Emitted once per protocol ID (handler can only be set once)
+
+### Usage Example
+
+```javascript
+// Listen for handler additions
+router.on("AddHandler", (protocolId, handler, event) => {
+  console.log(`New handler added:`);
+  console.log(`  Protocol ID: ${protocolId}`);
+  console.log(`  Handler address: ${handler}`);
+  console.log(`  Set by: ${event.args[0]}`);
+});
+
+// Query all handler additions
+const filter = router.filters.AddHandler();
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### Important Notes
+
+- **One-Time Event**: Handler can only be set once per protocol ID
+- **Owner Only**: Only contract owner can trigger this event
+- **Handler Removal**: Use `SwapHandlerRemoved` event to track handler removals
+
+---
+
+## Event: `SwapHandlerRemoved`
+
+Emitted when a swap handler is removed for a protocol ID.
+
+### Signature
+
+```solidity
+event SwapHandlerRemoved(int24 protocol_id);
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|----------|------|-------------|
+| `protocol_id` | `int24` | Protocol identifier for which the handler was removed |
+
+### When Emitted
+
+- When `removeSwapHandler()` is called successfully
+- Only emitted by the contract owner
+- Handler address is set to `address(0)` after removal
+
+### Usage Example
+
+```javascript
+// Listen for handler removals
+router.on("SwapHandlerRemoved", (protocolId, event) => {
+  console.log(`Handler removed:`);
+  console.log(`  Protocol ID: ${protocolId}`);
+  console.log(`  Removed by: ${event.args[0]}`);
+});
+
+// Query handler removals
+const filter = router.filters.SwapHandlerRemoved();
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### Important Notes
+
+- **Owner Only**: Only contract owner can trigger this event
+- **Handler State**: After removal, `getSwapHandler(protocol_id)` returns `address(0)`
+- **Swap Failures**: Swaps using removed handlers will revert with `SwapHandlerNotSet()`
+
+---
+
+## Event: `SetNativeTokenSupport`
+
+Emitted when native token support is enabled or disabled for a protocol.
+
+### Signature
+
+```solidity
+event SetNativeTokenSupport(int24 protocol_id, bool support);
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|----------|------|-------------|
+| `protocol_id` | `int24` | Protocol identifier for which native token support is configured |
+| `support` | `bool` | `true` if native token support is enabled, `false` if disabled |
+
+### When Emitted
+
+- When `setNativeTokenSupport()` is called successfully
+- Only emitted by the contract owner
+- Controls whether the protocol can handle native token swaps (e.g., MONAD ↔ WMONAD conversion)
+
+### Usage Example
+
+```javascript
+// Listen for native token support changes
+router.on("SetNativeTokenSupport", (protocolId, support, event) => {
+  console.log(`Native token support updated:`);
+  console.log(`  Protocol ID: ${protocolId}`);
+  console.log(`  Support enabled: ${support}`);
+});
+
+// Query native token support changes
+const filter = router.filters.SetNativeTokenSupport();
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### Important Notes
+
+- **Owner Only**: Only contract owner can trigger this event
+- **Protocol-Specific**: Each protocol can have independent native token support settings
+- **Conversion Logic**: When enabled, router automatically converts native ↔ wrapped tokens as needed
+
+---
+
+## Event Monitoring Best Practices
+
+### 1. Indexed Fields
+
+Only `IntegratorFeeDistribution.integrator` is indexed. For efficient filtering:
+
+```javascript
+// ✅ Efficient - uses indexed field
+const filter = router.filters.IntegratorFeeDistribution(INTEGRATOR_ADDRESS);
+
+// ❌ Inefficient - requires filtering all events
+const filter = router.filters.Swap();
+const events = await router.queryFilter(filter);
+const filtered = events.filter(e => e.args.token_in === TOKEN_A);
+```
+
+### 2. Event Correlation
+
+Correlate related events in the same transaction:
+
+```javascript
+// Get all events from a transaction
+const receipt = await provider.getTransactionReceipt(txHash);
+const swapEvents = receipt.logs.filter(log => {
+  try {
+    return router.interface.parseLog(log).name === 'Swap';
+  } catch {
+    return false;
+  }
+});
+
+const integratorEvents = receipt.logs.filter(log => {
+  try {
+    return router.interface.parseLog(log).name === 'IntegratorFeeDistribution';
+  } catch {
+    return false;
+  }
+});
+```
+
+### 3. Error Handling
+
+Always handle event parsing errors:
+
+```javascript
+try {
+  const parsed = router.interface.parseLog(log);
+  // Process event
+} catch (error) {
+  // Not a Router event or invalid log
+  console.error('Failed to parse log:', error);
+}
+```
+
+### 4. Block Range Queries
+
+Use appropriate block ranges for event queries:
+
+```javascript
+// Query recent events (last 1000 blocks)
+const latestBlock = await provider.getBlockNumber();
+const events = await router.queryFilter(filter, latestBlock - 1000, latestBlock);
+
+// Query specific time range
+const fromBlock = await getBlockNumberForTimestamp(startTimestamp);
+const toBlock = await getBlockNumberForTimestamp(endTimestamp);
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+### 5. Event Storage
+
+Store event data efficiently:
+
+```javascript
+// Store minimal event data
+const swapData = {
+  txHash: event.transactionHash,
+  blockNumber: event.blockNumber,
+  sender: event.args.sender,
+  amountIn: event.args.amount_in.toString(),
+  amountOut: event.args.amount_out.toString(),
+  tokenIn: event.args.token_in,
+  tokenOut: event.args.token_out,
+  timestamp: (await provider.getBlock(event.blockNumber)).timestamp
+};
+```
+
+---
+
+## Event Indexing and Filtering
+
+### Efficient Filtering Strategies
+
+#### Filter by Token Pair
+
+```javascript
+// Get all swaps for a specific token pair
+const filter = router.filters.Swap();
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+
+const tokenPairSwaps = events.filter(event => {
+  const { token_in, token_out } = event.args;
+  return (token_in.toLowerCase() === TOKEN_A.toLowerCase() && 
+          token_out.toLowerCase() === TOKEN_B.toLowerCase()) ||
+         (token_in.toLowerCase() === TOKEN_B.toLowerCase() && 
+          token_out.toLowerCase() === TOKEN_A.toLowerCase());
+});
+```
+
+#### Filter by Integrator
+
+```javascript
+// Get all integrator distributions for a specific integrator
+const filter = router.filters.IntegratorFeeDistribution(INTEGRATOR_ADDRESS);
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+```
+
+#### Filter by Sender
+
+```javascript
+// Get all swaps from a specific address
+const filter = router.filters.Swap();
+const events = await router.queryFilter(filter, fromBlock, toBlock);
+
+const userSwaps = events.filter(event => 
+  event.args.sender.toLowerCase() === USER_ADDRESS.toLowerCase()
+);
+```
+
+---
+
+## Event Analytics Examples
+
+### Calculate Total Volume
+
+```javascript
+async function getTotalVolume(tokenAddress, fromBlock, toBlock) {
+  const filter = router.filters.Swap();
+  const events = await router.queryFilter(filter, fromBlock, toBlock);
+  
+  let totalVolume = BigInt(0);
+  
+  events.forEach(event => {
+    const { token_in, token_out, amount_in, amount_out } = event.args;
+    
+    if (token_in.toLowerCase() === tokenAddress.toLowerCase()) {
+      totalVolume += BigInt(amount_in);
+    } else if (token_out.toLowerCase() === tokenAddress.toLowerCase()) {
+      totalVolume += BigInt(amount_out);
+    }
+  });
+  
+  return totalVolume;
+}
+```
+
+### Track Integrator Earnings
+
+```javascript
+async function getIntegratorEarnings(integratorAddress, fromBlock, toBlock) {
+  const filter = router.filters.IntegratorFeeDistribution(integratorAddress);
+  const events = await router.queryFilter(filter, fromBlock, toBlock);
+  
+  let totalEarnings = BigInt(0);
+  
+  events.forEach(event => {
+    totalEarnings += BigInt(event.args.integrator_amount);
+  });
+  
+  return totalEarnings;
+}
+```
+
+### Monitor Handler Changes
+
+```javascript
+async function getHandlerHistory(protocolId, fromBlock, toBlock) {
+  const addFilter = router.filters.AddHandler(protocolId);
+  const removeFilter = router.filters.SwapHandlerRemoved(protocolId);
+  
+  const additions = await router.queryFilter(addFilter, fromBlock, toBlock);
+  const removals = await router.queryFilter(removeFilter, fromBlock, toBlock);
+  
+  return {
+    additions: additions.map(e => ({
+      handler: e.args.handler,
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash
+    })),
+    removals: removals.map(e => ({
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash
+    }))
+  };
+}
+```
+
+---
+
+## Related Documentation
+
+- [EVM Router Swap Functions](/integrate-best-trading/fibrous-smart-contracts/evm-router) - Complete guide to swap functions
+- [Integration Guide](/api-reference/integration-guide) - Best practices for integrating with Fibrous API
+- [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses) - EVM Router deployment addresses
+

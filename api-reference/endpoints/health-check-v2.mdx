@@ -6,18 +6,18 @@ api: "GET /{network}/v2/healthcheck"
 
 ## Overview
 
-The Health Check V2 endpoint verifies if the API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy. Currently available on **Monad** network.
+The Health Check V2 endpoint verifies if the API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy. Currently available on Evm networks.
 
 <Note>
-V2 API is currently available on Monad network. V1 endpoints remain available for backward compatibility.
+V2 API is currently available on Evm networks. V1 endpoints remain available for backward compatibility.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Monad">
+  <Tab title="Evm networks">
     ```bash
-    https://api.fibrous.finance/monad/v2/healthcheck
+    https://api.fibrous.finance/{network}/v2/healthcheck
     ```
   </Tab>
 </Tabs>
@@ -51,13 +51,13 @@ Verify if the Fibrous V2 API is up and running. This endpoint can be used for mo
 <CodeGroup>
 
 ```bash cURL
-curl -X GET "https://api.fibrous.finance/monad/v2/healthcheck"
+curl -X GET "https://api.fibrous.finance/{network}/v2/healthcheck"
 ```
 
 ```javascript JavaScript
 const axios = require('axios');
 
-axios.get('https://api.fibrous.finance/monad/v2/healthcheck')
+axios.get('https://api.fibrous.finance/{network}/v2/healthcheck')
   .then(response => {
     console.log(`API Version: ${response.data.meta.apiVersion}`);
     console.log(response.data);
@@ -68,7 +68,7 @@ axios.get('https://api.fibrous.finance/monad/v2/healthcheck')
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/monad/v2/healthcheck"
+url = "https://api.fibrous.finance/{network}/v2/healthcheck"
 response = requests.get(url)
 data = response.json()
 

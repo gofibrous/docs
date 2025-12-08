@@ -6,18 +6,18 @@ api: "GET /{network}/v2/route"
 
 ## Overview
 
-The Route V2 endpoint provides the same routing functionality as V1, with additional features including integrator support, enhanced metadata, and improved response structure. Currently available on **Monad** network.
+The Route V2 endpoint provides the same routing functionality as V1, with additional features including integrator support, enhanced metadata, and improved response structure. Currently available on Evm networks.
 
 <Note>
-V2 API is currently available on Monad network. V1 endpoints remain available for backward compatibility.
+V2 API is currently available on Evm networks. V1 endpoints remain available for backward compatibility.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Monad">
+  <Tab title="Evm networks">
     ```bash
-    https://api.fibrous.finance/monad/v2/route
+    https://api.fibrous.finance/{network}/v2/route
     ```
   </Tab>
 </Tabs>
@@ -92,6 +92,10 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   Integrator surplus percentage in basis points (0-5000, maximum 50%).
   Cannot be used together with integratorFeePercentageBps.
 </ParamField>
+
+<Warning>
+**API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+</Warning>
 
 ## Response
 
@@ -208,7 +212,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/monad/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a" \
+  "https://api.fibrous.finance/{network}/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a" \
   --header "Accept: */*"
 ```
 
@@ -226,7 +230,7 @@ const headers = {
   'X-API-Key': 'your-api-key-here' // optional
 };
 
-axios.get('https://api.fibrous.finance/monad/v2/route', { params, headers })
+axios.get('https://api.fibrous.finance/{network}/v2/route', { params, headers })
   .then(response => {
     console.log(`API Version: ${response.data.meta.apiVersion}`);
     console.log(response.data);
@@ -237,7 +241,7 @@ axios.get('https://api.fibrous.finance/monad/v2/route', { params, headers })
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/monad/v2/route"
+url = "https://api.fibrous.finance/{network}/v2/route"
 
 params = {
     "amount": "1000000000000000000",
@@ -293,7 +297,11 @@ print(data)
 
 ## Integrator Features
 
-To use integrator features, you need an API key. Include it in the request headers:
+<Warning>
+**API Key Required**: To use integrator features, partners must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+</Warning>
+
+To use integrator features, include your API key in the request headers:
 
 ```javascript
 const headers = {
@@ -308,7 +316,7 @@ const params = {
   integratorFeePercentageBps: 100 // 1% fee
 };
 
-const response = await fetch('https://api.fibrous.finance/monad/v2/route?' + new URLSearchParams(params), {
+const response = await fetch('https://api.fibrous.finance/{network}/v2/route?' + new URLSearchParams(params), {
   headers
 });
 ```

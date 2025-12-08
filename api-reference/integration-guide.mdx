@@ -1,0 +1,1089 @@
+---
+title: "Integration Guide"
+description: "Essential considerations and best practices for integrating the Fibrous Router API"
+---
+
+## Overview
+
+This guide covers critical considerations and best practices for integrating the Fibrous Router API into your application. Following these guidelines will ensure a robust, secure, and user-friendly integration.
+
+## Critical Considerations
+
+### 0. Integrator Features - API Key Requirement ⚠️
+
+<Warning>
+**API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous Finance. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
+
+**Contract Function Selection**:
+- **Normal Swap** (no API key) → Use `swap()` function
+- **Integrator Swap** (with API key) → Use `swapIntegrator()` function
+
+See [Integrator Features](#8-integrator-features-and-api-key-requirements) section for detailed implementation.
+</Warning>
+
+---
+
+### 1. Understanding min_received Calculation ⚠️🔴
+
+<Warning>
+**Critical**: Understanding `min_received` calculation is essential for proper slippage protection, especially when using integrator features. This is one of the most important concepts to understand before integrating.
+</Warning>
+
+**What is min_received?**
+
+`min_received` is the minimum amount of output tokens the user will receive after accounting for:
+1. Integrator fees (if applicable)
+2. Slippage tolerance
+
+**Calculation Formula:**
+
+#### Without Integrator Fee (Normal Swap)
+
+```
+min_received = amount_out - slippage_amount
+```
+
+Where:
+- `amount_out` = Expected output amount from route
+- `slippage_amount` = `amount_out × (slippage / 100)`
+
+**Example:**
+```javascript
+const amountOut = BigInt('1000000000000000000'); // 1 token
+const slippage = 0.5; // 0.5%
+
+const slippageAmount = (amountOut * BigInt(slippage * 1000)) / BigInt(100000);
+// slippageAmount = 1000000000000000000 * 500 / 100000 = 5000000000000000
+
+const minReceived = amountOut - slippageAmount;
+// minReceived = 1000000000000000000 - 5000000000000000 = 995000000000000000
+```
+
+#### With Integrator Fee
+
+<Warning>
+**Important**: When integrator fee is applied, `min_received` is calculated AFTER deducting the fee.
+</Warning>
+
+```
+Step 1: Calculate amount after fee
+amount_out_after_fee = amount_out - fee_amount
+
+Step 2: Calculate min_received from amount_after_fee
+min_received = amount_out_after_fee - slippage_amount
+```
+
+**Complete Formula:**
+```
+min_received = amount_out - fee_amount - slippage_amount
+```
+
+Where:
+- `amount_out` = Expected output amount from route
+- `fee_amount` = `amount_out × (integratorFeePercentageBps / 10000)`
+- `slippage_amount` = `amount_out_after_fee × (slippage / 100)`
+
+**Detailed Example:**
+
+```javascript
+// Input values
+const amountOut = BigInt('1000000000000000000'); // 1 token (18 decimals)
+const integratorFeePercentageBps = 100; // 1% fee (100 basis points)
+const slippage = 0.5; // 0.5%
+
+// Step 1: Calculate fee amount
+const feeAmount = (amountOut * BigInt(integratorFeePercentageBps)) / BigInt(10000);
+// feeAmount = 1000000000000000000 * 100 / 10000 = 10000000000000000 (0.01 token)
+
+// Step 2: Calculate amount after fee
+const amountOutAfterFee = amountOut - feeAmount;
+// amountOutAfterFee = 1000000000000000000 - 10000000000000000 = 990000000000000000
+
+// Step 3: Calculate slippage amount (from amount_after_fee)
+const slippageAmount = (amountOutAfterFee * BigInt(slippage * 1000)) / BigInt(100000);
+// slippageAmount = 990000000000000000 * 500 / 100000 = 4950000000000000
+
+// Step 4: Calculate min_received
+const minReceived = amountOutAfterFee - slippageAmount;
+// minReceived = 990000000000000000 - 4950000000000000 = 985050000000000000
+
+// Verification: min_received = amount_out - fee_amount - slippage_amount
+// minReceived = 1000000000000000000 - 10000000000000000 - 4950000000000000
+//            = 985050000000000000 ✅
+```
+
+**Visual Example:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Route Calculation Result                                │
+├─────────────────────────────────────────────────────────┤
+│ amount_out = 1,000,000,000,000,000,000 (1.0 token)     │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│ Step 1: Apply Integrator Fee (1% = 100 bps)              │
+├─────────────────────────────────────────────────────────┤
+│ fee_amount = 1,000,000,000,000,000,000 × 100 / 10000    │
+│ fee_amount = 10,000,000,000,000,000 (0.01 token)        │
+│                                                          │
+│ amount_out_after_fee = 1,000,000,000,000,000,000        │
+│                      - 10,000,000,000,000,000           │
+│                      = 990,000,000,000,000,000           │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│ Step 2: Apply Slippage (0.5%)                           │
+├─────────────────────────────────────────────────────────┤
+│ slippage_amount = 990,000,000,000,000,000 × 500 / 100000│
+│ slippage_amount = 4,950,000,000,000,000 (0.00495 token)│
+│                                                          │
+│ min_received = 990,000,000,000,000,000                   │
+│            - 4,950,000,000,000,000                      │
+│            = 985,050,000,000,000,000                    │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│ Final Result                                            │
+├─────────────────────────────────────────────────────────┤
+│ Expected Output:     1.0 token                         │
+│ Integrator Fee:     -0.01 token (1%)                   │
+│ After Fee:           0.99 token                        │
+│ Slippage Buffer:     -0.00495 token (0.5%)             │
+│ ─────────────────────────────────────                  │
+│ MIN RECEIVED:         0.98505 token                     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Why This Matters:**
+
+1. **User Protection**: `min_received` ensures users get at least this amount, protecting against:
+   - Price movements (slippage)
+   - Integrator fees
+   - Both combined
+
+2. **Transaction Reversion**: If the actual output is less than `min_received`, the transaction will revert, protecting the user.
+
+3. **Display to Users**: Always show users the `min_received` amount so they know the minimum they'll receive.
+
+4. **Fee Transparency**: Users should see:
+   - Expected output amount
+   - Fee amount (if applicable)
+   - Amount after fee
+   - Minimum received (with slippage)
+
+**Implementation:**
+
+```javascript
+function calculateMinReceived(routeResponse, slippage) {
+  let amountOutBase = BigInt(routeResponse.outputAmount);
+  
+  // Deduct integrator fee if applicable
+  if (routeResponse.integratorFeePercentageBps && routeResponse.integratorFeePercentageBps > 0) {
+    const feeAmount = (amountOutBase * BigInt(routeResponse.integratorFeePercentageBps)) / BigInt(10000);
+    amountOutBase = amountOutBase - feeAmount;
+  }
+  
+  // Apply slippage to amount_after_fee
+  const slippageAmount = (amountOutBase * BigInt(slippage * 1000)) / BigInt(100000);
+  const minReceived = amountOutBase - slippageAmount;
+  
+  return {
+    amountOut: routeResponse.outputAmount,
+    amountOutAfterFee: amountOutBase.toString(),
+    feeAmount: routeResponse.integratorFeePercentageBps 
+      ? ((BigInt(routeResponse.outputAmount) * BigInt(routeResponse.integratorFeePercentageBps)) / BigInt(10000)).toString()
+      : '0',
+    slippageAmount: slippageAmount.toString(),
+    minReceived: minReceived.toString()
+  };
+}
+```
+
+---
+
+### 2. Slippage Management
+
+**Setting Appropriate Slippage:**
+
+| Token Pair Type | Recommended Slippage | Notes |
+|----------------|---------------------|-------|
+| Stable pairs (USDC/USDT) | 0.1% - 0.5% | Low volatility, high liquidity |
+| Major pairs (ETH/USDC) | 0.5% - 1% | Moderate volatility |
+| Volatile pairs | 1% - 3% | Higher price movement risk |
+| Low liquidity tokens | 3% - 5% | May need higher slippage |
+
+**Best Practice:**
+```javascript
+function getSlippageTolerance(tokenIn, tokenOut) {
+  // Stable pairs
+  if (isStablePair(tokenIn, tokenOut)) {
+    return 0.1; // 0.1%
+  }
+  
+  // Major pairs
+  if (isMajorPair(tokenIn, tokenOut)) {
+    return 0.5; // 0.5%
+  }
+  
+  // Default for volatile pairs
+  return 1.0; // 1%
+}
+
+// Always validate slippage
+function validateSlippage(slippage) {
+  if (slippage < 0 || slippage > 49) {
+    throw new Error('Slippage must be between 0 and 49');
+  }
+  return slippage;
+}
+```
+
+**Important:**
+- Never set slippage to 0% - transactions will likely fail
+- Higher slippage increases success rate but may result in worse prices
+- Monitor price impact in route responses
+- Consider showing slippage warning to users for values > 1%
+
+---
+
+### 3. Error Handling
+
+**Always implement comprehensive error handling:**
+
+```javascript
+async function handleApiRequest(url, options) {
+  try {
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      
+      switch (response.status) {
+        case 400:
+          // Bad request - validation error
+          if (error.message.includes('Token in and token out cannot be the same')) {
+            throw new Error('Cannot swap token to itself');
+          }
+          throw new Error(`Invalid request: ${error.message}`);
+          
+        case 429:
+          // Rate limited
+          const retryAfter = response.headers.get('Retry-After') || 60;
+          throw new RateLimitError(`Rate limit exceeded. Retry after ${retryAfter} seconds`, retryAfter);
+          
+        case 500:
+          // Server error - retry
+          throw new ServerError('Server error. Please try again.');
+          
+        default:
+          throw new Error(`API error: ${error.message}`);
+      }
+    }
+    
+    return await response.json();
+    
+  } catch (error) {
+    // Log error for debugging
+    console.error('API Request failed:', error);
+    
+    // Handle network errors
+    if (error instanceof TypeError) {
+      throw new Error('Network error. Please check your connection.');
+    }
+    
+    throw error;
+  }
+}
+```
+
+**Key Error Scenarios:**
+
+1. **Token Same Error**: User selected same token for input and output
+2. **Rate Limit**: Too many requests - implement exponential backoff
+3. **Invalid Route**: Route expired or invalid - fetch new route
+4. **Network Error**: Connection issues - retry with backoff
+5. **Validation Error**: Invalid parameters - show user-friendly message
+
+---
+
+### 4. Rate Limiting
+
+**Default Limits:**
+- 200 requests per minute (shared across all endpoints)
+- Rate limits reset every minute
+
+**Best Practices:**
+
+```javascript
+class RateLimiter {
+  constructor() {
+    this.queue = [];
+    this.requestsPerMinute = 200;
+    this.windowStart = Date.now();
+    this.requestCount = 0;
+  }
+  
+  async throttle() {
+    const now = Date.now();
+    
+    // Reset window if minute passed
+    if (now - this.windowStart >= 60000) {
+      this.windowStart = now;
+      this.requestCount = 0;
+    }
+    
+    // Wait if limit reached
+    if (this.requestCount >= this.requestsPerMinute) {
+      const waitTime = 60000 - (now - this.windowStart);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      this.windowStart = Date.now();
+      this.requestCount = 0;
+    }
+    
+    this.requestCount++;
+  }
+}
+
+// Use rate limiter
+const limiter = new RateLimiter();
+
+async function makeRequest(url) {
+  await limiter.throttle();
+  return fetch(url);
+}
+```
+
+**For Higher Limits:**
+- Request an API key for increased rate limits
+- Contact [contact@fibrous.finance](mailto:contact@fibrous.finance) for enterprise limits
+
+---
+
+### 5. Token Approvals
+
+<Warning>
+**Token Approvals Required**: For ERC-20 token swaps, users must approve the Fibrous Router contract to spend their tokens before executing swaps.
+</Warning>
+
+**Approval Flow:**
+
+```javascript
+async function checkAndApproveToken(tokenAddress, amount, userAddress, provider) {
+  const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+  const routerAddress = '0x274602a953847d807231d2370072f5f4e4594b44'; // Router address
+  
+  // Check current allowance
+  const currentAllowance = await tokenContract.allowance(userAddress, routerAddress);
+  const requiredAmount = ethers.BigNumber.from(amount);
+  
+  if (currentAllowance.lt(requiredAmount)) {
+    // Request approval
+    const signer = provider.getSigner();
+    const tokenWithSigner = tokenContract.connect(signer);
+    
+    // Approve max amount for better UX (or approve exact amount)
+    const tx = await tokenWithSigner.approve(
+      routerAddress,
+      ethers.constants.MaxUint256 // or requiredAmount for exact approval
+    );
+    
+    await tx.wait();
+    return true;
+  }
+  
+  return false; // Already approved
+}
+
+// Before executing swap
+async function prepareSwap(tokenInAddress, amount, userAddress) {
+  // Native token (ETH/MON) doesn't need approval
+  if (isNativeToken(tokenInAddress)) {
+    return true;
+  }
+  
+  // Check and request approval for ERC-20 tokens
+  const needsApproval = await checkAndApproveToken(
+    tokenInAddress,
+    amount,
+    userAddress,
+    provider
+  );
+  
+  if (needsApproval) {
+    // Show approval transaction to user
+    // Wait for confirmation
+  }
+  
+  return true;
+}
+```
+
+**Important Notes:**
+- Native tokens (ETH, MON) don't require approval
+- Check allowance before every swap
+- Consider approving max amount for better UX
+- Show clear approval UI to users
+
+---
+
+### 6. Gas Estimation
+
+**Always add gas buffer:**
+
+```javascript
+async function executeSwap(calldataResponse, signer) {
+  const { router_address, calldata } = calldataResponse;
+  
+  // Get estimated gas
+  const estimatedGas = await signer.estimateGas({
+    to: router_address,
+    data: calldata,
+    value: calldataResponse.value || 0
+  });
+  
+  // Add 20% buffer for safety
+  const gasLimit = estimatedGas.mul(120).div(100);
+  
+  // Execute transaction
+  const tx = await signer.sendTransaction({
+    to: router_address,
+    data: calldata,
+    value: calldataResponse.value || 0,
+    gasLimit: gasLimit
+  });
+  
+  return tx;
+}
+```
+
+**Best Practices:**
+- Use estimated gas from API response as baseline
+- Add 10-20% buffer for safety
+- Monitor gas prices and adjust accordingly
+- Consider using `maxFeePerGas` and `maxPriorityFeePerGas` for EIP-1559
+
+---
+
+### 7. Network-Specific Considerations
+
+**EVM Networks (Base, HyperEVM, Scroll, Monad):**
+
+- Use standard EVM transaction format
+- Native tokens: `0x0000000000000000000000000000000000000000` or `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+- Gas estimation required
+- Token approvals needed for ERC-20 tokens
+
+**Starknet:**
+
+- Different address format (Cairo)
+- Different transaction structure
+- See [Starknet API documentation](/api-reference/starknet/endpoint/overview)
+
+---
+
+### 9. Integrator Features and API Key Requirements
+
+<Warning>
+**API Key Required**: Integrator features (fee or surplus sharing) require an API key from Fibrous Finance. If you don't have an API key, use normal swap functionality.
+</Warning>
+
+**Two Swap Modes:**
+
+#### Normal Swap (No API Key)
+
+If you don't have an API key or don't want to use integrator features:
+
+```javascript
+// Normal swap - no integrator features
+const route = await fetch(`https://api.fibrous.finance/{network}/v2/route?...`);
+const calldata = await generateCalldata(route, slippage, destination);
+
+// Use standard swap() function in contract
+const routerContract = new ethers.Contract(ROUTER_ADDRESS, ROUTER_ABI, signer);
+const tx = await routerContract.swap(
+  calldata.route,
+  calldata.swap_parameters
+);
+```
+
+#### Integrator Swap (With API Key)
+
+If you have an API key and want to monetize your integration:
+
+```javascript
+// Include API key in headers
+const headers = {
+  'X-API-Key': 'your-api-key-here',
+  'Content-Type': 'application/json'
+};
+
+// Request route with integrator parameters
+const route = await fetch(`https://api.fibrous.finance/{network}/v2/route?` + 
+  new URLSearchParams({
+    amount,
+    tokenInAddress,
+    tokenOutAddress,
+    integratorAddress: '0xYourWalletAddress',
+    integratorFeePercentageBps: '100' // 1% fee
+  }), 
+  { headers }
+);
+
+const routeData = await route.json();
+
+// Generate calldata - will include integrator_data
+const calldata = await generateCalldata(routeData, slippage, destination);
+
+// ✅ IMPORTANT: Use swapIntegrator() function, not swap()
+const routerContract = new ethers.Contract(ROUTER_ADDRESS, ROUTER_ABI, signer);
+const tx = await routerContract.swapIntegrator(
+  calldata.route,
+  calldata.swap_parameters,
+  calldata.integrator_data // Required for integrator swaps
+);
+```
+
+**Critical Points:**
+
+1. **API Key Required**: Integrator features only work with a valid API key
+2. **Function Selection**: 
+   - Normal swap → Use `swap()` function
+   - Integrator swap → Use `swapIntegrator()` function
+3. **Integrator Data**: When using integrator features, the calldata includes `integrator_data` which must be passed to `swapIntegrator()`
+
+**Contract Functions:**
+
+```solidity
+// Standard swap function (no integrator)
+function swap(
+    RouteParam calldata route,
+    SwapParams[] calldata swap_parameters
+) external payable returns (uint256);
+
+// Integrator swap function (with fee/surplus)
+function swapIntegrator(
+    RouteParam calldata route,
+    SwapParams[] calldata swap_parameters,
+    bytes calldata integrator_data
+) external payable returns (uint256);
+```
+
+---
+
+### 10. V1 vs V2 API
+
+**When to use V1:**
+- Existing integrations that work well
+- Simple use cases without integrator features
+- When you need backward compatibility
+
+**When to use V2:**
+- New integrations
+- Need integrator features (fee/surplus)
+- Want enhanced metadata tracking
+- Prefer clearer endpoint names
+
+<Info>
+See [V2 Migration Guide](/api-reference/v2-migration) for detailed comparison and migration steps.
+</Info>
+
+**Endpoint Mapping:**
+- V1 `/calldata` → V2 `/routeAndCallData` (GET)
+- V1 `/execute` → V2 `/calldata` (POST)
+
+---
+
+### 11. Security Best Practices
+
+**Input Validation:**
+
+```javascript
+function validateSwapParams(params) {
+  const errors = [];
+  
+  // Validate amount
+  if (!params.amount || params.amount === '0') {
+    errors.push('Amount must be greater than 0');
+  }
+  
+  // Validate addresses
+  if (!ethers.utils.isAddress(params.tokenInAddress)) {
+    errors.push('Invalid tokenInAddress');
+  }
+  
+  if (!ethers.utils.isAddress(params.tokenOutAddress)) {
+    errors.push('Invalid tokenOutAddress');
+  }
+  
+  // Check same token
+  if (params.tokenInAddress.toLowerCase() === params.tokenOutAddress.toLowerCase()) {
+    errors.push('Cannot swap token to itself');
+  }
+  
+  // Validate slippage
+  if (params.slippage < 0 || params.slippage > 49) {
+    errors.push('Slippage must be between 0 and 49');
+  }
+  
+  return errors;
+}
+```
+
+**Security Checklist:**
+- ✅ Always validate user inputs
+- ✅ Sanitize addresses (lowercase, checksum)
+- ✅ Verify route freshness
+- ✅ Check minimum received amounts
+- ✅ Never trust client-side calculations
+- ✅ Use HTTPS only
+- ✅ Implement request signing for sensitive operations
+- ✅ Rate limit user requests on your side
+
+---
+
+### 12. User Experience Considerations
+
+**Loading States:**
+
+```javascript
+async function swapWithLoadingStates(params) {
+  try {
+    // Show loading: "Finding best route..."
+    setLoadingState('finding-route');
+    const route = await fetchRoute(params);
+    
+    // Show loading: "Preparing transaction..."
+    setLoadingState('preparing-tx');
+    const calldata = await generateCalldata(route, params);
+    
+    // Show loading: "Waiting for approval..."
+    if (needsApproval) {
+      setLoadingState('approving');
+      await approveToken(params.tokenInAddress);
+    }
+    
+    // Show loading: "Confirm transaction..."
+    setLoadingState('confirming');
+    const tx = await sendTransaction(calldata);
+    
+    // Show loading: "Transaction pending..."
+    setLoadingState('pending');
+    await tx.wait();
+    
+    // Success!
+    setLoadingState('success');
+    
+  } catch (error) {
+    setLoadingState('error');
+    showError(error.message);
+  }
+}
+```
+
+**User Feedback:**
+- Show clear loading states
+- Display route information (output amount, price impact)
+- Warn about high slippage
+- Show transaction status
+- Provide clear error messages
+- Estimate gas costs
+
+---
+
+### 13. Testing Recommendations
+
+**Test Scenarios:**
+
+1. **Happy Path:**
+   - Successful swap with fresh route
+   - Token approval flow
+   - Transaction confirmation
+
+2. **Error Cases:**
+   - Same token addresses
+   - Invalid addresses
+   - Insufficient balance
+   - Rate limiting
+   - Network errors
+
+3. **Edge Cases:**
+   - Very small amounts
+   - Very large amounts
+   - Low liquidity pairs
+   - High volatility tokens
+
+4. **Integration Tests:**
+   - Test on testnets first
+   - Test with small amounts on mainnet
+   - Monitor transaction success rate
+   - Test error recovery
+
+**Example Test:**
+
+```javascript
+describe('Swap Integration', () => {
+  it('should execute swap successfully', async () => {
+    // 1. Fetch fresh route
+    const route = await fetchRoute({
+      amount: '1000000000000000000',
+      tokenInAddress: NATIVE_TOKEN,
+      tokenOutAddress: USDC_ADDRESS
+    });
+    
+    expect(route.success).toBe(true);
+    expect(route.outputAmount).toBeDefined();
+    
+    // 2. Generate calldata
+    const calldata = await generateCalldata(route, {
+      slippage: 0.5,
+      destination: USER_ADDRESS
+    });
+    
+    expect(calldata.calldata).toBeDefined();
+    expect(calldata.router_address).toBeDefined();
+    
+    // 3. Execute (on testnet)
+    const tx = await sendTransaction(calldata);
+    expect(tx.hash).toBeDefined();
+    
+    // 4. Wait for confirmation
+    const receipt = await tx.wait();
+    expect(receipt.status).toBe(1);
+  });
+});
+```
+
+---
+
+### 14. Monitoring and Analytics
+
+**Key Metrics to Track:**
+
+- Route fetch success rate
+- Transaction success rate
+- Average route calculation time
+- Average transaction gas cost
+- Error rates by type
+- User slippage preferences
+- Most popular token pairs
+
+**Implementation:**
+
+```javascript
+class Analytics {
+  trackRouteFetch(duration, success) {
+    // Track route fetch performance
+    analytics.track('route_fetch', {
+      duration,
+      success,
+      timestamp: Date.now()
+    });
+  }
+  
+  trackSwapExecution(txHash, success, gasUsed) {
+    // Track swap execution
+    analytics.track('swap_execution', {
+      txHash,
+      success,
+      gasUsed,
+      timestamp: Date.now()
+    });
+  }
+  
+  trackError(errorType, errorMessage) {
+    // Track errors
+    analytics.track('api_error', {
+      type: errorType,
+      message: errorMessage,
+      timestamp: Date.now()
+    });
+  }
+}
+```
+
+---
+
+## Complete Integration Example
+
+Here's a complete, production-ready integration example:
+
+```javascript
+class FibrousRouterIntegration {
+  constructor(network, apiKey = null) {
+    this.baseUrl = `https://api.fibrous.finance/${network}/v2`;
+    this.headers = {
+      'Content-Type': 'application/json',
+      ...(apiKey && { 'X-API-Key': apiKey })
+    };
+  }
+  
+  async getRoute(amount, tokenIn, tokenOut, options = {}) {
+    const params = new URLSearchParams({
+      amount,
+      tokenInAddress: tokenIn,
+      tokenOutAddress: tokenOut,
+      ...(options.direct && { direct: 'true' }),
+      ...(options.excludeProtocols && { excludeProtocols: options.excludeProtocols.join(',') })
+    });
+    
+    const response = await fetch(`${this.baseUrl}/route?${params}`, {
+      headers: this.headers
+    });
+    
+    if (!response.ok) {
+      throw await this.handleError(response);
+    }
+    
+    return await response.json();
+  }
+  
+  async getRouteAndCalldata(amount, tokenIn, tokenOut, slippage, destination, options = {}) {
+    const params = new URLSearchParams({
+      amount,
+      tokenInAddress: tokenIn,
+      tokenOutAddress: tokenOut,
+      slippage: slippage.toString(),
+      destination
+    });
+    
+    const response = await fetch(`${this.baseUrl}/routeAndCallData?${params}`, {
+      headers: this.headers
+    });
+    
+    if (!response.ok) {
+      throw await this.handleError(response);
+    }
+    
+    return await response.json();
+  }
+  
+  async generateCalldata(route, slippage, destination) {
+    const response = await fetch(`${this.baseUrl}/calldata`, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify({ route, slippage, destination })
+    });
+    
+    if (!response.ok) {
+      throw await this.handleError(response);
+    }
+    
+    return await response.json();
+  }
+  
+  async handleError(response) {
+    const error = await response.json();
+    
+    switch (response.status) {
+      case 400:
+        return new Error(error.message || 'Invalid request');
+      case 429:
+        return new Error('Rate limit exceeded. Please try again later.');
+      case 500:
+        return new Error('Server error. Please try again.');
+      default:
+        return new Error(error.message || 'Unknown error');
+    }
+  }
+  
+  async executeSwap(amount, tokenIn, tokenOut, slippage, destination, signer) {
+    try {
+      // 1. Validate inputs
+      this.validateInputs(amount, tokenIn, tokenOut, slippage, destination);
+      
+      // 2. Check token approval (if needed)
+      if (!this.isNativeToken(tokenIn)) {
+        await this.ensureApproval(tokenIn, amount, signer);
+      }
+      
+      // 3. Get fresh route and calldata
+      const { route, calldata, router_address, meta } = 
+        await this.getRouteAndCalldata(amount, tokenIn, tokenOut, slippage, destination);
+      
+      // 4. Verify route freshness
+      const routeAge = Date.now() - new Date(meta.timestamp).getTime();
+      if (routeAge > 60000) {
+        throw new Error('Route expired. Please try again.');
+      }
+      
+      // 5. Calculate and verify min_received
+      const minReceivedInfo = this.calculateMinReceived(route, slippage);
+      console.log('Swap Details:', {
+        expectedOutput: minReceivedInfo.amountOut,
+        afterFee: minReceivedInfo.amountOutAfterFee,
+        feeAmount: minReceivedInfo.feeAmount,
+        minReceived: minReceivedInfo.minReceived
+      });
+      
+      // Verify min_received matches calldata
+      if (calldata.route.min_received !== minReceivedInfo.minReceived) {
+        console.warn('min_received mismatch - recalculating calldata');
+        // Regenerate calldata if mismatch
+        const freshCalldata = await this.generateCalldata(route, slippage, destination);
+        calldata = freshCalldata;
+      }
+      
+      // 6. Estimate gas
+      const estimatedGas = await signer.estimateGas({
+        to: router_address,
+        data: calldata.calldata,
+        value: this.isNativeToken(tokenIn) ? amount : 0
+      });
+      
+      // 7. Determine which contract function to use
+      const routerContract = new ethers.Contract(router_address, ROUTER_ABI, signer);
+      
+      let tx;
+      if (calldata.integrator_data) {
+        // ✅ Use swapIntegrator() when integrator features are enabled
+        tx = await routerContract.swapIntegrator(
+          calldata.route,
+          calldata.swap_parameters,
+          calldata.integrator_data,
+          {
+            value: this.isNativeToken(tokenIn) ? amount : 0,
+            gasLimit: estimatedGas.mul(120).div(100) // 20% buffer
+          }
+        );
+      } else {
+        // Use standard swap() for normal swaps
+        tx = await routerContract.swap(
+          calldata.route,
+          calldata.swap_parameters,
+          {
+            value: this.isNativeToken(tokenIn) ? amount : 0,
+            gasLimit: estimatedGas.mul(120).div(100) // 20% buffer
+          }
+        );
+      }
+      
+      return tx;
+      
+    } catch (error) {
+      console.error('Swap execution failed:', error);
+      throw error;
+    }
+  }
+  
+  validateInputs(amount, tokenIn, tokenOut, slippage, destination) {
+    if (!amount || amount === '0') {
+      throw new Error('Amount must be greater than 0');
+    }
+    
+    if (tokenIn.toLowerCase() === tokenOut.toLowerCase()) {
+      throw new Error('Cannot swap token to itself');
+    }
+    
+    if (slippage < 0 || slippage > 49) {
+      throw new Error('Slippage must be between 0 and 49');
+    }
+    
+    if (!ethers.utils.isAddress(destination)) {
+      throw new Error('Invalid destination address');
+    }
+  }
+  
+  isNativeToken(address) {
+    const nativeAddresses = [
+      '0x0000000000000000000000000000000000000000',
+      '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    ];
+    return nativeAddresses.includes(address.toLowerCase());
+  }
+  
+  async ensureApproval(tokenAddress, amount, signer) {
+    const routerAddress = '0x274602a953847d807231d2370072f5f4e4594b44';
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    const allowance = await tokenContract.allowance(await signer.getAddress(), routerAddress);
+    
+    if (allowance.lt(amount)) {
+      const tx = await tokenContract.approve(routerAddress, ethers.constants.MaxUint256);
+      await tx.wait();
+    }
+  }
+  
+  calculateMinReceived(routeResponse, slippage) {
+    let amountOutBase = BigInt(routeResponse.outputAmount);
+    let feeAmount = BigInt(0);
+    
+    // Deduct integrator fee if applicable
+    if (routeResponse.integratorFeePercentageBps && routeResponse.integratorFeePercentageBps > 0) {
+      feeAmount = (amountOutBase * BigInt(routeResponse.integratorFeePercentageBps)) / BigInt(10000);
+      amountOutBase = amountOutBase - feeAmount;
+    }
+    
+    // Apply slippage to amount_after_fee
+    const slippageAmount = (amountOutBase * BigInt(slippage * 1000)) / BigInt(100000);
+    const minReceived = amountOutBase - slippageAmount;
+    
+    return {
+      amountOut: routeResponse.outputAmount,
+      amountOutAfterFee: amountOutBase.toString(),
+      feeAmount: feeAmount.toString(),
+      slippageAmount: slippageAmount.toString(),
+      minReceived: minReceived.toString()
+    };
+  }
+}
+
+// Usage
+const router = new FibrousRouterIntegration('monad', 'your-api-key');
+const tx = await router.executeSwap(
+  '1000000000000000000',
+  '0x0000000000000000000000000000000000000000',
+  '0x3bd359c1119da7da1d913d1c4d2b7c461115433a',
+  0.5,
+  userAddress,
+  signer
+);
+```
+
+---
+
+## Checklist
+
+Before going to production, ensure you've covered:
+
+- [ ] Route freshness validation
+- [ ] Appropriate slippage settings
+- [ ] Comprehensive error handling
+- [ ] Rate limiting implementation
+- [ ] Token approval flow
+- [ ] Gas estimation with buffer
+- [ ] Input validation
+- [ ] Network-specific handling
+- [ ] User feedback and loading states
+- [ ] Testing on testnets
+- [ ] Error monitoring
+- [ ] Analytics tracking
+- [ ] **Integrator Features (if using)**:
+  - [ ] API key obtained from Fibrous Finance
+  - [ ] `swapIntegrator()` function used instead of `swap()`
+  - [ ] `integrator_data` passed to contract function
+  - [ ] `min_received` calculation verified (amount_out - fee - slippage)
+  - [ ] Fee amounts displayed correctly to users
+
+---
+
+## Additional Resources
+
+- [API Reference](/api-reference/introduction) - Complete API documentation
+- [Error Codes](/api-reference/errors) - Error handling reference
+- [Rate Limits](/api-reference/rate-limit) - Rate limiting details
+- [V2 Migration Guide](/api-reference/v2-migration) - Migrating to V2 API
+- [SDK Documentation](/integrate-best-trading/fibrous-sdk/index) - Use our SDK for easier integration
+
+---
+
+## Support
+
+Need help with integration?
+
+- **Discord**: [Join our Discord](https://discord.gg/fibrous) for community support
+- **Email**: [contact@fibrous.finance](mailto:contact@fibrous.finance) for direct support
+- **Documentation**: Check our [FAQ](/essentials/faq) for common questions
+

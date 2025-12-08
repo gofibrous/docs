@@ -70,14 +70,15 @@
             "group": "Getting Started",
             "pages": [
               "api-reference/introduction",
-              "api-reference/rate-limit"
+              "api-reference/integration-guide",
+              "api-reference/rate-limit",
+              "api-reference/errors"
             ]
           },
           {
             "group": "Chains, Tokens, Contracts",
             "pages": [
               "api-reference/chains-tokens-contracts/supported-chains",
-              "api-reference/chains-tokens-contracts/contract-addresses",
               "api-reference/chains-tokens-contracts/supported-tokens"
             ]
           },
@@ -124,11 +125,10 @@
               {
                 "group": "Deployed Contracts",
                 "pages": [
+                  "api-reference/chains-tokens-contracts/contract-addresses",
                   "integrate-best-trading/fibrous-smart-contracts/starknet",
-                  "integrate-best-trading/fibrous-smart-contracts/base",
-                  "integrate-best-trading/fibrous-smart-contracts/hyperevm",
-                  "integrate-best-trading/fibrous-smart-contracts/scroll",
-                  "integrate-best-trading/fibrous-smart-contracts/monad"
+                  "integrate-best-trading/fibrous-smart-contracts/evm-router",
+                  "integrate-best-trading/fibrous-smart-contracts/evm-router-events"
                 ]
               }
             ]

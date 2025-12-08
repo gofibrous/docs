@@ -6,18 +6,18 @@ api: "GET /{network}/v2/routeAndCallData"
 
 ## Overview
 
-The Route and Calldata V2 endpoint combines route finding and calldata generation in a single request, reducing API calls and latency. This is a V2-only endpoint that provides enhanced features including integrator support and metadata. Currently available on **Monad** network.
+The Route and Calldata V2 endpoint combines route finding and calldata generation in a single request, reducing API calls and latency. This is a V2-only endpoint that provides enhanced features including integrator support and metadata. Currently available on Evm networks.
 
 <Note>
-This endpoint is V2-only and currently available on Monad network. For V1, use separate `/route` and `/calldata` endpoints.
+This endpoint is V2-only and currently available on Evm networks. For V1, use separate `/route` and `/calldata` endpoints.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Monad">
+  <Tab title="Evm networks">
     ```bash
-    https://api.fibrous.finance/monad/v2/routeAndCallData
+    https://api.fibrous.finance/{network}/v2/routeAndCallData
     ```
   </Tab>
 </Tabs>
@@ -80,6 +80,10 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
   Integrator surplus percentage in basis points (0-5000, maximum 50%).
   Cannot be used together with integratorFeePercentageBps.
 </ParamField>
+
+<Warning>
+**API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+</Warning>
 
 ## Response
 
@@ -187,7 +191,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
 
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/monad/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
+  "https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
   --header "Accept: */*"
 ```
 
@@ -202,7 +206,7 @@ const params = {
   destination: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
 };
 
-axios.get('https://api.fibrous.finance/monad/v2/routeAndCallData', { params })
+axios.get('https://api.fibrous.finance/{network}/v2/routeAndCallData', { params })
   .then(response => {
     const { route, calldata, router_address, meta } = response.data;
     console.log(`API Version: ${meta.apiVersion}`);
@@ -215,7 +219,7 @@ axios.get('https://api.fibrous.finance/monad/v2/routeAndCallData', { params })
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/monad/v2/routeAndCallData"
+url = "https://api.fibrous.finance/{network}/v2/routeAndCallData"
 
 params = {
     "amount": "1000000000000000000",

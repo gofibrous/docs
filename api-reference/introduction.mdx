@@ -99,7 +99,11 @@ All endpoints follow the pattern: `/{network}/{endpoint}`
 
 ## Authentication
 
-No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage. API keys can be used for higher rate limits and to access integrator features (available on Monad V2 API).
+No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage. 
+
+<Warning>
+**API Key Required for Integrator Features**: Partners who want to use integrator features (fee or surplus sharing) on V2 API must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key. API keys also provide higher rate limits.
+</Warning>
 
 <Card title="Rate Limits" icon="gauge" href="/api-reference/rate-limit">
   Learn about API rate limits and best practices
@@ -170,6 +174,14 @@ Error responses include detailed information:
   
   <Card title="Error Handling" icon="triangle-exclamation">
     Implement proper error handling and retry logic for production applications.
+  </Card>
+  
+  <Card title="Integration Guide" icon="book" href="/api-reference/integration-guide">
+    Essential considerations and best practices for integrating the API
+  </Card>
+  
+  <Card title="Error Codes" icon="circle-exclamation" href="/api-reference/errors">
+    Reference guide for all API error codes and error handling
   </Card>
   
   <Card title="Gas Estimation" icon="gas-pump">

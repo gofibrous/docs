@@ -1,0 +1,640 @@
+---
+title: "EVM Router - Swap Functions"
+description: "Comprehensive guide to EVM Router swap functions including swap, swapIntegrator, and swapWithPermit"
+---
+
+# EVM Router Swap Functions
+
+EVM Router is the advanced router contract for executing token swaps across multiple protocols on EVM-compatible chains. It supports native token handling, multi-hop swaps, integrator fee/surplus sharing, and permit-based approvals.
+
+## Overview
+
+EVM Router provides three main swap functions:
+
+1. **`swap`** - Standard swap function for normal token exchanges
+2. **`swapIntegrator`** - Swap with integrator fee or surplus sharing
+3. **`swapWithPermit`** - Swap with ERC-20 permit signature (gasless approval)
+
+All swap functions support:
+- **Multi-hop swaps** across different protocols
+- **Native token handling** (MONAD ↔ WMONAD conversion)
+- **Rate-based amount distribution** for splitting input across multiple swaps
+- **Surplus handling** to cap output at expected amount
+- **Minimum received protection** to ensure slippage tolerance
+
+---
+
+## Contract ABI
+
+<Info>
+**Router Contract ABI**: The complete Application Binary Interface (ABI) for EVM Router is available on GitHub:
+
+🔗 **[View Router ABI on GitHub](https://github.com/Fibrous-Finance/router-contract-abi/blob/main/routerAbi.json)**
+
+The ABI includes all function signatures, event definitions, and error types needed for integration.
+</Info>
+
+---
+
+## Function: `swap`
+
+Performs a standard token swap using the provided route and swap parameters.
+
+### Signature
+
+```solidity
+function swap(
+    RouteParam calldata route,
+    SwapParams[] calldata swap_parameters
+) external payable nonReentrant whenNotPaused returns (uint256)
+```
+
+### Parameters
+
+#### `route` (RouteParam)
+
+The route parameters defining the overall swap path.
+
+```solidity
+struct RouteParam {
+    address token_in;        // Input token address
+    address token_out;       // Output token address
+    uint256 amount_in;       // Amount of input tokens to swap
+    uint256 amount_out;      // Expected output amount (for surplus calculation)
+    uint256 min_received;    // Minimum amount user must receive
+    address destination;     // Recipient address (address(0) = msg.sender)
+    SwapType swap_type;      // Type of swap (ethToToken, tokenToEth, tokenToToken)
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `token_in` | `address` | Contract address of the input token to sell |
+| `token_out` | `address` | Contract address of the output token to buy |
+| `amount_in` | `uint256` | Amount of input tokens to swap (in token's smallest unit) |
+| `amount_out` | `uint256` | Expected output amount. Used for surplus calculation - if actual output exceeds this, it's capped |
+| `min_received` | `uint256` | Minimum amount of output tokens user must receive. Transaction reverts if actual output < min_received |
+| `destination` | `address` | Address to receive output tokens. If `address(0)`, uses `msg.sender` |
+| `swap_type` | `SwapType` | Enum indicating swap type: `ethToToken` (0), `tokenToEth` (1), `tokenToToken` (2) |
+
+#### `swap_parameters` (SwapParams[])
+
+Array of swap parameters for each hop in the multi-hop swap.
+
+```solidity
+struct SwapParams {
+    address token_in;        // Input token for this hop
+    address token_out;      // Output token for this hop
+    uint32 rate;            // Rate percentage (1-1000000, where 1000000 = 100%)
+    int24 protocol_id;      // Protocol identifier (maps to swap handler)
+    address pool_address;    // Pool contract address for this swap
+    SwapType swap_type;     // Swap type for this hop
+    bytes extra_data;       // Protocol-specific extra data
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `token_in` | `address` | Input token address for this swap hop |
+| `token_out` | `address` | Output token address for this swap hop |
+| `rate` | `uint32` | Percentage of input amount to use (1-1000000). `amount_in = (previous_amount * rate) / 1000000` |
+| `protocol_id` | `int24` | Protocol identifier. Maps to swap handler via `swappers` mapping |
+| `pool_address` | `address` | Pool contract address where swap will execute |
+| `swap_type` | `SwapType` | Swap type for this hop |
+| `extra_data` | `bytes` | Protocol-specific data (e.g., fee tier, tick spacing, hooks config) |
+
+### Returns
+
+- `uint256`: Amount of output tokens received by the destination address
+
+### Behavior
+
+1. **Validation**: Checks that `token_in != token_out`, `amount_in > 0`, `min_received > 0`, and `swap_parameters.length > 0`
+
+2. **Token Transfer**: 
+   - For `tokenToToken` and `tokenToEth`: Transfers `amount_in` from `msg.sender` to contract
+   - For `ethToToken`: Expects ETH sent with transaction (`msg.value`)
+
+3. **Multi-Hop Execution**:
+   - For first swap: Uses `route.amount_in` multiplied by first swap's `rate`
+   - For subsequent swaps: Uses previous swap's output multiplied by current swap's `rate`
+   - Handles native token conversion (MONAD ↔ WMONAD) if protocol supports it
+
+4. **Surplus Handling**: 
+   - If actual output > `route.amount_out`, caps output at `route.amount_out`
+   - User receives capped amount, surplus stays in contract
+
+5. **Slippage Protection**: 
+   - Verifies `actual_output >= route.min_received`
+   - Reverts with `MinReceivedAmountNotReached` if check fails
+
+6. **Token Transfer**: Sends output tokens to `destination` (or `msg.sender` if `destination == address(0)`)
+
+### Example
+
+```solidity
+// Swap 1 MONAD for USDC via two hops: MONAD -> WMONAD -> USDC
+
+RouteParam memory route = RouteParam({
+    token_in: address(0x0000000000000000000000000000000000000000), // Native MONAD
+    token_out: USDC_ADDRESS,
+    amount_in: 1e18, // 1 MONAD
+    amount_out: 3000e6, // Expected ~3000 USDC
+    min_received: 2950e6, // Minimum 2950 USDC (1.67% slippage)
+    destination: address(0), // Use msg.sender
+    swap_type: SwapType.ethToToken
+});
+
+SwapParams[] memory swaps = new SwapParams[](2);
+
+// First hop: MONAD -> WMONAD
+swaps[0] = SwapParams({
+    token_in: address(0x0000000000000000000000000000000000000000),
+    token_out: WMONAD_ADDRESS,
+    rate: 1000000, // 100% of input
+    protocol_id: UNISWAP_V4_PROTOCOL_ID,
+    pool_address: MONAD_WMONAD_POOL,
+    swap_type: SwapType.ethToToken,
+    extra_data: abi.encode(...) // Pool-specific data
+});
+
+// Second hop: WMONAD -> USDC
+swaps[1] = SwapParams({
+    token_in: WMONAD_ADDRESS,
+    token_out: USDC_ADDRESS,
+    rate: 1000000, // 100% of previous output
+    protocol_id: UNISWAP_V3_PROTOCOL_ID,
+    pool_address: WMONAD_USDC_POOL,
+    swap_type: SwapType.tokenToToken,
+    extra_data: abi.encode(...)
+});
+
+// Execute swap
+uint256 amountOut = router.swap{value: 1e18}(route, swaps);
+```
+
+<Info>
+See [EVM Router Events](/integrate-best-trading/fibrous-smart-contracts/evm-router-events) for complete event documentation.
+</Info>
+
+### Errors
+
+| Error | Condition |
+|-------|-----------|
+| `TokenAddressesAreSame()` | `token_in == token_out` |
+| `NoSwapsProvided()` | `swap_parameters.length == 0` |
+| `AmountInZero()` | `amount_in == 0` |
+| `MinReceivedZero()` | `min_received == 0` |
+| `MinReceivedAmountNotReached()` | Actual output < `min_received` |
+| `SwapHandlerNotSet()` | No handler set for `protocol_id` |
+| `SwapFailed()` | Delegatecall to swap handler failed |
+| `RateZero()` | `rate == 0` in any swap parameter |
+| `RateExceedsMaximum()` | `rate > 1000000` in any swap parameter |
+| `AmountTooSmallForRate()` | `(amount * rate) / 1000000 == 0` but `amount > 0` |
+
+---
+
+## Function: `swapIntegrator`
+
+Performs a swap with integrator fee or surplus sharing. Integrators can monetize by taking a percentage fee from output or sharing in surplus profits.
+
+### Signature
+
+```solidity
+function swapIntegrator(
+    RouteParam calldata route,
+    SwapParams[] calldata swap_parameters,
+    bytes memory integrator_data
+) external payable nonReentrant whenNotPaused returns (uint256)
+```
+
+### Parameters
+
+#### `route` (RouteParam)
+
+Same as `swap` function. See [swap route parameters](#route-routeparam).
+
+#### `swap_parameters` (SwapParams[])
+
+Same as `swap` function. See [swap parameters](#swap_parameters-swapparams).
+
+#### `integrator_data` (bytes)
+
+Encoded `IntegratorParams` struct:
+
+```solidity
+struct IntegratorParams {
+    address integrator_address;    // Address to receive integrator fee/surplus
+    uint16 surplus_percentage;      // Surplus share in bips (max 5000 = 50%)
+    uint16 fee_percentage;          // Fee percentage in bips (max 500 = 5%)
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `integrator_address` | `address` | Address to receive integrator fee or surplus share. Must not be `address(0)` |
+| `surplus_percentage` | `uint16` | Percentage of surplus to share with integrator (in basis points). Max 5000 (50%). Cannot be used with `fee_percentage` |
+| `fee_percentage` | `uint16` | Percentage of output to take as fee (in basis points). Max 500 (5%). Cannot be used with `surplus_percentage` |
+
+**Important**: You cannot use both `fee_percentage` and `surplus_percentage` simultaneously. Choose one monetization model.
+
+### Returns
+
+- `uint256`: Amount of output tokens received by the user (after integrator fee/surplus)
+
+### Behavior
+
+#### Fee-Based Model (`fee_percentage > 0`)
+
+1. Executes swaps normally
+2. Calculates total amount received
+3. Calculates integrator fee: `fee_amount = (total_received * fee_percentage) / 10000`
+4. User receives: `total_received - fee_amount`
+5. Integrator receives: `fee_amount`
+
+**Example**:
+- Total received: 1000 tokens
+- Fee percentage: 100 bips (1%)
+- Integrator fee: 10 tokens
+- User receives: 990 tokens
+
+#### Surplus-Based Model (`surplus_percentage > 0`)
+
+1. Executes swaps normally
+2. Calculates total amount received
+3. Calculates surplus: `surplus = max(0, total_received - route.amount_out)`
+4. If surplus > 0:
+   - Integrator share: `(surplus * surplus_percentage) / 10000`
+   - User receives: `route.amount_out` (capped at expected)
+   - Integrator receives: integrator share of surplus
+5. If surplus == 0:
+   - User receives: `total_received`
+   - Integrator receives: 0
+
+**Example**:
+- Expected output: 1000 tokens
+- Actual received: 1050 tokens
+- Surplus: 50 tokens
+- Surplus percentage: 2000 bips (20%)
+- Integrator share: 10 tokens
+- User receives: 1000 tokens (capped)
+- Integrator receives: 10 tokens
+
+### min_received Calculation
+
+<Warning>
+**Critical**: When using integrator fees, `min_received` is checked AFTER deducting the fee. This ensures users receive at least `min_received` after all fees.
+</Warning>
+
+**Formula**:
+```
+For fee-based:
+  user_amount = total_received - fee_amount
+  Check: user_amount >= min_received
+
+For surplus-based:
+  user_amount = min(total_received, route.amount_out)
+  Check: user_amount >= min_received
+```
+
+### Example
+
+```solidity
+// Swap with 1% integrator fee
+
+RouteParam memory route = RouteParam({
+    token_in: TOKEN_A,
+    token_out: TOKEN_B,
+    amount_in: 1000e18,
+    amount_out: 2000e18,
+    min_received: 1980e18, // After 1% fee, user gets at least 1980
+    destination: msg.sender,
+    swap_type: SwapType.tokenToToken
+});
+
+SwapParams[] memory swaps = new SwapParams[](1);
+swaps[0] = SwapParams({
+    token_in: TOKEN_A,
+    token_out: TOKEN_B,
+    rate: 1000000,
+    protocol_id: PROTOCOL_ID,
+    pool_address: POOL_ADDRESS,
+    swap_type: SwapType.tokenToToken,
+    extra_data: abi.encode(...)
+});
+
+// Encode integrator parameters
+IntegratorParams memory integratorParams = IntegratorParams({
+    integrator_address: INTEGRATOR_ADDRESS,
+    surplus_percentage: 0, // Not using surplus
+    fee_percentage: 100 // 1% fee (100 bips)
+});
+
+bytes memory integratorData = abi.encode(integratorParams);
+
+// Execute swap
+uint256 userAmount = router.swapIntegrator(route, swaps, integratorData);
+```
+
+<Info>
+See [EVM Router Events](/integrate-best-trading/fibrous-smart-contracts/evm-router-events) for complete event documentation, including `IntegratorFeeDistribution` event details.
+</Info>
+
+### Errors
+
+All errors from `swap` function, plus:
+
+| Error | Condition |
+|-------|-----------|
+| `InvalidAddress()` | `integrator_address == address(0)` |
+| `CannotTakeBothFeeAndSurplus()` | Both `fee_percentage > 0` and `surplus_percentage > 0` |
+| `SurplusPercentageExceedsMaximum()` | `surplus_percentage > 5000` |
+| `FeePercentageExceedsMaximum()` | `fee_percentage > 500` |
+
+---
+
+## Function: `swapWithPermit`
+
+Performs a swap using ERC-20 permit signature for gasless token approval. This allows users to approve tokens without a separate transaction.
+
+### Signature
+
+```solidity
+function swapWithPermit(
+    RouteParam calldata route,
+    SwapParams[] calldata swap_parameters,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+) external payable nonReentrant whenNotPaused returns (uint256)
+```
+
+### Parameters
+
+#### `route` (RouteParam)
+
+Same as `swap` function. See [swap route parameters](#route-routeparam).
+
+**Note**: `route.token_in` must be an ERC-20 token that supports `permit` (ERC-2612).
+
+#### `swap_parameters` (SwapParams[])
+
+Same as `swap` function. See [swap parameters](#swap_parameters-swapparams).
+
+#### `deadline` (uint256)
+
+Unix timestamp after which the permit signature expires. Must be `>= block.timestamp`.
+
+#### `v`, `r`, `s` (uint8, bytes32, bytes32)
+
+ECDSA signature components for the permit. Generated by signing:
+
+```solidity
+keccak256(abi.encodePacked(
+    "\x19\x01",
+    DOMAIN_SEPARATOR,
+    keccak256(abi.encode(
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+        owner,
+        spender, // EVM Router contract address
+        value,   // route.amount_in
+        nonce,   // Current nonce from token contract
+        deadline
+    ))
+))
+```
+
+### Returns
+
+- `uint256`: Amount of output tokens received by the destination address
+
+### Behavior
+
+1. **Permit Validation**: Checks `deadline >= block.timestamp`
+2. **Permit Execution**: Calls `IERC20Permit(route.token_in).permit(...)` with signature
+3. **Swap Execution**: Executes swap using same logic as `swap` function
+
+### Example
+
+```javascript
+// Frontend: Generate permit signature
+const domain = {
+  name: 'Token Name',
+  version: '1',
+  chainId: CHAIN_ID,
+  verifyingContract: TOKEN_ADDRESS
+};
+
+const types = {
+  Permit: [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' }
+  ]
+};
+
+const value = {
+  owner: userAddress,
+  spender: EVM_ROUTER_ADDRESS,
+  value: amountIn,
+  nonce: await tokenContract.nonces(userAddress),
+  deadline: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+};
+
+const signature = await signer._signTypedData(domain, types, value);
+const { r, s, v } = ethers.utils.splitSignature(signature);
+
+// Execute swap with permit
+const tx = await router.swapWithPermit(
+  route,
+  swapParameters,
+  value.deadline,
+  v,
+  r,
+  s
+);
+```
+
+### Errors
+
+All errors from `swap` function, plus:
+
+| Error | Condition |
+|-------|-----------|
+| `DeadlineExpired()` | `deadline < block.timestamp` |
+
+---
+
+## Advanced Features
+
+### Native Token Support
+
+EVM Router supports native token swaps through automatic wrapped token conversion.
+
+**How it works**:
+- Protocols can support native token pairs (e.g., ETH/TOKEN) or wrapped pairs (e.g., WETH/TOKEN)
+- EVM Router automatically converts native ↔ wrapped tokens when needed
+- Conversion is controlled by `shouldConvertInput` flag in `extra_data`
+
+**Example Scenarios**:
+
+1. **MONAD → USDC** (using WMONAD/USDC pool):
+   - User sends MONAD
+   - Router wraps to WMONAD
+   - Swaps WMONAD → USDC
+
+2. **WMONAD → USDC** (using MONAD/USDC pool):
+   - User sends WMONAD
+   - Router unwraps to MONAD
+   - Swaps MONAD → USDC
+
+**extra_data Format** (for protocols with native support):
+```solidity
+(address token0, address token1, uint24 fee, int24 tickSpacing, address hook, bool shouldConvertInput) = abi.decode(extra_data, ...);
+```
+
+### Rate-Based Amount Distribution
+
+Each swap in `swap_parameters` has a `rate` field that determines what percentage of input to use.
+
+**Rate Calculation**:
+```solidity
+amount_in_for_swap = (previous_amount * rate) / 1000000
+```
+
+**Example**:
+- First swap: `rate = 1000000` (100%) → Uses all input
+- Second swap: `rate = 500000` (50%) → Uses 50% of first swap's output
+- Third swap: `rate = 1000000` (100%) → Uses all of second swap's output
+
+**Use Cases**:
+- Splitting input across multiple pools for better execution
+- Partial swaps with different protocols
+- Complex routing strategies
+
+### Surplus Handling
+
+EVM Router caps output at `route.amount_out` to prevent users from receiving unexpected excess.
+
+**Surplus Calculation**:
+```solidity
+actual_output = balance_after - balance_before
+surplus = max(0, actual_output - route.amount_out)
+user_receives = min(actual_output, route.amount_out)
+```
+
+**Why it matters**:
+- Protects against unexpected price improvements
+- Ensures predictable output amounts
+- Enables integrator surplus sharing
+
+---
+
+## Common Patterns
+
+### Simple Token-to-Token Swap
+
+```solidity
+RouteParam memory route = RouteParam({
+    token_in: TOKEN_A,
+    token_out: TOKEN_B,
+    amount_in: amount,
+    amount_out: expectedOut,
+    min_received: minOut,
+    destination: address(0),
+    swap_type: SwapType.tokenToToken
+});
+
+SwapParams[] memory swaps = new SwapParams[](1);
+swaps[0] = SwapParams({
+    token_in: TOKEN_A,
+    token_out: TOKEN_B,
+    rate: 1000000,
+    protocol_id: PROTOCOL_ID,
+    pool_address: POOL,
+    swap_type: SwapType.tokenToToken,
+    extra_data: abi.encode(...)
+});
+
+router.swap(route, swaps);
+```
+
+### Multi-Hop Swap
+
+```solidity
+// TOKEN_A -> TOKEN_B -> TOKEN_C
+SwapParams[] memory swaps = new SwapParams[](2);
+
+// First hop: 100% of input
+swaps[0] = SwapParams({
+    token_in: TOKEN_A,
+    token_out: TOKEN_B,
+    rate: 1000000, // 100%
+    ...
+});
+
+// Second hop: 100% of first hop output
+swaps[1] = SwapParams({
+    token_in: TOKEN_B,
+    token_out: TOKEN_C,
+    rate: 1000000, // 100%
+    ...
+});
+```
+
+### Integrator Fee Swap
+
+```solidity
+IntegratorParams memory params = IntegratorParams({
+    integrator_address: INTEGRATOR,
+    surplus_percentage: 0,
+    fee_percentage: 100 // 1%
+});
+
+router.swapIntegrator(route, swaps, abi.encode(params));
+```
+
+---
+
+## Error Reference
+
+| Error | Description |
+|-------|-------------|
+| `TokenAddressesAreSame()` | Input and output tokens are the same |
+| `NoSwapsProvided()` | Empty swap parameters array |
+| `AmountInZero()` | Input amount is zero |
+| `MinReceivedZero()` | Minimum received is zero |
+| `MinReceivedAmountNotReached()` | Actual output less than minimum required |
+| `SwapHandlerNotSet()` | No handler configured for protocol ID |
+| `SwapFailed()` | Swap execution failed |
+| `RateZero()` | Rate is zero |
+| `RateExceedsMaximum()` | Rate exceeds 1000000 (100%) |
+| `AmountTooSmallForRate()` | Amount too small for rate calculation (precision loss) |
+| `InvalidAddress()` | Invalid address (zero address) |
+| `CannotTakeBothFeeAndSurplus()` | Both fee and surplus percentages provided |
+| `SurplusPercentageExceedsMaximum()` | Surplus percentage > 5000 bips (50%) |
+| `FeePercentageExceedsMaximum()` | Fee percentage > 500 bips (5%) |
+| `DeadlineExpired()` | Permit deadline has passed |
+| `CallFailed()` | External call failed |
+
+---
+
+
+## Contract Address
+
+EVM Router is deployed on multiple EVM-compatible networks. Check [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses) for the latest deployment addresses.
+
+**Contract ABI**: [View on GitHub](https://github.com/Fibrous-Finance/router-contract-abi/blob/main/routerAbi.json)
+
+---
+
+## Related Documentation
+
+- [EVM Router Events](/integrate-best-trading/fibrous-smart-contracts/evm-router-events) - Complete event reference and monitoring guide
+- [Integration Guide](/api-reference/integration-guide) - Best practices for integrating with Fibrous API
+- [V2 Migration Guide](/api-reference/v2-migration) - Migrating from V1 to V2 API
+- [Error Codes](/api-reference/errors) - Complete error reference
+
