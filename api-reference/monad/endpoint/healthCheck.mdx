@@ -1,0 +1,95 @@
+---
+title: 'Health Check'
+description: 'Check the health status of the Monad V2 API'
+api: 'GET /monad/v2/healthcheck'
+---
+
+## Endpoint
+
+<CodeGroup>
+```bash
+https://api.fibrous.finance/monad/v2/healthcheck
+```
+</CodeGroup>
+
+Verify if the Monad V2 API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
+
+## Response
+
+<ResponseField name="status" type="number">
+  The HTTP status code. Will be 200 if the service is healthy.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  A descriptive message about the API status.
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  API metadata including version and timestamp.
+  <Expandable>
+    <ResponseField name="apiVersion" type="string">
+      API version (e.g., "2.0")
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      Response timestamp in ISO 8601 format
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Error Responses
+
+If the service is unhealthy or experiencing issues, the endpoint will return a non-200 status code.
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.fibrous.finance/monad/v2/healthcheck"
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/monad/v2/healthcheck"
+response = requests.get(url)
+print(response.json())
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+axios.get('https://api.fibrous.finance/monad/v2/healthcheck')
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "status": 200,
+  "message": "{Monad} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\"",
+  "meta": {
+    "apiVersion": "2.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Usage
+
+Use this endpoint to:
+1. Monitor API availability
+2. Check API version
+3. Implement health checks in your application
+4. Verify connectivity before making other API calls
+
+## Rate Limits
+
+The health check endpoint has a higher rate limit than other endpoints. Please refer to our rate limiting documentation for specific details.
+
+## Related Endpoints
+
+- [Route](/api-reference/monad/endpoint/route) - Find optimal swap routes
+- [Route and Calldata](/api-reference/monad/endpoint/routeAndCallData) - Get route and calldata in one call
+- [Calldata](/api-reference/monad/endpoint/calldata) - Generate transaction data
+

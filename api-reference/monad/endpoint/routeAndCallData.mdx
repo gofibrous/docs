@@ -1,0 +1,278 @@
+---
+title: 'Route and Calldata'
+description: 'Find optimal route and generate calldata in a single request'
+api: 'GET /monad/v2/routeAndCallData'
+---
+
+## Endpoint
+
+<CodeGroup>
+```bash
+https://api.fibrous.finance/monad/v2/routeAndCallData
+```
+</CodeGroup>
+
+Find the optimal trading route through Fibrous Finance's liquidity pools and generate the transaction calldata for executing the swap. This endpoint combines route finding with calldata generation, making it ideal for direct integration with smart contracts.
+
+## Query Parameters
+
+<ParamField query="amount" type="string" required>
+  The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
+  
+  Example: `"1000000000000000000"` for 1 MON
+</ParamField>
+
+<ParamField query="tokenInAddress" type="string" required>
+  The address of the input token.
+  
+  Example: `"0x0000000000000000000000000000000000000000"` for MON
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  The address of the output token.
+  
+  Example: `"0x3bd359c1119da7da1d913d1c4d2b7c461115433a"` for WMON
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional>
+  Not supported yet - reserved for future use.
+  Default: `false`
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional>
+  If true, only direct swaps between the input and output tokens will be considered.
+  Default: `false`
+</ParamField>
+
+<ParamField query="excludeProtocols" type="string" optional>
+  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3").
+  Default: `""`
+</ParamField>
+
+<ParamField query="slippage" type="number" required>
+  Maximum acceptable slippage percentage (0-49, e.g., 0.5 for 0.5%).
+</ParamField>
+
+<ParamField query="destination" type="string" required>
+  Recipient address for the output tokens.
+</ParamField>
+
+<ParamField query="integratorAddress" type="string" optional>
+  Integrator wallet address to receive fees or surplus. Requires API key authentication.
+</ParamField>
+
+<ParamField query="integratorFeePercentageBps" type="number" optional>
+  Integrator fee percentage in basis points (0-500, maximum 5%).
+  Cannot be used together with integratorSurplusPercentageBps.
+</ParamField>
+
+<ParamField query="integratorSurplusPercentageBps" type="number" optional>
+  Integrator surplus percentage in basis points (0-5000, maximum 50%).
+  Cannot be used together with integratorFeePercentageBps.
+</ParamField>
+
+## Response
+
+<ResponseField name="route" type="object">
+  The complete route response object.
+  <Expandable>
+    <ResponseField name="success" type="boolean">
+      Indicates if the route calculation was successful.
+    </ResponseField>
+    <ResponseField name="inputToken" type="object">
+      Details about the input token.
+    </ResponseField>
+    <ResponseField name="outputToken" type="object">
+      Details about the output token.
+    </ResponseField>
+    <ResponseField name="outputAmount" type="string">
+      The estimated amount of output tokens in wei format.
+    </ResponseField>
+    <ResponseField name="route" type="array">
+      Array of route segments with detailed swap information.
+    </ResponseField>
+    <ResponseField name="meta" type="object">
+      API metadata including version and timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="calldata" type="object">
+  Transaction calldata for executing the swap.
+  <Expandable>
+    <ResponseField name="route" type="object">
+      Route information for the calldata.
+      <Expandable>
+        <ResponseField name="token_in" type="string">
+          Input token address
+        </ResponseField>
+        <ResponseField name="token_out" type="string">
+          Output token address
+        </ResponseField>
+        <ResponseField name="amount_in" type="string">
+          Input amount in wei
+        </ResponseField>
+        <ResponseField name="amount_out" type="string">
+          Output amount in wei
+        </ResponseField>
+        <ResponseField name="min_received" type="string">
+          Minimum amount to receive (considering slippage)
+        </ResponseField>
+        <ResponseField name="destination" type="string">
+          Recipient address
+        </ResponseField>
+        <ResponseField name="swap_type" type="number">
+          Type of swap
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="swap_parameters" type="array">
+      Array of swap parameters for each hop in the route.
+      <Expandable>
+        <ResponseField name="token_in" type="string">
+          Input token address for this swap
+        </ResponseField>
+        <ResponseField name="token_out" type="string">
+          Output token address for this swap
+        </ResponseField>
+        <ResponseField name="rate" type="string">
+          Rate of the swap
+        </ResponseField>
+        <ResponseField name="protocol_id" type="string">
+          Protocol identifier
+        </ResponseField>
+        <ResponseField name="pool_address" type="string">
+          Pool address for this swap
+        </ResponseField>
+        <ResponseField name="swap_type" type="number">
+          Type of swap
+        </ResponseField>
+        <ResponseField name="extra_data" type="string">
+          Protocol-specific extra data (hex encoded)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="router_address" type="string">
+  Router contract address for executing the swap.
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  API metadata including version and timestamp.
+  <Expandable>
+    <ResponseField name="apiVersion" type="string">
+      API version (e.g., "2.0")
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      Response timestamp in ISO 8601 format
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -L \
+  "https://api.fibrous.finance/monad/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
+  --header "Accept: */*"
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/monad/v2/routeAndCallData"
+
+params = {
+    "amount": "1000000000000000000",  # 1 MON
+    "tokenInAddress": "0x0000000000000000000000000000000000000000",
+    "tokenOutAddress": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+    "slippage": 0.5,
+    "destination": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+}
+
+response = requests.get(url, params=params)
+print(response.json())
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+const params = {
+  amount: '1000000000000000000', // 1 MON
+  tokenInAddress: '0x0000000000000000000000000000000000000000',
+  tokenOutAddress: '0x3bd359c1119da7da1d913d1c4d2b7c461115433a',
+  slippage: 0.5,
+  destination: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+};
+
+axios.get('https://api.fibrous.finance/monad/v2/routeAndCallData', { params })
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "route": {
+    "success": true,
+    "routeSwapType": 0,
+    "inputToken": {
+      "name": "Monad",
+      "address": "0x0000000000000000000000000000000000000000",
+      "decimals": 18,
+      "price": 0
+    },
+    "inputAmount": "1000000000000000000",
+    "outputToken": {
+      "name": "Wrapped Monad",
+      "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+      "decimals": 18,
+      "price": 0
+    },
+    "outputAmount": "1000000000000000000",
+    "estimatedGasUsed": "0",
+    "estimatedGasUsedInUsd": 0,
+    "route": [],
+    "time": 0,
+    "bestQuotesByProtocols": [],
+    "initial": false,
+    "meta": {
+      "apiVersion": "2.0",
+      "timestamp": "2024-01-15T10:30:00.000Z"
+    }
+  },
+  "calldata": {
+    "route": {
+      "token_in": "0x0000000000000000000000000000000000000000",
+      "token_out": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+      "amount_in": "1000000000000000000",
+      "amount_out": "1000000000000000000",
+      "min_received": "995000000000000000",
+      "destination": "0x742d35cc6634c0532925a3b844bc9e7595f0beb",
+      "swap_type": 0
+    },
+    "swap_parameters": []
+  },
+  "router_address": "0x274602a953847d807231d2370072f5f4e4594b44",
+  "meta": {
+    "apiVersion": "2.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+</ResponseExample>
+
+## Tips
+
+1. This endpoint is ideal when you need both route and calldata immediately
+2. Always verify the `min_received` amount matches your expectations
+3. Check that the `destination` address is correct
+4. The route response includes all the same fields as the `/route` endpoint
+
+## Related Endpoints
+
+- [Route Endpoint](/api-reference/monad/endpoint/route) - Get optimal swap routes only
+- [Calldata Endpoint](/api-reference/monad/endpoint/calldata) - Generate calldata from existing route
+

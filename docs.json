@@ -91,6 +91,16 @@
             ]
           },
           {
+            "group": "Core Endpoints V2",
+            "pages": [
+              "api-reference/v2-migration",
+              "api-reference/endpoints/route-v2",
+              "api-reference/endpoints/routeAndCallData-v2",
+              "api-reference/endpoints/calldata-v2",
+              "api-reference/endpoints/health-check-v2"
+            ]
+          },
+          {
             "group": "Starknet API",
             "pages": [
               {

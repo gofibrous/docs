@@ -1,0 +1,342 @@
+---
+title: "Get Route (V2)"
+description: "Find the optimal trading route with V2 API features"
+api: "GET /{network}/v2/route"
+---
+
+## Overview
+
+The Route V2 endpoint provides the same routing functionality as V1, with additional features including integrator support, enhanced metadata, and improved response structure. Currently available on **Monad** network.
+
+<Note>
+V2 API is currently available on Monad network. V1 endpoints remain available for backward compatibility.
+</Note>
+
+## Endpoint
+
+<Tabs>
+  <Tab title="Monad">
+    ```bash
+    https://api.fibrous.finance/monad/v2/route
+    ```
+  </Tab>
+</Tabs>
+
+Find the optimal trading route through Fibrous Finance's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
+
+## What's New in V2
+
+<CardGroup cols={2}>
+  <Card title="Integrator Support" icon="users">
+    Monetize your integration with fees or surplus sharing
+  </Card>
+  
+  <Card title="Enhanced Metadata" icon="info">
+    All responses include API version and timestamp
+  </Card>
+  
+  <Card title="Better Tracking" icon="chart-line">
+    Track output amounts before and after fees
+  </Card>
+  
+  <Card title="API Key Support" icon="key">
+    Use API keys for higher rate limits and integrator features
+  </Card>
+</CardGroup>
+
+## Query Parameters
+
+<ParamField query="amount" type="string" required>
+  The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
+  
+  Example: `"1000000000000000000"` for 1 token
+</ParamField>
+
+<ParamField query="tokenInAddress" type="string" required>
+  The address of the input token.
+  
+  Example: `"0x0000000000000000000000000000000000000000"` for native token
+</ParamField>
+
+<ParamField query="tokenOutAddress" type="string" required>
+  The address of the output token.
+  
+  Example: `"0x3bd359c1119da7da1d913d1c4d2b7c461115433a"` for wrapped token
+</ParamField>
+
+<ParamField query="reverse" type="boolean" optional>
+  Not supported yet - reserved for future use.
+  Default: `false`
+</ParamField>
+
+<ParamField query="direct" type="boolean" optional>
+  If true, only direct swaps between the input and output tokens will be considered.
+  Default: `false`
+</ParamField>
+
+<ParamField query="excludeProtocols" type="string" optional>
+  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3").
+  Default: `""`
+</ParamField>
+
+<ParamField query="integratorAddress" type="string" optional>
+  Integrator wallet address to receive fees or surplus. Requires API key authentication.
+</ParamField>
+
+<ParamField query="integratorFeePercentageBps" type="number" optional>
+  Integrator fee percentage in basis points (0-500, maximum 5%).
+  Cannot be used together with integratorSurplusPercentageBps.
+</ParamField>
+
+<ParamField query="integratorSurplusPercentageBps" type="number" optional>
+  Integrator surplus percentage in basis points (0-5000, maximum 50%).
+  Cannot be used together with integratorFeePercentageBps.
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful.
+</ResponseField>
+
+<ResponseField name="routeSwapType" type="number">
+  Type of swap route (0: ETH to Token, 1: Token to ETH, 2: Token to Token).
+</ResponseField>
+
+<ResponseField name="inputToken" type="object">
+  Details about the input token.
+  <Expandable>
+    <ResponseField name="name" type="string">
+      The token's name
+    </ResponseField>
+    <ResponseField name="address" type="string">
+      The token's contract address
+    </ResponseField>
+    <ResponseField name="decimals" type="number">
+      Number of decimals the token uses
+    </ResponseField>
+    <ResponseField name="price" type="number">
+      Current price of the token in USD
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="inputAmount" type="string">
+  The input amount in wei format.
+</ResponseField>
+
+<ResponseField name="outputToken" type="object">
+  Details about the output token (same structure as inputToken).
+</ResponseField>
+
+<ResponseField name="outputAmount" type="string">
+  The estimated amount of output tokens in wei format.
+</ResponseField>
+
+<ResponseField name="outputAmountAfterFee" type="string" optional>
+  The output amount after integrator fee deduction (if integrator fee is used).
+</ResponseField>
+
+<ResponseField name="estimatedGasUsed" type="string">
+  Estimated gas cost for the swap in wei.
+</ResponseField>
+
+<ResponseField name="estimatedGasUsedInUsd" type="number">
+  Estimated gas cost in USD.
+</ResponseField>
+
+<ResponseField name="route" type="array">
+  Array of route segments with detailed swap information.
+  <Expandable>
+    <ResponseField name="percent" type="string">
+      Percentage of input amount going through this route
+    </ResponseField>
+    <ResponseField name="swaps" type="array">
+      Array of swap steps in this route segment
+      <Expandable>
+        <ResponseField name="protocol" type="number">
+          Protocol identifier
+        </ResponseField>
+        <ResponseField name="poolName" type="string">
+          Name of the liquidity pool
+        </ResponseField>
+        <ResponseField name="poolAddress" type="string">
+          Address of the liquidity pool
+        </ResponseField>
+        <ResponseField name="percent" type="string">
+          Percentage of the segment amount through this pool
+        </ResponseField>
+        <ResponseField name="extraData" type="object">
+          Protocol-specific parameters
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="integratorAddress" type="string" optional>
+  Integrator address (if provided).
+</ResponseField>
+
+<ResponseField name="integratorFeePercentageBps" type="number" optional>
+  Integrator fee percentage in basis points (if applicable).
+</ResponseField>
+
+<ResponseField name="integratorSurplusPercentageBps" type="number" optional>
+  Integrator surplus percentage in basis points (if applicable).
+</ResponseField>
+
+<ResponseField name="integratorName" type="string" optional>
+  Integrator name from API key (if applicable).
+</ResponseField>
+
+<ResponseField name="meta" type="object" required>
+  API metadata including version and timestamp.
+  <Expandable>
+    <ResponseField name="apiVersion" type="string">
+      API version (e.g., "2.0")
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      Response timestamp in ISO 8601 format
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -L \
+  "https://api.fibrous.finance/monad/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a" \
+  --header "Accept: */*"
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+const params = {
+  amount: '1000000000000000000',
+  tokenInAddress: '0x0000000000000000000000000000000000000000',
+  tokenOutAddress: '0x3bd359c1119da7da1d913d1c4d2b7c461115433a'
+};
+
+// Optional: Add API key for integrator features
+const headers = {
+  'X-API-Key': 'your-api-key-here' // optional
+};
+
+axios.get('https://api.fibrous.finance/monad/v2/route', { params, headers })
+  .then(response => {
+    console.log(`API Version: ${response.data.meta.apiVersion}`);
+    console.log(response.data);
+  })
+  .catch(error => console.error(error));
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/monad/v2/route"
+
+params = {
+    "amount": "1000000000000000000",
+    "tokenInAddress": "0x0000000000000000000000000000000000000000",
+    "tokenOutAddress": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a"
+}
+
+# Optional: Add API key for integrator features
+headers = {
+    "X-API-Key": "your-api-key-here"  # optional
+}
+
+response = requests.get(url, params=params, headers=headers)
+data = response.json()
+print(f"API Version: {data['meta']['apiVersion']}")
+print(data)
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json
+{
+  "success": true,
+  "routeSwapType": 0,
+  "inputToken": {
+    "name": "Monad",
+    "address": "0x0000000000000000000000000000000000000000",
+    "decimals": 18,
+    "price": 0
+  },
+  "inputAmount": "1000000000000000000",
+  "outputToken": {
+    "name": "Wrapped Monad",
+    "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+    "decimals": 18,
+    "price": 0
+  },
+  "outputAmount": "1000000000000000000",
+  "estimatedGasUsed": "0",
+  "estimatedGasUsedInUsd": 0,
+  "route": [],
+  "time": 0,
+  "bestQuotesByProtocols": [],
+  "initial": false,
+  "meta": {
+    "apiVersion": "2.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+## Integrator Features
+
+To use integrator features, you need an API key. Include it in the request headers:
+
+```javascript
+const headers = {
+  'X-API-Key': 'your-api-key-here'
+};
+
+const params = {
+  amount: '1000000000000000000',
+  tokenInAddress: '0x0000000000000000000000000000000000000000',
+  tokenOutAddress: '0x3bd359c1119da7da1d913d1c4d2b7c461115433a',
+  integratorAddress: '0xYourWalletAddress',
+  integratorFeePercentageBps: 100 // 1% fee
+};
+
+const response = await fetch('https://api.fibrous.finance/monad/v2/route?' + new URLSearchParams(params), {
+  headers
+});
+```
+
+<Warning>
+You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentageBps` in the same request. Choose one monetization method.
+</Warning>
+
+## Differences from V1
+
+| Feature | V1 | V2 |
+|---------|----|----|
+| Meta field | ❌ | ✅ Always present |
+| Integrator support | ❌ | ✅ With API key |
+| outputAmountAfterFee | ❌ | ✅ When fee is used |
+| API version tracking | ❌ | ✅ In meta field |
+
+## Best Practices
+
+1. **Always check meta.apiVersion** to ensure you're using the expected API version
+2. **Use API keys** for production integrations to access integrator features
+3. **Monitor meta.timestamp** for debugging and tracking response times
+4. **Handle outputAmountAfterFee** when using integrator fees to show accurate amounts to users
+
+## Related Endpoints
+
+- [Route V1](/api-reference/endpoints/route) - Original route endpoint
+- [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) - Get route and calldata in one call
+- [Calldata V2](/api-reference/endpoints/calldata-v2) - Generate calldata from route
+- [V2 Migration Guide](/api-reference/v2-migration) - Complete migration guide
+

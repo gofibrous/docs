@@ -43,6 +43,8 @@ All networks (except Starknet) share the same endpoint structure:
 
 <Note>
   Starknet has a different architecture and additional capabilities. See [Starknet API](/api-reference/starknet/endpoint/overview) for details.
+  
+  V2 API offers enhanced features including integrator fee support, improved response metadata, and new endpoints. Currently available on Monad network. See [V2 Migration Guide](/api-reference/v2-migration) for details.
 </Note>
 
 ## Quick Start
@@ -93,10 +95,11 @@ All endpoints follow the pattern: `/{network}/{endpoint}`
 - `https://api.fibrous.finance/hyperevm/execute`
 - `https://api.fibrous.finance/scroll/calldata`
 - `https://api.fibrous.finance/starknet/route`
+- `https://api.fibrous.finance/monad/v2/route` (V2 API)
 
 ## Authentication
 
-No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage.
+No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage. API keys can be used for higher rate limits and to access integrator features (available on Monad V2 API).
 
 <Card title="Rate Limits" icon="gauge" href="/api-reference/rate-limit">
   Learn about API rate limits and best practices

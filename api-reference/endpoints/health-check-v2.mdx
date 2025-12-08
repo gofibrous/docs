@@ -1,0 +1,121 @@
+---
+title: "Health Check (V2)"
+description: "Check the health status of the V2 API"
+api: "GET /{network}/v2/healthcheck"
+---
+
+## Overview
+
+The Health Check V2 endpoint verifies if the API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy. Currently available on **Monad** network.
+
+<Note>
+V2 API is currently available on Monad network. V1 endpoints remain available for backward compatibility.
+</Note>
+
+## Endpoint
+
+<Tabs>
+  <Tab title="Monad">
+    ```bash
+    https://api.fibrous.finance/monad/v2/healthcheck
+    ```
+  </Tab>
+</Tabs>
+
+Verify if the Fibrous V2 API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy.
+
+## Response
+
+<ResponseField name="status" type="number">
+  The HTTP status code. Will be 200 if the service is healthy.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  A descriptive message about the API status.
+</ResponseField>
+
+<ResponseField name="meta" type="object" required>
+  API metadata including version and timestamp.
+  <Expandable>
+    <ResponseField name="apiVersion" type="string">
+      API version (e.g., "2.0")
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      Response timestamp in ISO 8601 format
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET "https://api.fibrous.finance/monad/v2/healthcheck"
+```
+
+```javascript JavaScript
+const axios = require('axios');
+
+axios.get('https://api.fibrous.finance/monad/v2/healthcheck')
+  .then(response => {
+    console.log(`API Version: ${response.data.meta.apiVersion}`);
+    console.log(response.data);
+  })
+  .catch(error => console.error(error));
+```
+
+```python Python
+import requests
+
+url = "https://api.fibrous.finance/monad/v2/healthcheck"
+response = requests.get(url)
+data = response.json()
+
+print(f"API Version: {data['meta']['apiVersion']}")
+print(data)
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json
+{
+  "status": 200,
+  "message": "{Monad} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\"",
+  "meta": {
+    "apiVersion": "2.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+## Usage
+
+Use this endpoint to:
+1. Monitor API availability
+2. Check API version
+3. Implement health checks in your application
+4. Verify connectivity before making other API calls
+5. Track API response times via `meta.timestamp`
+
+## Differences from V1
+
+| Feature | V1 | V2 |
+|---------|----|----|
+| Meta field | ❌ | ✅ Always present |
+| API version tracking | ❌ | ✅ In meta field |
+| Timestamp | ❌ | ✅ In meta field |
+
+## Rate Limits
+
+The health check endpoint has a higher rate limit than other endpoints. Please refer to our rate limiting documentation for specific details.
+
+## Related Endpoints
+
+- [Route V2](/api-reference/endpoints/route-v2) - Find optimal swap routes
+- [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) - Get route and calldata in one call
+- [Calldata V2](/api-reference/endpoints/calldata-v2) - Generate transaction data
+- [V2 Migration Guide](/api-reference/v2-migration) - Complete migration guide
+
