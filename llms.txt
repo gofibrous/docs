@@ -1,0 +1,108 @@
+# Fibrous Finance Documentation
+
+> Fibrous is a leading DeFi aggregator providing optimal token swap routing across multiple blockchain networks. Our API, SDK, and smart contracts enable developers to integrate best-rate execution into their applications.
+
+## Overview
+
+### Get Started
+
+- [What is Fibrous?](/essentials/inspiration-for-aggregator): Learn about how Fibrous started and why we need a DEX aggregator
+- [FAQ](/essentials/faq): Frequently asked questions about Fibrous Finance
+
+### Fibrous Interface
+
+- [Interface Introduction](/fibrous-solutions/fibrous-interface-intro): Complete guide to using the Fibrous web interface
+- [Connecting Wallet](/fibrous-solutions/fibrous-interface/connecting-wallet): How to connect your wallet to Fibrous
+- [Swapping Tokens](/fibrous-solutions/fibrous-interface/swapping): Execute token swaps with optimal rates
+- [Price Impact](/fibrous-solutions/fibrous-interface/price-impact): Understanding price impact in your trades
+- [Block Explorer](/fibrous-solutions/fibrous-interface/block-explorer): Track your transactions on-chain
+- [Display Settings](/fibrous-solutions/fibrous-interface/display-settings): Customize your interface preferences
+- [Custom Tokens](/fibrous-solutions/fibrous-interface/custom-tokens): Add and manage custom token addresses
+- [Token Security](/fibrous-solutions/fibrous-interface/token_security): Learn about token security features
+
+### Advanced Features
+
+- [Batch Swap](/fibrous-solutions/fibrous-interface/batch-swap): Execute multiple swaps in a single transaction
+- [Arena](/fibrous-solutions/fibrous-interface/arena): Advanced trading features for power users
+
+## API Reference
+
+### Getting Started
+
+- [API Overview](/api-reference/introduction): The Fibrous Router API provides optimal token swap routing across multiple blockchain networks with the best rates on the market
+- [Integration Guide](/api-reference/integration-guide): Step-by-step guide to integrating the Fibrous API
+- [Rate Limits](/api-reference/rate-limit): API rate limiting details and best practices
+- [Error Codes](/api-reference/errors): Complete reference of API error codes and handling
+
+### Chains, Tokens, and Contracts
+
+- [Supported Chains](/api-reference/chains-tokens-contracts/supported-chains): All blockchain networks supported by Fibrous
+- [Supported Tokens](/api-reference/chains-tokens-contracts/supported-tokens): Complete list of available tokens across all chains
+- [Contract Addresses](/api-reference/chains-tokens-contracts/contract-addresses): Deployed smart contract addresses
+
+### Core Endpoints
+
+- [Route](/api-reference/endpoints/route): Find the optimal trading route for token swaps
+- [Execute](/api-reference/endpoints/execute): Execute a token swap transaction
+- [Calldata](/api-reference/endpoints/calldata): Generate transaction calldata for direct contract interaction
+- [Health Check](/api-reference/endpoints/health-check): Check API service status and availability
+
+### Core Endpoints V2 (Recommended)
+
+- [V2 Migration Guide](/api-reference/v2-migration): Migrate from V1 to V2 API endpoints
+- [Route V2](/api-reference/endpoints/route-v2): Find optimal routes with V2 improvements
+- [Route & Calldata V2](/api-reference/endpoints/routeAndCallData-v2): Combined endpoint for routing and calldata generation
+- [Calldata V2](/api-reference/endpoints/calldata-v2): Generate calldata with V2 enhancements
+- [Health Check V2](/api-reference/endpoints/health-check-v2): Enhanced health check with detailed metrics
+
+### Starknet API
+
+- [Starknet Health Check](/api-reference/starknet/endpoint/healthCheck): Check Starknet API status
+- [Starknet Route](/api-reference/starknet/endpoint/route): Find optimal routes on Starknet
+- [Starknet Batch Route](/api-reference/starknet/endpoint/routeBatch): Find routes for batch operations on Starknet
+- [Starknet Execute](/api-reference/starknet/endpoint/execute): Execute swaps on Starknet
+- [Starknet Calldata](/api-reference/starknet/endpoint/calldata): Generate calldata for Starknet transactions
+- [Starknet Route Parameters](/api-reference/starknet/route-params): Route endpoint parameter reference
+- [Starknet Batch Route Parameters](/api-reference/starknet/batch-route-params): Batch route parameter reference
+- [Starknet Execute Parameters](/api-reference/starknet/execute-params): Execute endpoint parameter reference
+
+### Smart Contracts
+
+- [Starknet Router](/integrate-best-trading/fibrous-smart-contracts/starknet): Fibrous router contract for Starknet
+- [EVM Router](/integrate-best-trading/fibrous-smart-contracts/evm-router): Router contract for EVM-compatible chains
+- [EVM Router Events](/integrate-best-trading/fibrous-smart-contracts/evm-router-events): Event reference for EVM router contract
+
+## SDK Reference
+
+### Getting Started
+
+- [SDK Overview](/integrate-best-trading/fibrous-sdk/index): Integrate Fibrous into your application with our powerful TypeScript SDK
+- [Installation](/integrate-best-trading/fibrous-sdk/installation): Install and configure the Fibrous SDK
+- [SDK Overview & Features](/integrate-best-trading/fibrous-sdk/overview): Comprehensive overview of SDK capabilities
+
+### Core Functions
+
+- [Best Route](/integrate-best-trading/fibrous-sdk/best-route): Find the optimal swap route using the SDK
+- [Route and Calldata](/integrate-best-trading/fibrous-sdk/route-and-calldata): Generate route and transaction data
+- [Execute Batch Swap](/integrate-best-trading/fibrous-sdk/execute-batch-swap): Execute multiple swaps in a single transaction
+
+### Reference
+
+- [Supported Tokens](/integrate-best-trading/fibrous-sdk/supported-tokens): Complete token support reference
+- [Supported Protocols](/integrate-best-trading/fibrous-sdk/supported-protocols): DEX protocols integrated with Fibrous
+
+## Community & Resources
+
+- [GitHub](https://github.com/fibrous-finance): Open source repositories and contributions
+- [Discord](https://discord.gg/fibrous): Join our community for support and discussions
+- [Twitter/X](https://x.com/fibrousfinance): Follow for updates and announcements
+- [YouTube](https://youtube.com/@fibrousfinance): Video tutorials and guides
+- [Blog](https://blog.fibrous.finance): Technical articles and product updates
+- [Farcaster](https://warpcast.com/fibrous): Connect on Farcaster
+- [Brand Assets](/external-links/brand-assets): Official logos and brand guidelines
+- [Live App](https://app.fibrous.finance): Try Fibrous Finance live
+
+---
+
+> For navigation structure and additional pages, see https://docs.fibrous.finance/docs.json
+
