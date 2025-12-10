@@ -6,57 +6,54 @@ api: "GET /{network}/v2/routeAndCallData"
 
 ## Overview
 
-The Route and Calldata V2 endpoint combines route finding and calldata generation in a single request, reducing API calls and latency. This is a V2-only endpoint that provides enhanced features including integrator support and metadata. Currently available on Evm networks.
+The Route and Calldata V2 endpoint combines route finding and calldata generation in a single request, reducing API calls and latency. This is a V2-only endpoint that provides enhanced features including integrator support and metadata. Currently available on EVM networks.
 
 <Note>
-This endpoint is V2-only and currently available on Evm networks. For V1, use separate `/route` and `/calldata` endpoints.
+  This endpoint is V2-only and currently available on EVM networks. For V1, use separate `/route` and `/calldata` endpoints.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Evm networks">
+  <Tab title="EVM Networks">
     ```bash
     https://api.fibrous.finance/{network}/v2/routeAndCallData
     ```
   </Tab>
 </Tabs>
 
-Find the optimal trading route through Fibrous Finance's liquidity pools and generate the transaction calldata for executing the swap. This endpoint combines route finding with calldata generation, making it ideal for direct integration with smart contracts.
+Find the optimal trading route through Fibrous' integrated liquidity sources and generate the transaction calldata for executing the swap. This endpoint combines route finding with calldata generation, making it ideal for direct integration with smart contracts.
 
 ## Query Parameters
 
 <ParamField query="amount" type="string" required>
   The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
-  
+
   Example: `"1000000000000000000"` for 1 token
 </ParamField>
 
 <ParamField query="tokenInAddress" type="string" required>
   The address of the input token.
-  
+
   Example: `"0x0000000000000000000000000000000000000000"` for native token
 </ParamField>
 
 <ParamField query="tokenOutAddress" type="string" required>
   The address of the output token.
-  
+
   Example: `"0x3bd359c1119da7da1d913d1c4d2b7c461115433a"` for wrapped token
 </ParamField>
 
-<ParamField query="reverse" type="boolean" optional>
-  Not supported yet - reserved for future use.
-  Default: `false`
+<ParamField query="reverse" type="boolean">
+  Not supported yet - reserved for future use. Default: `false`
 </ParamField>
 
-<ParamField query="direct" type="boolean" optional>
-  If true, only direct swaps between the input and output tokens will be considered.
-  Default: `false`
+<ParamField query="direct" type="boolean">
+  If true, only direct swaps between the input and output tokens will be considered. Default: `false`
 </ParamField>
 
-<ParamField query="excludeProtocols" type="string" optional>
-  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3").
-  Default: `""`
+<ParamField query="excludeProtocols" type="string">
+  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3"). Default: `""`
 </ParamField>
 
 <ParamField query="slippage" type="number" required>
@@ -67,28 +64,27 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
   Recipient address for the output tokens.
 </ParamField>
 
-<ParamField query="integratorAddress" type="string" optional>
+<ParamField query="integratorAddress" type="string">
   Integrator wallet address to receive fees or surplus. Requires API key authentication.
 </ParamField>
 
-<ParamField query="integratorFeePercentageBps" type="number" optional>
-  Integrator fee percentage in basis points (0-500, maximum 5%).
-  Cannot be used together with integratorSurplusPercentageBps.
+<ParamField query="integratorFeePercentageBps" type="number">
+  Integrator fee percentage in basis points (0-500, maximum 5%). Cannot be used together with integratorSurplusPercentageBps.
 </ParamField>
 
-<ParamField query="integratorSurplusPercentageBps" type="number" optional>
-  Integrator surplus percentage in basis points (0-5000, maximum 50%).
-  Cannot be used together with integratorFeePercentageBps.
+<ParamField query="integratorSurplusPercentageBps" type="number">
+  Integrator surplus percentage in basis points (0-5000, maximum 50%). Cannot be used together with integratorFeePercentageBps.
 </ParamField>
 
 <Warning>
-**API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
 
 <ResponseField name="route" type="object">
   The complete route response object (same structure as `/v2/route` endpoint).
+
   <Expandable>
     <ResponseField name="success" type="boolean">
       Indicates if the route calculation was successful.
@@ -113,9 +109,11 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
 
 <ResponseField name="calldata" type="object">
   Transaction calldata for executing the swap.
+
   <Expandable>
     <ResponseField name="route" type="object">
       Route information for the calldata.
+
       <Expandable>
         <ResponseField name="token_in" type="string">
           Input token address
@@ -142,6 +140,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
     </ResponseField>
     <ResponseField name="swap_parameters" type="array">
       Array of swap parameters for each hop in the route.
+
       <Expandable>
         <ResponseField name="token_in" type="string">
           Input token address for this swap
@@ -175,6 +174,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools and gen
 
 <ResponseField name="meta" type="object" required>
   API metadata including version and timestamp.
+
   <Expandable>
     <ResponseField name="apiVersion" type="string">
       API version (e.g., "2.0")
@@ -194,6 +194,7 @@ curl -L \
   "https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
   --header "Accept: */*"
 ```
+
 
 ```javascript JavaScript
 const axios = require('axios');
@@ -215,6 +216,7 @@ axios.get('https://api.fibrous.finance/{network}/v2/routeAndCallData', { params 
   })
   .catch(error => console.error(error));
 ```
+
 
 ```python Python
 import requests
@@ -301,7 +303,6 @@ print(f"Router Address: {data['router_address']}")
     - Simple integrations
     - Immediate execution needed
   </Card>
-  
   <Card title="Use Separate Endpoints" icon="route">
     - Need to display route preview
     - User confirmation required
@@ -314,13 +315,16 @@ print(f"Router Address: {data['router_address']}")
 ## Benefits Over V1 Approach
 
 **V1 (2 API calls):**
+
 1. GET `/route` - Get optimal route
 2. GET `/calldata` - Generate calldata from route
 
 **V2 (1 API call):**
+
 1. GET `/v2/routeAndCallData` - Get route and calldata together
 
 This reduces:
+
 - API latency (one round trip instead of two)
 - API call count (50% reduction)
 - Code complexity (single request handling)
@@ -337,4 +341,3 @@ This reduces:
 - [Route V2](/api-reference/endpoints/route-v2) - Get route only
 - [Calldata V2](/api-reference/endpoints/calldata-v2) - Generate calldata from existing route
 - [V2 Migration Guide](/api-reference/v2-migration) - Complete migration guide
-

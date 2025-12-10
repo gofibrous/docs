@@ -6,16 +6,16 @@ api: "GET /{network}/v2/healthcheck"
 
 ## Overview
 
-The Health Check V2 endpoint verifies if the API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy. Currently available on Evm networks.
+The Health Check V2 endpoint verifies if the API is up and running. This endpoint can be used for monitoring and ensuring the API service is healthy. Currently available on EVM networks.
 
 <Note>
-V2 API is currently available on Evm networks. V1 endpoints remain available for backward compatibility.
+  V2 API is currently available on EVM networks. V1 endpoints remain available for backward compatibility.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Evm networks">
+  <Tab title="EVM networks">
     ```bash
     https://api.fibrous.finance/{network}/v2/healthcheck
     ```
@@ -36,6 +36,7 @@ Verify if the Fibrous V2 API is up and running. This endpoint can be used for mo
 
 <ResponseField name="meta" type="object" required>
   API metadata including version and timestamp.
+
   <Expandable>
     <ResponseField name="apiVersion" type="string">
       API version (e.g., "2.0")
@@ -54,6 +55,7 @@ Verify if the Fibrous V2 API is up and running. This endpoint can be used for mo
 curl -X GET "https://api.fibrous.finance/{network}/v2/healthcheck"
 ```
 
+
 ```javascript JavaScript
 const axios = require('axios');
 
@@ -64,6 +66,7 @@ axios.get('https://api.fibrous.finance/{network}/v2/healthcheck')
   })
   .catch(error => console.error(error));
 ```
+
 
 ```python Python
 import requests
@@ -94,6 +97,7 @@ print(data)
 ## Usage
 
 Use this endpoint to:
+
 1. Monitor API availability
 2. Check API version
 3. Implement health checks in your application
@@ -102,11 +106,11 @@ Use this endpoint to:
 
 ## Differences from V1
 
-| Feature | V1 | V2 |
-|---------|----|----|
-| Meta field | ❌ | ✅ Always present |
-| API version tracking | ❌ | ✅ In meta field |
-| Timestamp | ❌ | ✅ In meta field |
+| Feature              | V1 | V2               |
+| -------------------- | --- | ---------------- |
+| Meta field           | ❌  | ✅ Always present |
+| API version tracking | ❌  | ✅ In meta field  |
+| Timestamp            | ❌  | ✅ In meta field  |
 
 ## Rate Limits
 
@@ -118,4 +122,3 @@ The health check endpoint has a higher rate limit than other endpoints. Please r
 - [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) - Get route and calldata in one call
 - [Calldata V2](/api-reference/endpoints/calldata-v2) - Generate transaction data
 - [V2 Migration Guide](/api-reference/v2-migration) - Complete migration guide
-

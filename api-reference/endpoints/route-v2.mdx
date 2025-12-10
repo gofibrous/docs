@@ -6,23 +6,23 @@ api: "GET /{network}/v2/route"
 
 ## Overview
 
-The Route V2 endpoint provides the same routing functionality as V1, with additional features including integrator support, enhanced metadata, and improved response structure. Currently available on Evm networks.
+Route V2 endpoint provides the same routing functionality as V1, with additional features including integrator support, enhanced metadata, and improved response structure. Currently available on EVM networks.
 
 <Note>
-V2 API is currently available on Evm networks. V1 endpoints remain available for backward compatibility.
+  V2 API is currently available on Evm networks. V1 endpoints remain available for backward compatibility.
 </Note>
 
 ## Endpoint
 
 <Tabs>
-  <Tab title="Evm networks">
+  <Tab title="EVM networks">
     ```bash
     https://api.fibrous.finance/{network}/v2/route
     ```
   </Tab>
 </Tabs>
 
-Find the optimal trading route through Fibrous Finance's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
+Find the optimal trading route through Fibrous' integrated liquidity sources to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
 
 ## What's New in V2
 
@@ -30,15 +30,12 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   <Card title="Integrator Support" icon="users">
     Monetize your integration with fees or surplus sharing
   </Card>
-  
   <Card title="Enhanced Metadata" icon="info">
     All responses include API version and timestamp
   </Card>
-  
   <Card title="Better Tracking" icon="chart-line">
     Track output amounts before and after fees
   </Card>
-  
   <Card title="API Key Support" icon="key">
     Use API keys for higher rate limits and integrator features
   </Card>
@@ -48,53 +45,48 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 
 <ParamField query="amount" type="string" required>
   The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
-  
+
   Example: `"1000000000000000000"` for 1 token
 </ParamField>
 
 <ParamField query="tokenInAddress" type="string" required>
   The address of the input token.
-  
+
   Example: `"0x0000000000000000000000000000000000000000"` for native token
 </ParamField>
 
 <ParamField query="tokenOutAddress" type="string" required>
   The address of the output token.
-  
+
   Example: `"0x3bd359c1119da7da1d913d1c4d2b7c461115433a"` for wrapped token
 </ParamField>
 
-<ParamField query="reverse" type="boolean" optional>
-  Not supported yet - reserved for future use.
-  Default: `false`
+<ParamField query="reverse" type="boolean">
+  Not supported yet - reserved for future use. Default: `false`
 </ParamField>
 
-<ParamField query="direct" type="boolean" optional>
-  If true, only direct swaps between the input and output tokens will be considered.
-  Default: `false`
+<ParamField query="direct" type="boolean">
+  If true, only direct swaps between the input and output tokens will be considered. Default: `false`
 </ParamField>
 
-<ParamField query="excludeProtocols" type="string" optional>
-  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3").
-  Default: `""`
+<ParamField query="excludeProtocols" type="string">
+  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3"). Default: `""`
 </ParamField>
 
-<ParamField query="integratorAddress" type="string" optional>
+<ParamField query="integratorAddress" type="string">
   Integrator wallet address to receive fees or surplus. Requires API key authentication.
 </ParamField>
 
-<ParamField query="integratorFeePercentageBps" type="number" optional>
-  Integrator fee percentage in basis points (0-500, maximum 5%).
-  Cannot be used together with integratorSurplusPercentageBps.
+<ParamField query="integratorFeePercentageBps" type="number">
+  Integrator fee percentage in basis points (0-500, maximum 5%). Cannot be used together with integratorSurplusPercentageBps.
 </ParamField>
 
-<ParamField query="integratorSurplusPercentageBps" type="number" optional>
-  Integrator surplus percentage in basis points (0-5000, maximum 50%).
-  Cannot be used together with integratorFeePercentageBps.
+<ParamField query="integratorSurplusPercentageBps" type="number">
+  Integrator surplus percentage in basis points (0-5000, maximum 50%). Cannot be used together with integratorFeePercentageBps.
 </ParamField>
 
 <Warning>
-**API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
@@ -109,6 +101,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 
 <ResponseField name="inputToken" type="object">
   Details about the input token.
+
   <Expandable>
     <ResponseField name="name" type="string">
       The token's name
@@ -137,7 +130,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   The estimated amount of output tokens in wei format.
 </ResponseField>
 
-<ResponseField name="outputAmountAfterFee" type="string" optional>
+<ResponseField name="outputAmountAfterFee" type="string">
   The output amount after integrator fee deduction (if integrator fee is used).
 </ResponseField>
 
@@ -151,12 +144,14 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 
 <ResponseField name="route" type="array">
   Array of route segments with detailed swap information.
+
   <Expandable>
     <ResponseField name="percent" type="string">
       Percentage of input amount going through this route
     </ResponseField>
     <ResponseField name="swaps" type="array">
       Array of swap steps in this route segment
+
       <Expandable>
         <ResponseField name="protocol" type="number">
           Protocol identifier
@@ -178,24 +173,25 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   </Expandable>
 </ResponseField>
 
-<ResponseField name="integratorAddress" type="string" optional>
+<ResponseField name="integratorAddress" type="string">
   Integrator address (if provided).
 </ResponseField>
 
-<ResponseField name="integratorFeePercentageBps" type="number" optional>
+<ResponseField name="integratorFeePercentageBps" type="number">
   Integrator fee percentage in basis points (if applicable).
 </ResponseField>
 
-<ResponseField name="integratorSurplusPercentageBps" type="number" optional>
+<ResponseField name="integratorSurplusPercentageBps" type="number">
   Integrator surplus percentage in basis points (if applicable).
 </ResponseField>
 
-<ResponseField name="integratorName" type="string" optional>
+<ResponseField name="integratorName" type="string">
   Integrator name from API key (if applicable).
 </ResponseField>
 
 <ResponseField name="meta" type="object" required>
   API metadata including version and timestamp.
+
   <Expandable>
     <ResponseField name="apiVersion" type="string">
       API version (e.g., "2.0")
@@ -215,6 +211,7 @@ curl -L \
   "https://api.fibrous.finance/{network}/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a" \
   --header "Accept: */*"
 ```
+
 
 ```javascript JavaScript
 const axios = require('axios');
@@ -237,6 +234,7 @@ axios.get('https://api.fibrous.finance/{network}/v2/route', { params, headers })
   })
   .catch(error => console.error(error));
 ```
+
 
 ```python Python
 import requests
@@ -298,7 +296,7 @@ print(data)
 ## Integrator Features
 
 <Warning>
-**API Key Required**: To use integrator features, partners must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+  **API Key Required**: To use integrator features, partners must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
 </Warning>
 
 To use integrator features, include your API key in the request headers:
@@ -322,17 +320,17 @@ const response = await fetch('https://api.fibrous.finance/{network}/v2/route?' +
 ```
 
 <Warning>
-You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentageBps` in the same request. Choose one monetization method.
+  You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentageBps` in the same request. Choose one monetization method.
 </Warning>
 
 ## Differences from V1
 
-| Feature | V1 | V2 |
-|---------|----|----|
-| Meta field | ❌ | ✅ Always present |
-| Integrator support | ❌ | ✅ With API key |
-| outputAmountAfterFee | ❌ | ✅ When fee is used |
-| API version tracking | ❌ | ✅ In meta field |
+| Feature              | V1 | V2                 |
+| -------------------- | --- | ------------------ |
+| Meta field           | ❌  | ✅ Always present   |
+| Integrator support   | ❌  | ✅ With API key     |
+| outputAmountAfterFee | ❌  | ✅ When fee is used |
+| API version tracking | ❌  | ✅ In meta field    |
 
 ## Best Practices
 
@@ -347,4 +345,3 @@ You cannot use both `integratorFeePercentageBps` and `integratorSurplusPercentag
 - [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) - Get route and calldata in one call
 - [Calldata V2](/api-reference/endpoints/calldata-v2) - Generate calldata from route
 - [V2 Migration Guide](/api-reference/v2-migration) - Complete migration guide
-

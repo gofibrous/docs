@@ -9,29 +9,31 @@ This guide covers critical considerations and best practices for integrating the
 
 ## Critical Considerations
 
-### 0. Integrator Features - API Key Requirement ⚠️
+### 0.   Integrator Features - API Key Requirement ⚠️
 
 <Warning>
-**API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous Finance. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
+  **API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous Finance. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
 
-**Contract Function Selection**:
-- **Normal Swap** (no API key) → Use `swap()` function
-- **Integrator Swap** (with API key) → Use `swapIntegrator()` function
+  **Contract Function Selection**:
 
-See [Integrator Features](#8-integrator-features-and-api-key-requirements) section for detailed implementation.
+  - **Normal Swap** (no API key) → Use `swap()` function
+  - **Integrator Swap** (with API key) → Use `swapIntegrator()` function
+
+  See [Integrator Features](#8-integrator-features-and-api-key-requirements) section for detailed implementation.
 </Warning>
 
 ---
 
-### 1. Understanding min_received Calculation ⚠️🔴
+### 1.  Understanding min_received Calculation ⚠️🔴
 
 <Warning>
-**Critical**: Understanding `min_received` calculation is essential for proper slippage protection, especially when using integrator features. This is one of the most important concepts to understand before integrating.
+  **Critical**: Understanding `min_received` calculation is essential for proper slippage protection, especially when using integrator features. This is one of the most important concepts to understand before integrating.
 </Warning>
 
 **What is min_received?**
 
 `min_received` is the minimum amount of output tokens the user will receive after accounting for:
+
 1. Integrator fees (if applicable)
 2. Slippage tolerance
 
@@ -44,10 +46,12 @@ min_received = amount_out - slippage_amount
 ```
 
 Where:
+
 - `amount_out` = Expected output amount from route
 - `slippage_amount` = `amount_out × (slippage / 100)`
 
 **Example:**
+
 ```javascript
 const amountOut = BigInt('1000000000000000000'); // 1 token
 const slippage = 0.5; // 0.5%
@@ -62,7 +66,7 @@ const minReceived = amountOut - slippageAmount;
 #### With Integrator Fee
 
 <Warning>
-**Important**: When integrator fee is applied, `min_received` is calculated AFTER deducting the fee.
+  **Important**: When integrator fee is applied, `min_received` is calculated AFTER deducting the fee.
 </Warning>
 
 ```
@@ -74,11 +78,13 @@ min_received = amount_out_after_fee - slippage_amount
 ```
 
 **Complete Formula:**
+
 ```
 min_received = amount_out - fee_amount - slippage_amount
 ```
 
 Where:
+
 - `amount_out` = Expected output amount from route
 - `fee_amount` = `amount_out × (integratorFeePercentageBps / 10000)`
 - `slippage_amount` = `amount_out_after_fee × (slippage / 100)`
@@ -164,11 +170,8 @@ const minReceived = amountOutAfterFee - slippageAmount;
    - Price movements (slippage)
    - Integrator fees
    - Both combined
-
 2. **Transaction Reversion**: If the actual output is less than `min_received`, the transaction will revert, protecting the user.
-
 3. **Display to Users**: Always show users the `min_received` amount so they know the minimum they'll receive.
-
 4. **Fee Transparency**: Users should see:
    - Expected output amount
    - Fee amount (if applicable)
@@ -205,18 +208,19 @@ function calculateMinReceived(routeResponse, slippage) {
 
 ---
 
-### 2. Slippage Management
+### 2.  Slippage Management
 
 **Setting Appropriate Slippage:**
 
-| Token Pair Type | Recommended Slippage | Notes |
-|----------------|---------------------|-------|
-| Stable pairs (USDC/USDT) | 0.1% - 0.5% | Low volatility, high liquidity |
-| Major pairs (ETH/USDC) | 0.5% - 1% | Moderate volatility |
-| Volatile pairs | 1% - 3% | Higher price movement risk |
-| Low liquidity tokens | 3% - 5% | May need higher slippage |
+| Token Pair Type          | Recommended Slippage | Notes                          |
+| ------------------------ | -------------------- | ------------------------------ |
+| Stable pairs (USDC/USDT) | 0.1% - 0.5%          | Low volatility, high liquidity |
+| Major pairs (ETH/USDC)   | 0.5% - 1%            | Moderate volatility            |
+| Volatile pairs           | 1% - 3%              | Higher price movement risk     |
+| Low liquidity tokens     | 3% - 5%              | May need higher slippage       |
 
 **Best Practice:**
+
 ```javascript
 function getSlippageTolerance(tokenIn, tokenOut) {
   // Stable pairs
@@ -243,14 +247,15 @@ function validateSlippage(slippage) {
 ```
 
 **Important:**
+
 - Never set slippage to 0% - transactions will likely fail
 - Higher slippage increases success rate but may result in worse prices
 - Monitor price impact in route responses
-- Consider showing slippage warning to users for values > 1%
+- Consider showing slippage warning to users for values \> 1%
 
 ---
 
-### 3. Error Handling
+### 3.  Error Handling
 
 **Always implement comprehensive error handling:**
 
@@ -313,6 +318,7 @@ async function handleApiRequest(url, options) {
 ### 4. Rate Limiting
 
 **Default Limits:**
+
 - 200 requests per minute (shared across all endpoints)
 - Rate limits reset every minute
 
@@ -358,6 +364,7 @@ async function makeRequest(url) {
 ```
 
 **For Higher Limits:**
+
 - Request an API key for increased rate limits
 - Contact [contact@fibrous.finance](mailto:contact@fibrous.finance) for enterprise limits
 
@@ -366,7 +373,7 @@ async function makeRequest(url) {
 ### 5. Token Approvals
 
 <Warning>
-**Token Approvals Required**: For ERC-20 token swaps, users must approve the Fibrous Router contract to spend their tokens before executing swaps.
+  **Token Approvals Required**: For ERC-20 token swaps, users must approve the Fibrous Router contract to spend their tokens before executing swaps.
 </Warning>
 
 **Approval Flow:**
@@ -423,6 +430,7 @@ async function prepareSwap(tokenInAddress, amount, userAddress) {
 ```
 
 **Important Notes:**
+
 - Native tokens (ETH, MON) don't require approval
 - Check allowance before every swap
 - Consider approving max amount for better UX
@@ -461,6 +469,7 @@ async function executeSwap(calldataResponse, signer) {
 ```
 
 **Best Practices:**
+
 - Use estimated gas from API response as baseline
 - Add 10-20% buffer for safety
 - Monitor gas prices and adjust accordingly
@@ -488,7 +497,7 @@ async function executeSwap(calldataResponse, signer) {
 ### 9. Integrator Features and API Key Requirements
 
 <Warning>
-**API Key Required**: Integrator features (fee or surplus sharing) require an API key from Fibrous Finance. If you don't have an API key, use normal swap functionality.
+  **API Key Required**: Integrator features (fee or surplus sharing) require an API key from Fibrous Finance. If you don't have an API key, use normal swap functionality.
 </Warning>
 
 **Two Swap Modes:**
@@ -550,7 +559,7 @@ const tx = await routerContract.swapIntegrator(
 **Critical Points:**
 
 1. **API Key Required**: Integrator features only work with a valid API key
-2. **Function Selection**: 
+2. **Function Selection**:
    - Normal swap → Use `swap()` function
    - Integrator swap → Use `swapIntegrator()` function
 3. **Integrator Data**: When using integrator features, the calldata includes `integrator_data` which must be passed to `swapIntegrator()`
@@ -577,21 +586,24 @@ function swapIntegrator(
 ### 10. V1 vs V2 API
 
 **When to use V1:**
+
 - Existing integrations that work well
 - Simple use cases without integrator features
 - When you need backward compatibility
 
 **When to use V2:**
+
 - New integrations
 - Need integrator features (fee/surplus)
 - Want enhanced metadata tracking
 - Prefer clearer endpoint names
 
 <Info>
-See [V2 Migration Guide](/api-reference/v2-migration) for detailed comparison and migration steps.
+  See [V2 Migration Guide](/api-reference/v2-migration) for detailed comparison and migration steps.
 </Info>
 
 **Endpoint Mapping:**
+
 - V1 `/calldata` → V2 `/routeAndCallData` (GET)
 - V1 `/execute` → V2 `/calldata` (POST)
 
@@ -634,6 +646,7 @@ function validateSwapParams(params) {
 ```
 
 **Security Checklist:**
+
 - ✅ Always validate user inputs
 - ✅ Sanitize addresses (lowercase, checksum)
 - ✅ Verify route freshness
@@ -685,6 +698,7 @@ async function swapWithLoadingStates(params) {
 ```
 
 **User Feedback:**
+
 - Show clear loading states
 - Display route information (output amount, price impact)
 - Warn about high slippage
@@ -702,20 +716,17 @@ async function swapWithLoadingStates(params) {
    - Successful swap with fresh route
    - Token approval flow
    - Transaction confirmation
-
 2. **Error Cases:**
    - Same token addresses
    - Invalid addresses
    - Insufficient balance
    - Rate limiting
    - Network errors
-
 3. **Edge Cases:**
    - Very small amounts
    - Very large amounts
    - Low liquidity pairs
    - High volatility tokens
-
 4. **Integration Tests:**
    - Test on testnets first
    - Test with small amounts on mainnet
@@ -1048,24 +1059,24 @@ const tx = await router.executeSwap(
 
 Before going to production, ensure you've covered:
 
-- [ ] Route freshness validation
-- [ ] Appropriate slippage settings
-- [ ] Comprehensive error handling
-- [ ] Rate limiting implementation
-- [ ] Token approval flow
-- [ ] Gas estimation with buffer
-- [ ] Input validation
-- [ ] Network-specific handling
-- [ ] User feedback and loading states
-- [ ] Testing on testnets
-- [ ] Error monitoring
-- [ ] Analytics tracking
-- [ ] **Integrator Features (if using)**:
-  - [ ] API key obtained from Fibrous Finance
-  - [ ] `swapIntegrator()` function used instead of `swap()`
-  - [ ] `integrator_data` passed to contract function
-  - [ ] `min_received` calculation verified (amount_out - fee - slippage)
-  - [ ] Fee amounts displayed correctly to users
+- Route freshness validation
+- Appropriate slippage settings
+- Comprehensive error handling
+- Rate limiting implementation
+- Token approval flow
+- Gas estimation with buffer
+- Input validation
+- Network-specific handling
+- User feedback and loading states
+- Testing on testnets
+- Error monitoring
+- Analytics tracking
+- **Integrator Features (if using)**:
+  - API key obtained from Fibrous Finance
+  - `swapIntegrator()` function used instead of `swap()`
+  - `integrator_data` passed to contract function
+  - `min_received` calculation verified (amount_out - fee - slippage)
+  - Fee amounts displayed correctly to users
 
 ---
 
@@ -1086,4 +1097,3 @@ Need help with integration?
 - **Discord**: [Join our Discord](https://discord.gg/fibrous) for community support
 - **Email**: [contact@fibrous.finance](mailto:contact@fibrous.finance) for direct support
 - **Documentation**: Check our [FAQ](/essentials/faq) for common questions
-
