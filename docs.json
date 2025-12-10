@@ -182,6 +182,37 @@
       "href": "https://app.fibrous.finance"
     }
   },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "cursor",
+      "vscode",
+      "mcp",
+      {
+        "title": "Join Discord",
+        "description": "Get help from the Fibrous community",
+        "icon": "discord",
+        "iconType": "brands",
+        "href": "https://discord.gg/fibrous"
+      },
+      {
+        "title": "Try Fibrous App",
+        "description": "Test swaps on the live application",
+        "icon": "arrow-up-right-from-square",
+        "href": "https://app.fibrous.finance"
+      },
+      {
+        "title": "API Status",
+        "description": "Check real-time API health and uptime",
+        "icon": "chart-line",
+        "href": "https://status.fibrous.finance/"
+      }
+    ]
+  },
   "footer": {
     "socials": {
       "x-twitter": "https://x.com/fibrousfinance",
