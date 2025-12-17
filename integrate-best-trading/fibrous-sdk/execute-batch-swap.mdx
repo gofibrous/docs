@@ -24,7 +24,8 @@ import { Router as FibrousRouter } from "fibrous-router-sdk";
 import { parseUnits } from "ethers";
 
 const fibrous = new FibrousRouter();
-const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "starknet")?.chain_id;
+const chains = await fibrous.refreshSupportedChains();
+const chainId = chains.find(chain => chain.chain_name == "starknet")?.chain_id;
 if (!chainId) {
     throw new Error("Chain not supported");
 }
@@ -121,9 +122,8 @@ const swapCalls = await fibrous.buildBatchTransaction(
     tokenOutAddresses,
     slippage,
     destination,
-    "starknet", // chainName will be deprecated in the next version, use chainId instead
-    {reverse: false, direct: false, excludeProtocols: []},
     chainId,
+    {reverse: false, direct: false, excludeProtocols: []}, // excludeProtocols is array of protocol IDs (numbers)
 );
 
 // https://www.starknetjs.com/docs/guides/connect_account

@@ -22,7 +22,8 @@ supportedTokens(chainId: number): Promise<Map<string, Token>>;
 import { Router as FibrousRouter } from "fibrous-router-sdk";
 
 const router = new FibrousRouter();
-const chainId = router.supportedChains.find(
+const chains = await router.refreshSupportedChains();
+const chainId = chains.find(
     (chain) => chain.chain_name == "starknet",
 )?.chain_id;
 if (!chainId) {

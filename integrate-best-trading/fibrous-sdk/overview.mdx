@@ -50,23 +50,46 @@ Returns the best route via Fibrous
 ```typescript
 /**
 * Fetches the best route from the API.
-* @param amount Amount to swap.
-* @param tokenInAddress Input token address.
-* @param tokenOutAddress Output token address.
-* @param chainName Chain name (e.g. "starknet", "scroll").
-* @param options Optional route parameters and overrides.
-* @param chainId Chain ID (may be used instead of `chainName` for backward compatibility).
+* @param params Route parameters object.
 * @returns Route response.
 * @throws Error if the chain is not supported.
 */
 getBestRoute(
-    amount: AmountType,
-    tokenInAddress: string,
-    tokenOutAddress: string,
-    chainName: string,
-    options?: Partial<RouteOverrides>,
-    chainId?: number,
+    params: getBestRouteParams,
 ): Promise<RouteResponse>;
+```
+
+### getBestRouteParams Type
+
+```typescript
+type getBestRouteParams = {
+  amount: AmountType;
+  tokenInAddress: string;
+  tokenOutAddress: string;
+  chainId: number;
+  options?: Partial<RouteOverrides>;
+  integrationData?: IntegrationData;
+};
+```
+
+### IntegrationData Type
+
+```typescript
+type IntegrationData = {
+  integratorAddress: string;
+  integratorFeePercentageBps?: number; // 0-500, maximum 5%
+  integratorSurplusPercentageBps?: number; // 0-5000, maximum 50%
+};
+```
+
+### RouteOverrides Type
+
+```typescript
+type RouteOverrides = {
+  reverse: boolean;
+  direct: boolean;
+  excludeProtocols: number[]; // Array of protocol IDs
+};
 ```
 
 ## Build Transaction
@@ -161,7 +184,7 @@ buildApproveEVM(
 * @param amounts List of input amounts.
 * @param tokenInAddresses Input token addresses.
 * @param tokenOutAddresses Output token addresses.
-* @param chainName Chain name.
+* @param chainId Chain ID.
 * @param options Optional route parameters.
 * @returns List of route responses.
 */
@@ -169,7 +192,7 @@ getBestRouteBatch(
     amounts: bigint[] | string[] | number[] | BigNumberish[],
     tokenInAddresses: string[],
     tokenOutAddresses: string[],
-    chainName: string,
+    chainId: number,
     options?: Partial<RouteOverrides>,
 ): Promise<RouteResponse[]>;
 ```
@@ -183,9 +206,8 @@ getBestRouteBatch(
 * @param tokenOutAddresses Output token addresses.
 * @param slippage Slippage percentage.
 * @param destination Receiver address.
-* @param chainName Chain name.
+* @param chainId Chain ID.
 * @param options Optional parameters.
-* @param chainId Chain ID (for backward compatibility).
 * @returns Array of Starknet `Call`s or chain-specific payload.
 */
 buildBatchTransaction(
@@ -194,8 +216,7 @@ buildBatchTransaction(
     tokenOutAddresses: string[],
     slippage: number,
     destination: string,
-    chainName: string,
+    chainId: number,
     options?: Partial<RouteOverrides>,
-    chainId?: number,
 ): Promise<Call[] | unknown>;
 ```

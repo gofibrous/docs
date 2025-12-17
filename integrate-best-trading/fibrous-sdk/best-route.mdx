@@ -32,6 +32,16 @@ type getBestRouteParams = {
 };
 ```
 
+### IntegrationData Type
+
+```typescript
+type IntegrationData = {
+  integratorAddress: string;
+  integratorFeePercentageBps?: number; // 0-500, maximum 5%
+  integratorSurplusPercentageBps?: number; // 0-5000, maximum 50%
+};
+```
+
 ## Parameters
 
 | Parameter | Type | Description |
@@ -49,12 +59,12 @@ type getBestRouteParams = {
 type RouteOverrides = {
   reverse: boolean;
   direct: boolean;
-  excludeProtocols: string[];
+  excludeProtocols: number[];
 };
 ```
 
-- **excludeProtocols**: This is where you list the IDs of the AMMs you don't want to include. For example, if there are certain AMMs you prefer not to use due to high fees or other reasons, you simply put their unique IDs in this list.
-- Use [supportPairs](/api-reference/starknet/endpoint/supportPairs) to get a list of supported AMMs and their IDs.
+- **excludeProtocols**: This is where you list the IDs of the AMMs you don't want to include. For example, if there are certain AMMs you prefer not to use due to high fees or other reasons, you simply put their unique IDs (numbers) in this list.
+- Use `supportedProtocols(chainId)` to get a list of supported AMMs and their IDs.
 
 ## RouteResponse Type
 
@@ -66,9 +76,19 @@ type RouteResponse = {
   outputToken: Token;
   outputAmount: string;
   estimatedGasUsed: string;
-  route: Route[];
+  estimatedGasUsedInUsd?: number;
+  route: FormattedRoute[];
   time: number;
-  swapType?: string; // Specific to EVM
+  bestQuotesByProtocols: string[];
+  initial?: boolean;
+  routeSwapType?: RouteSwapType;
+  integratorAddress?: string;
+  integratorFeePercentage?: number;
+  integratorSurplusPercentage?: number;
+  meta: {
+    apiVersion: string;
+    timestamp: string;
+  };
 };
 ```
 
