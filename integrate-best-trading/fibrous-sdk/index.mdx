@@ -34,6 +34,7 @@ The SDK supports the following blockchain networks:
 | **Base**     | 8453     |
 | **Scroll**   | 534352   |
 | **HyperEVM** | 998      |
+| **Monad**    | 143      |
 
 ## Quick Start
 
@@ -47,29 +48,34 @@ The SDK supports the following blockchain networks:
     ```typescript
     import { Router as FibrousRouter } from "fibrous-router-sdk";
     
-    const fibrous = new FibrousRouter();
+    const fibrous = new FibrousRouter({
+      apiVersion: "v2", // optional, v2 is the latest version
+    });
     ```
   </Step>
   <Step title="Get the Best Route">
     ```typescript
-    const route = await fibrous.getBestRoute(
-      inputAmount,
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "base")?.chain_id;
+    
+    const route = await fibrous.getBestRoute({
+      amount: inputAmount,
       tokenInAddress,
       tokenOutAddress,
-      "base"
-    );
+      chainId,
+    });
     ```
   </Step>
   <Step title="Execute the Swap">
     ```typescript
-    const tx = await fibrous.buildTransaction(
+    const { route, calldata } = await fibrous.buildRouteAndCalldata({
       inputAmount,
       tokenInAddress,
       tokenOutAddress,
-      0.5, // 0.5% slippage
-      userAddress,
-      "base"
-    );
+      slippage: 0.5, // 0.5% slippage
+      destination: userAddress,
+      chainId,
+    });
     ```
   </Step>
 </Steps>
@@ -112,16 +118,19 @@ const usdc = tokens.get("usdc");
 Exclude specific protocols or use only certain ones:
 
 ```typescript
-const route = await fibrous.getBestRoute(
+const chains = await fibrous.refreshSupportedChains();
+const chainId = chains.find(chain => chain.chain_name == "base")?.chain_id;
+
+const route = await fibrous.getBestRoute({
   amount,
-  tokenIn,
-  tokenOut,
-  "base",
-  {
-    excludeProtocols: ["uniswap-v2"],
+  tokenInAddress: tokenIn,
+  tokenOutAddress: tokenOut,
+  chainId,
+  options: {
+    excludeProtocols: [1, 2], // Protocol IDs, not names
     direct: false
   }
-);
+});
 ```
 
 ## Complete Example
@@ -129,13 +138,21 @@ const route = await fibrous.getBestRoute(
 Here's a complete example of swapping tokens on Base:
 
 ```typescript
-import { Router as FibrousRouter } from "fibrous-router-sdk";
+import { Router as FibrousRouter, getBestRouteParams, buildRouteAndCalldataParams } from "fibrous-router-sdk";
 import { parseUnits } from "ethers";
 
 async function swapTokens() {
-  // Initialize router
-  const fibrous = new FibrousRouter();
-  const chainId = 8453; // Base
+  // Initialize router with v2 API
+  const fibrous = new FibrousRouter({
+    apiVersion: "v2",
+  });
+  
+  // Refresh and get supported chains
+  const chains = await fibrous.refreshSupportedChains();
+  const chainId = chains.find(chain => chain.chain_name == "base")?.chain_id;
+  if (!chainId) {
+    throw new Error("Chain not supported");
+  }
   
   // Get supported tokens
   const tokens = await fibrous.supportedTokens(chainId);
@@ -147,36 +164,37 @@ async function swapTokens() {
   }
   
   // Prepare swap parameters
-  const inputAmount = parseUnits("1", eth.decimals); // 1 ETH
+  const inputAmount = BigInt(parseUnits("1", Number(eth.decimals))); // 1 ETH
   const slippage = 0.5; // 0.5%
   const userAddress = "0xYourAddress";
   
   // Get best route
-  const route = await fibrous.getBestRoute(
-    inputAmount,
-    eth.address,
-    usdc.address,
-    "base"
-  );
+  const getBestRouteParams: getBestRouteParams = {
+    amount: inputAmount,
+    tokenInAddress: eth.address,
+    tokenOutAddress: usdc.address,
+    chainId,
+  };
+  const route = await fibrous.getBestRoute(getBestRouteParams);
   
   console.log(`Input: ${route.inputAmount} ${eth.symbol}`);
   console.log(`Output: ${route.outputAmount} ${usdc.symbol}`);
-  console.log(`Price Impact: ${route.priceImpact}%`);
   
-  // Build transaction
-  const tx = await fibrous.buildTransaction(
+  // Build route and calldata
+  const buildRouteAndCalldataParams: buildRouteAndCalldataParams = {
     inputAmount,
-    eth.address,
-    usdc.address,
+    tokenInAddress: eth.address,
+    tokenOutAddress: usdc.address,
     slippage,
-    userAddress,
-    "base"
-  );
+    destination: userAddress,
+    chainId,
+  };
+  const { route: routeData, calldata } = await fibrous.buildRouteAndCalldata(buildRouteAndCalldataParams);
   
   // Execute with your wallet
   // const receipt = await wallet.sendTransaction(tx);
   
-  return tx;
+  return { route: routeData, calldata };
 }
 ```
 
@@ -185,54 +203,72 @@ async function swapTokens() {
 <Tabs>
   <Tab title="Base">
     ```typescript
-    const fibrous = new FibrousRouter();
-    const chainId = 8453;
+    const fibrous = new FibrousRouter({ apiVersion: "v2" });
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "base")?.chain_id;
     
-    const route = await fibrous.getBestRoute(
-      parseUnits("1", 18),
-      "0x0000000000000000000000000000000000000000", // ETH
-      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
-      "base"
-    );
+    const route = await fibrous.getBestRoute({
+      amount: BigInt(parseUnits("1", 18)),
+      tokenInAddress: "0x0000000000000000000000000000000000000000", // ETH
+      tokenOutAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+      chainId,
+    });
     ```
   </Tab>
   <Tab title="HyperEVM">
     ```typescript
-    const fibrous = new FibrousRouter();
-    const chainId = 998;
+    const fibrous = new FibrousRouter({ apiVersion: "v2" });
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
     
-    const route = await fibrous.getBestRoute(
-      parseUnits("1", 18),
-      "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // HYPE
-      "0xb88339cb7199b77e23db6e890353e22632ba630f", // USDC
-      "hyperevm"
-    );
+    const route = await fibrous.getBestRoute({
+      amount: BigInt(parseUnits("1", 18)),
+      tokenInAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // HYPE
+      tokenOutAddress: "0xb88339cb7199b77e23db6e890353e22632ba630f", // USDC
+      chainId,
+    });
     ```
   </Tab>
   <Tab title="Scroll">
     ```typescript
-    const fibrous = new FibrousRouter();
-    const chainId = 534352;
+    const fibrous = new FibrousRouter({ apiVersion: "v2" });
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "scroll")?.chain_id;
     
-    const route = await fibrous.getBestRoute(
-      parseUnits("1", 18),
-      "0x0000000000000000000000000000000000000000", // ETH
-      "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4", // USDC
-      "scroll"
-    );
+    const route = await fibrous.getBestRoute({
+      amount: BigInt(parseUnits("1", 18)),
+      tokenInAddress: "0x0000000000000000000000000000000000000000", // ETH
+      tokenOutAddress: "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4", // USDC
+      chainId,
+    });
     ```
   </Tab>
   <Tab title="Starknet">
     ```typescript
-    const fibrous = new FibrousRouter();
-    const chainId = "SN_MAIN";
+    const fibrous = new FibrousRouter({ apiVersion: "v2" });
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "starknet")?.chain_id;
     
-    const route = await fibrous.getBestRoute(
-      parseUnits("1", 18),
-      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
-      "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8", // USDC
-      "starknet"
-    );
+    const route = await fibrous.getBestRoute({
+      amount: BigInt(parseUnits("1", 18)),
+      tokenInAddress: "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
+      tokenOutAddress: "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8", // USDC
+      chainId,
+    });
+    ```
+  </Tab>
+  <Tab title="Monad">
+    ```typescript
+    const fibrous = new FibrousRouter({ apiVersion: "v2" });
+    const chains = await fibrous.refreshSupportedChains();
+    const chainId = chains.find(chain => chain.chain_name == "monad")?.chain_id;
+    
+    const route = await fibrous.getBestRoute({
+      amount: BigInt(parseUnits("1", 18)),
+      tokenInAddress: "0x0000000000000000000000000000000000000000", // ETH
+      tokenOutAddress: "0x754704bc059f8c67012fed69bc8a327a5aafb603", // USDC
+      chainId,
+    });
     ```
   </Tab>
 </Tabs>

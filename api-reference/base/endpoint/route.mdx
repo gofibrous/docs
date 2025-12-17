@@ -35,29 +35,38 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
 </ParamField>
 
 <ParamField query="reverse" type="boolean" optional>
-  If true, the amount parameter represents the desired output amount instead of input amount.
+  Not supported yet - reserved for future use.
   Default: `false`
 </ParamField>
 
 <ParamField query="direct" type="boolean" optional>
-  If true, only direct swaps between the input and output tokens will be considered.
+  If true, only direct routes (single hop) will be considered.
   Default: `false`
 </ParamField>
 
-
-<ParamField query="excludeProtocols" type="array[string]" optional>
-  Array of protocol names to exclude from routing.
+<ParamField query="excludeProtocols" type="array[number]" optional>
+  Comma-separated list of protocol IDs to exclude from routing (e.g., "1,2,3").
   Default: `[]`
+</ParamField>
+
+<ParamField query="integratorAddress" type="string" optional>
+  Integrator address for fee distribution.
+</ParamField>
+
+<ParamField query="integratorFeePercentageBps" type="number" optional>
+  Integrator fee percentage in basis points (0-500) maximum 5%.
+  Example: `100` for 1%
+</ParamField>
+
+<ParamField query="integratorSurplusPercentageBps" type="number" optional>
+  Integrator surplus percentage in basis points (0-5000) maximum 50%.
+  Example: `1000` for 10%
 </ParamField>
 
 ## Response
 
 <ResponseField name="success" type="boolean">
-  Indicates if the request was successful.
-</ResponseField>
-
-<ResponseField name="routeSwapType" type="number">
-  Type of swap route.
+  Indicates if the route calculation was successful.
 </ResponseField>
 
 <ResponseField name="inputToken" type="object">
@@ -76,6 +85,10 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
       Current price of the token in USD
     </ResponseField>
   </Expandable>
+</ResponseField>
+
+<ResponseField name="inputAmount" type="string">
+  Input amount in wei format.
 </ResponseField>
 
 <ResponseField name="outputToken" type="object">
@@ -104,8 +117,48 @@ Find the optimal trading route through Fibrous Finance's liquidity pools to maxi
   Estimated gas cost for the swap in wei.
 </ResponseField>
 
-<ResponseField name="estimatedGasUsedInUsd" type="number">
+<ResponseField name="estimatedGasUsedInUsd" type="number" optional>
   Estimated gas cost in USD.
+</ResponseField>
+
+<ResponseField name="time" type="number">
+  Timestamp of route calculation.
+</ResponseField>
+
+<ResponseField name="bestQuotesByProtocols" type="array[string]">
+  Best quotes by protocols.
+</ResponseField>
+
+<ResponseField name="initial" type="boolean" optional>
+  Whether this is an initial route.
+</ResponseField>
+
+<ResponseField name="routeSwapType" type="number" optional>
+  Route swap type.
+</ResponseField>
+
+<ResponseField name="integratorAddress" type="string" optional>
+  Integrator address.
+</ResponseField>
+
+<ResponseField name="integratorFeePercentage" type="number" optional>
+  Integrator fee percentage in basis points (0-500) maximum 5%.
+</ResponseField>
+
+<ResponseField name="integratorSurplusPercentage" type="number" optional>
+  Integrator surplus percentage in basis points (0-5000) maximum 50%.
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  API metadata including version and response timestamp.
+  <Expandable>
+    <ResponseField name="apiVersion" type="string">
+      API version (e.g., "2.0")
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      Response timestamp in ISO 8601 format
+    </ResponseField>
+  </Expandable>
 </ResponseField>
 
 <ResponseField name="route" type="array">
@@ -178,7 +231,6 @@ axios.get('https://api.fibrous.finance/base/route', { params })
 ```json Response
 {
   "success": true,
-  "routeSwapType": 2,
   "inputToken": {
     "name": "Wrapped Ether",
     "address": "0x4200000000000000000000000000000000000006",
@@ -193,6 +245,8 @@ axios.get('https://api.fibrous.finance/base/route', { params })
     "price": 0.999796
   },
   "outputAmount": "4303439184",
+  "estimatedGasUsed": "347407383168",
+  "estimatedGasUsedInUsd": 0.0031034457390210508,
   "route": [
     {
       "percent": "100%",
@@ -213,11 +267,14 @@ axios.get('https://api.fibrous.finance/base/route', { params })
       ]
     }
   ],
-  "estimatedGasUsed": "347407383168",
-  "estimatedGasUsedInUsd": 0.0031034457390210508,
-  "bestQuotesByProtocols": [],
   "time": 0.858,
-  "initial": true
+  "bestQuotesByProtocols": [],
+  "initial": true,
+  "routeSwapType": 2,
+  "meta": {
+    "apiVersion": "2.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
 }
 ```
 </ResponseExample>

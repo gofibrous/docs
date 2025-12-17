@@ -4,6 +4,10 @@ description: 'Get calldata for executing a swap through Fibrous'
 api: 'GET /base/calldata'
 ---
 
+<Warning>
+  **Important**: If integrator fees are used (integratorFeePercentageBps > 0), the `min_received` value in the calldata response will be the amount after fees have been deducted and slippage has been applied. This ensures the minimum received amount accounts for the integrator fee that will be taken from the output.
+</Warning>
+
 ## Endpoint
 
 <CodeGroup>
@@ -308,7 +312,7 @@ axios.request(config)
 
 ## Tips
 
-1. Always verify the `min_received` amount matches your expectations
+1. Always verify the `min_received` amount matches your expectations. Note that if integrator fees are used, `min_received` already accounts for the fee deduction.
 2. Check that the `destination` address is correct
 3. Consider gas costs when splitting across multiple protocols
 4. Store the route response before requesting calldata

@@ -10,35 +10,38 @@ The `getBestRoute` function finds the optimal trading route for a token swap thr
 ```typescript
 /**
   * Fetches the best route from the API.
-  * @param amount Amount to swap.
-  * @param tokenInAddress Input token address.
-  * @param tokenOutAddress Output token address.
-  * @param chainName Chain name (e.g. "starknet", "scroll").
-  * @param options Optional route parameters and overrides.
-  * @param chainId Chain ID (may be used instead of `chainName` for backward compatibility).
+  * @param params Route parameters object.
   * @returns Route response.
   * @throws Error if the chain is not supported.
   */
 getBestRoute(
-    amount: AmountType,
-    tokenInAddress: string,
-    tokenOutAddress: string,
-    chainName: string,
-    options?: Partial<RouteOverrides>,
-    chainId?: number,
+    params: getBestRouteParams,
 ): Promise<RouteResponse>;
+```
+
+### getBestRouteParams Type
+
+```typescript
+type getBestRouteParams = {
+  amount: AmountType;
+  tokenInAddress: string;
+  tokenOutAddress: string;
+  chainId: number;
+  options?: Partial<RouteOverrides>;
+  integrationData?: IntegrationData;
+};
 ```
 
 ## Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| amount | BigNumber | Amount to swap, formatted according to token decimals |
-| tokenInAddress | string | Token address to swap from |
-| tokenOutAddress | string | Token address to swap to |
-| chainName | string | Chain name where the transaction will take place (will be deprecated in the future, use chainId instead) |
-| options | RouteOverrides | Optional parameters for route customization |
-| chainId | number | Chain ID (may be used instead of `chainName` for backward compatibility) |
+| params.amount | BigNumber | Amount to swap, formatted according to token decimals |
+| params.tokenInAddress | string | Token address to swap from |
+| params.tokenOutAddress | string | Token address to swap to |
+| params.chainId | number | Chain ID where the transaction will take place |
+| params.options | RouteOverrides | Optional parameters for route customization |
+| params.integrationData | IntegrationData | Optional integrator fee/surplus configuration |
 
 ### RouteOverrides Type
 
@@ -72,11 +75,18 @@ type RouteResponse = {
 ## Example Usage
 
 ```typescript
-import { Router as FibrousRouter } from "fibrous-router-sdk";
+import { Router as FibrousRouter, getBestRouteParams } from "fibrous-router-sdk";
 import { parseUnits } from "ethers";
 
-const fibrous = new FibrousRouter();
-const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
+// Create a new router instance with v2 API
+const fibrous = new FibrousRouter({
+    apiKey: "your-api-key", // optional, required for integrator features
+    apiVersion: "v2", // optional, v2 is the latest version
+});
+
+// Refresh and get supported chains
+const chains = await fibrous.refreshSupportedChains();
+const chainId = chains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
 if (!chainId) {
     throw new Error("Chain not supported");
 }
@@ -84,7 +94,7 @@ if (!chainId) {
 // Build route options
 const tokens = await fibrous.supportedTokens(chainId);
 // Get input token from tokens map
-const inputToken = tokens.get("hype");
+const inputToken = tokens.get("usdc");
 if (!inputToken) {
     throw new Error("Input token not found");
 }
@@ -99,18 +109,19 @@ if (!outputToken) {
 const tokenInAddress = inputToken.address;
 const tokenOutAddress = outputToken.address;
 const tokenInDecimals = Number(inputToken.decimals);
-const inputAmount = BigInt(parseUnits("1", tokenInDecimals)); // 1 Hype
+const inputAmount = BigInt(parseUnits("4", tokenInDecimals)); // 4 USDC
 
-const route = await fibrous.getBestRoute(
-  inputAmount,
-  tokenInAddress,
-  tokenOutAddress,
-  "hyperevm", // chainName will be deprecated in the future, use chainId instead
-  {
-      reverse: false,
-  },
-  chainId,
-);
+const getBestRouteParams: getBestRouteParams = {
+    amount: inputAmount,
+    tokenInAddress: tokenInAddress,
+    tokenOutAddress: tokenOutAddress,
+    chainId: chainId,
+    options: {
+        reverse: false,
+    },
+};
+
+const route = await fibrous.getBestRoute(getBestRouteParams);
 // returns route type (src/types/route.ts)
 ```
 

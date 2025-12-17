@@ -1,6 +1,6 @@
 ---
 title: 'Overview'
-description: 'Overview of Fibrous Router SDK main functions'
+description: 'Overview of Fibrous Router SDK main functions compatible with all supported chains v2 API'
 ---
 
 ## Supported Chains
@@ -9,6 +9,7 @@ description: 'Overview of Fibrous Router SDK main functions'
 - Base
 - Scroll
 - HyperEVM
+- Monad
 ```typescript
 /**
 * List of supported chains and their router addresses.
@@ -76,49 +77,53 @@ Returns calldata with best route to transaction via Fibrous
 /**
 * Legacy method that builds a route and calldata to prepare a transaction.
 * Note: This will be deprecated; prefer `buildRouteAndCalldata`.
-* @param inputAmount Input amount.
-* @param tokenInAddress Input token address.
-* @param tokenOutAddress Output token address.
-* @param slippage Slippage percentage (1 = 1%).
-* @param destination Receiver address.
-* @param chainName Chain name.
-* @param options Optional parameters.
-* @param chainId Chain ID (for backward compatibility).
+* @param params Transaction parameters object.
 * @returns Starknet `Call` or EVM calldata/transaction structure.
 */
 buildTransaction(
-    inputAmount: AmountType,
-    tokenInAddress: string,
-    tokenOutAddress: string,
-    slippage: number,
-    destination: string,
-    chainName: string,
-    options?: Partial<RouteOverrides>,
-    chainId?: number,
+    params: buildTransactionParams,
 ): Promise<Call | unknown>;
+```
+
+### buildTransactionParams Type
+
+```typescript
+type buildTransactionParams = {
+  inputAmount: AmountType;
+  tokenInAddress: string;
+  tokenOutAddress: string;
+  slippage: number;
+  destination: string;
+  chainId: number;
+  options?: Partial<RouteOverrides>;
+  integrationData?: IntegrationData;
+};
 ```
 ## Build Route and Calldata
 ```typescript
 /**
 * Returns the best route and executable calldata in a single call.
-* @param inputAmount Input amount.
-* @param tokenInAddress Input token address.
-* @param tokenOutAddress Output token address.
-* @param slippage Slippage percentage (1 = 1%).
-* @param destination Receiver address.
-* @param chainId Chain ID.
-* @param options Optional parameters.
+* @param params Route and calldata parameters object.
 * @returns Route and calldata structure (includes Starknet swap call when applicable).
 */
 buildRouteAndCalldata(
-    inputAmount: AmountType,
-    tokenInAddress: string,
-    tokenOutAddress: string,
-    slippage: number,
-    destination: string,
-    chainId: number,
-    options?: Partial<RouteOverrides>,
-): Promise<Call | unknown>;
+    params: buildRouteAndCalldataParams,
+): Promise<RouteAndCalldataResponse>;
+```
+
+### buildRouteAndCalldataParams Type
+
+```typescript
+type buildRouteAndCalldataParams = {
+  inputAmount: AmountType;
+  tokenInAddress: string;
+  tokenOutAddress: string;
+  slippage: number;
+  destination: string;
+  chainId: number;
+  options?: Partial<RouteOverrides>;
+  integrationData?: IntegrationData;
+};
 ```
 
 ## Build Approve Starknet

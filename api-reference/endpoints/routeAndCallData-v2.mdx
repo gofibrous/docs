@@ -4,6 +4,10 @@ description: "Get route and calldata in a single V2 API request"
 api: "GET /{network}/v2/routeAndCallData"
 ---
 
+<Warning>
+  **Important**: If integrator fees are used (integratorFeePercentageBps > 0), the `min_received` value in the calldata response will be the amount after fees have been deducted and slippage has been applied. This ensures the minimum received amount accounts for the integrator fee that will be taken from the output.
+</Warning>
+
 ## Overview
 
 The Route and Calldata V2 endpoint combines route finding and calldata generation in a single request, reducing API calls and latency. This is a V2-only endpoint that provides enhanced features including integrator support and metadata. Currently available on EVM networks.
@@ -77,7 +81,7 @@ Find the optimal trading route through Fibrous' integrated liquidity sources and
 </ParamField>
 
 <Warning>
-  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps or integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
@@ -128,7 +132,7 @@ Find the optimal trading route through Fibrous' integrated liquidity sources and
           Output amount in wei
         </ResponseField>
         <ResponseField name="min_received" type="string">
-          Minimum amount to receive (considering slippage)
+          Minimum amount to receive (considering slippage). If integrator fees are used, this value already accounts for the fee deduction.
         </ResponseField>
         <ResponseField name="destination" type="string">
           Recipient address
@@ -331,7 +335,7 @@ This reduces:
 
 ## Best Practices
 
-1. **Verify min_received** - Always check that the minimum received amount matches your expectations
+1. **Verify min_received** - Always check that the minimum received amount matches your expectations. Note that if integrator fees are used, `min_received` already accounts for the fee deduction.
 2. **Check destination** - Ensure the destination address is correct before executing
 3. **Use fresh data** - This endpoint provides fresh route and calldata, ideal for immediate execution
 4. **Monitor meta.timestamp** - Track when the response was generated for debugging

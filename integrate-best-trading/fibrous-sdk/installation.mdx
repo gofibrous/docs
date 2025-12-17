@@ -7,7 +7,7 @@ description: 'Learn how to install and setup Fibrous Router SDK'
 
 You can install Fibrous Router SDK using npm, yarn, or pnpm:
 
-Latest stable version: 0.6.1
+Latest stable version: 1.0.1
 <CodeGroup>
 ```bash npm
 npm install fibrous-router-sdk
@@ -29,12 +29,17 @@ Check out the detailed example in the [Fibrous SDK Github Repository](https://gi
 Here's a simple example of how to initialize and use the SDK:
 
 ```typescript
-import { Router as FibrousRouter } from "fibrous-router-sdk";
+import { Router as FibrousRouter, getBestRouteParams } from "fibrous-router-sdk";
 import { parseUnits } from "ethers";
 
-// Create a new router instance
-const fibrous = new FibrousRouter();
-const chainId = fibrous.supportedChains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
+// Create a new router instance with v2 API
+const fibrous = new FibrousRouter({
+    apiVersion: "v2", // optional, v2 is the latest version
+});
+
+// Refresh and get supported chains
+const chains = await fibrous.refreshSupportedChains();
+const chainId = chains.find(chain => chain.chain_name == "hyperevm")?.chain_id;
 if (!chainId) {
     throw new Error("Chain not supported");
 }
@@ -42,7 +47,7 @@ if (!chainId) {
 // Build route options
 const tokens = await fibrous.supportedTokens(chainId);
 // Get input token from tokens map
-const inputToken = tokens.get("hype");
+const inputToken = tokens.get("usdc");
 if (!inputToken) {
     throw new Error("Input token not found");
 }
@@ -57,18 +62,19 @@ if (!outputToken) {
 const tokenInAddress = inputToken.address;
 const tokenOutAddress = outputToken.address;
 const tokenInDecimals = Number(inputToken.decimals);
-const inputAmount = BigInt(parseUnits("1", tokenInDecimals)); // 1 Hype
+const inputAmount = BigInt(parseUnits("4", tokenInDecimals)); // 4 USDC
 
-const route = await fibrous.getBestRoute(
-    inputAmount,
-    tokenInAddress,
-    tokenOutAddress,
-    "hyperevm", // chainName will be deprecated in the future, use chainId instead
-    {
+const getBestRouteParams: getBestRouteParams = {
+    amount: inputAmount,
+    tokenInAddress: tokenInAddress,
+    tokenOutAddress: tokenOutAddress,
+    chainId: chainId,
+    options: {
         reverse: false,
     },
-    chainId,
-);
+};
+
+const route = await fibrous.getBestRoute(getBestRouteParams);
 ```
 
 # Requirements
