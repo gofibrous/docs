@@ -29,7 +29,7 @@
 
 ### Getting Started
 
-- [API Overview](/api-reference/introduction): The Fibrous Router API provides optimal token swap routing across multiple blockchain networks with the best rates on the market
+- [API Overview](/api-reference/introduction): Fibrous Router API provides optimal token swap routing across multiple blockchain networks with the best rates on the market
 - [Integration Guide](/api-reference/integration-guide): Step-by-step guide to integrating the Fibrous API
 - [Rate Limits](/api-reference/rate-limit): API rate limiting details and best practices
 - [Error Codes](/api-reference/errors): Complete reference of API error codes and handling
@@ -105,4 +105,5 @@
 ---
 
 > For navigation structure and additional pages, see https://docs.fibrous.finance/docs.json
+
 
