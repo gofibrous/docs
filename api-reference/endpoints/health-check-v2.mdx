@@ -47,9 +47,7 @@ Verify if the Fibrous V2 API is up and running. This endpoint can be used for mo
   </Expandable>
 </ResponseField>
 
-## Example Request
-
-<CodeGroup>
+<RequestExample>
 
 ```bash cURL
 curl -X GET "https://api.fibrous.finance/{network}/v2/healthcheck"
@@ -79,9 +77,57 @@ print(f"API Version: {data['meta']['apiVersion']}")
 print(data)
 ```
 
-</CodeGroup>
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
-## Example Response
+public class FibrousHealthCheck {
+    public static void main(String[] args) throws Exception {
+        String url = "https://api.fibrous.finance/{network}/v2/healthcheck";
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .GET()
+            .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+)
+
+func main() {
+    url := "https://api.fibrous.finance/{network}/v2/healthcheck"
+    
+    resp, err := http.Get(url)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Response:", string(body))
+}
+```
+</RequestExample>
+
+<ResponseExample>
 
 ```json
 {
@@ -89,10 +135,11 @@ print(data)
   "message": "{Monad} Fibrous Finance Router is alive and well - routing your tokens faster than you can say \"impermanent loss\"",
   "meta": {
     "apiVersion": "2.0",
-    "timestamp": "2024-01-15T10:30:00.000Z"
+    "timestamp": "2026-01-24T21:46:35.496Z"
   }
 }
 ```
+</ResponseExample>
 
 ## Usage
 

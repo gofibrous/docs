@@ -12,7 +12,7 @@ This guide covers critical considerations and best practices for integrating the
 ### 0.   Integrator Features - API Key Requirement ⚠️
 
 <Warning>
-  **API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous Finance. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
+  **API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
 
   **Contract Function Selection**:
 
@@ -479,7 +479,7 @@ async function executeSwap(calldataResponse, signer) {
 
 ### 7. Network-Specific Considerations
 
-**EVM Networks (Base, HyperEVM, Scroll, Monad):**
+**EVM Networks (Base, HyperEVM, Citrea, Monad):**
 
 - Use standard EVM transaction format
 - Native tokens: `0x0000000000000000000000000000000000000000` or `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
@@ -1072,7 +1072,7 @@ Before going to production, ensure you've covered:
 - Error monitoring
 - Analytics tracking
 - **Integrator Features (if using)**:
-  - API key obtained from Fibrous Finance
+  - API key obtained from Fibrous
   - `swapIntegrator()` function used instead of `swap()`
   - `integrator_data` passed to contract function
   - `min_received` calculation verified (amount_out - fee - slippage)

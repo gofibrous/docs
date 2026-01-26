@@ -21,9 +21,9 @@ The Execute endpoint generates the necessary transaction data to execute a token
     https://api.fibrous.finance/hyperevm/execute
     ```
   </Tab>
-  <Tab title="Scroll">
+  <Tab title="Citrea">
     ```bash
-    https://api.fibrous.finance/scroll/execute
+    https://api.fibrous.finance/citrea/execute
     ```
   </Tab>
   <Tab title="Monad">
@@ -125,10 +125,10 @@ The Execute endpoint generates the necessary transaction data to execute a token
 
 ## Example Request
 
-<CodeGroup>
+<RequestExample>
 
 ```bash cURL
-curl -X POST "https://api.fibrous.finance/base/execute" \
+curl -X POST "https://api.fibrous.finance/{network}/execute" \
   -H "Content-Type: application/json" \
   -d '{
     "route": {
@@ -159,7 +159,7 @@ const axios = require('axios');
 
 const executeSwap = async () => {
   const response = await axios.post(
-    'https://api.fibrous.finance/base/execute',
+    'https://api.fibrous.finance/{network}/execute',
     {
       route: {
         inputToken: {
@@ -193,7 +193,7 @@ const executeSwap = async () => {
 import requests
 import json
 
-url = "https://api.fibrous.finance/base/execute"
+url = "https://api.fibrous.finance/{network}/execute"
 
 payload = {
     "route": {
@@ -222,9 +222,133 @@ response = requests.post(url, json=payload, headers=headers)
 print(response.json())
 ```
 
-</CodeGroup>
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
-## Example Response
+public class FibrousExecute {
+    public static void main(String[] args) throws Exception {
+        String url = "https://api.fibrous.finance/{network}/execute";
+        
+        Map<String, Object> route = new HashMap<>();
+        Map<String, Object> inputToken = new HashMap<>();
+        inputToken.put("address", "0x0000000000000000000000000000000000000000");
+        inputToken.put("decimals", 18);
+        inputToken.put("symbol", "ETH");
+        route.put("inputToken", inputToken);
+        
+        Map<String, Object> outputToken = new HashMap<>();
+        outputToken.put("address", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");
+        outputToken.put("decimals", 6);
+        outputToken.put("symbol", "USDC");
+        route.put("outputToken", outputToken);
+        route.put("inputAmount", "1000000000000000000");
+        route.put("outputAmount", "2500000000");
+        
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("route", route);
+        payload.put("slippage", 0.5);
+        payload.put("destination", "0x1234567890123456789012345678901234567890");
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = mapper.writeValueAsString(payload);
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+            .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+type Route struct {
+    InputToken  map[string]interface{} `json:"inputToken"`
+    OutputToken map[string]interface{} `json:"outputToken"`
+    InputAmount string                 `json:"inputAmount"`
+    OutputAmount string                `json:"outputAmount"`
+}
+
+type Payload struct {
+    Route       Route   `json:"route"`
+    Slippage    float64 `json:"slippage"`
+    Destination string  `json:"destination"`
+}
+
+func main() {
+    url := "https://api.fibrous.finance/{network}/execute"
+    
+    route := Route{
+        InputToken: map[string]interface{}{
+            "address":  "0x0000000000000000000000000000000000000000",
+            "decimals": 18,
+            "symbol":   "ETH",
+        },
+        OutputToken: map[string]interface{}{
+            "address":  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "decimals": 6,
+            "symbol":   "USDC",
+        },
+        InputAmount:  "1000000000000000000",
+        OutputAmount: "2500000000",
+    }
+    
+    payload := Payload{
+        Route:       route,
+        Slippage:    0.5,
+        Destination: "0x1234567890123456789012345678901234567890",
+    }
+    
+    jsonData, err := json.Marshal(payload)
+    if err != nil {
+        panic(err)
+    }
+    
+    req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+    if err != nil {
+        panic(err)
+    }
+    
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Response:", string(body))
+}
+```
+</RequestExample>
+
+<ResponseExample>
 
 ```json
 {
@@ -251,6 +375,7 @@ print(response.json())
   "value": "1000000000000000000"
 }
 ```
+</ResponseExample>
 
 ## Best Practices
 
@@ -323,7 +448,7 @@ print(response.json())
 ## Network-Specific Notes
 
 <Tabs>
-  <Tab title="EVM Chains (Base, HyperEVM, Scroll)">
+  <Tab title="EVM Chains (Base, HyperEVM, Citrea)">
     - Use standard EVM transaction format
     - Native token swaps require sending value with transaction
     - Approve token spending before swap if not native token

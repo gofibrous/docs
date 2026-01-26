@@ -1,35 +1,35 @@
 ---
 title: 'Route'
-description: 'Find the optimal trading route through Fibrous Finance liquidity pools on Scroll'
-api: 'GET /scroll/route'
+description: 'Find the optimal trading route through Fibrous liquidity pools on Citrea'
+api: 'GET /citrea/route'
 ---
 
 <CodeGroup>
 ```bash
-https://api.fibrous.finance/scroll/route
+https://api.fibrous.finance/citrea/route
 ```
 </CodeGroup>
 
-Find the optimal trading route through Fibrous Finance's liquidity pools on Scroll to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
+Find the optimal trading route through Fibrous's liquidity pools on Citrea to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.
 
 ## Query Parameters
 
 <ParamField query="amount" type="string" required>
   The amount of input tokens in wei format. For tokens with 18 decimals, multiply the amount by 10^18.
   
-  Example: `"1000000000000000000"` for 1 ETH
+  Example: `"1000000000000000000"` for 1 cBTC (18 decimals)
 </ParamField>
 
 <ParamField query="tokenInAddress" type="string" required>
   The address of the input token.
   
-  Example: `"0x5300000000000000000000000000000000000004"` for ETH on Scroll
+  Example: `"0x0000000000000000000000000000000000000000"` for cBTC on Citrea
 </ParamField>
 
 <ParamField query="tokenOutAddress" type="string" required>
   The address of the output token.
   
-  Example: `"0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550"` for USDC on Scroll
+  Example: `"0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839"` for USDC.e on Citrea
 </ParamField>
 
 ## Response
@@ -46,7 +46,7 @@ Find the optimal trading route through Fibrous Finance's liquidity pools on Scro
   Details about the input token.
   <Expandable>
     <ResponseField name="name" type="string">
-      The token's name (e.g., "Wrapped Ether")
+      The token's name (e.g., "Citrea Bitcoin")
     </ResponseField>
     <ResponseField name="address" type="string">
       The token's contract address
@@ -81,19 +81,19 @@ Find the optimal trading route through Fibrous Finance's liquidity pools on Scro
 <RequestExample>
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/scroll/route?amount=1000000000000000000&tokenInAddress=0x5300000000000000000000000000000000000004&tokenOutAddress=0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550" \
+  "https://api.fibrous.finance/citrea/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839" \
   --header "Accept: */*"
 ```
 
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/scroll/route"
+url = "https://api.fibrous.finance/citrea/route"
 
 params = {
-    "amount": "1000000000000000000",  # 1 ETH
-    "tokenInAddress": "0x5300000000000000000000000000000000000004",
-    "tokenOutAddress": "0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550"
+    "amount": "1000000000000000000",  # 1 cBTC (18 decimals)
+    "tokenInAddress": "0x0000000000000000000000000000000000000000",
+    "tokenOutAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839"
 }
 
 response = requests.get(url, params=params)
@@ -104,12 +104,12 @@ print(response.json())
 const axios = require('axios');
 
 const params = {
-  amount: '1000000000000000000', // 1 ETH
-  tokenInAddress: '0x5300000000000000000000000000000000000004',
-  tokenOutAddress: '0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550'
+  amount: '1000000000000000000', // 1 cBTC (18 decimals)
+  tokenInAddress: '0x0000000000000000000000000000000000000000',
+  tokenOutAddress: '0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839'
 };
 
-axios.get('https://api.fibrous.finance/scroll/route', { params })
+axios.get('https://api.fibrous.finance/citrea/route', { params })
   .then(response => console.log(response.data))
   .catch(error => console.error(error));
 ```
@@ -121,28 +121,28 @@ axios.get('https://api.fibrous.finance/scroll/route', { params })
   "success": true,
   "routeSwapType": 2,
   "inputToken": {
-    "address": "0x5300000000000000000000000000000000000004",
-    "name": "Wrapped Ether",
-    "symbol": "WETH",
+    "address": "0x0000000000000000000000000000000000000000",
+    "name": "Citrea Bitcoin",
+    "symbol": "cBTC",
     "decimals": "18",
-    "price": "4337.31",
+    "price": "95000.00",
     "base": true,
     "native": true,
-    "image_url": "https://coin-images.coingecko.com/coins/images/2518/small/weth.png?1696503332",
+    "image_url": "https://coin-images.coingecko.com/coins/images/1/small/bitcoin.png",
     "verified": true,
     "category": null,
-    "ticker": "weth"
+    "ticker": "cbtc"
   },
   "inputAmount": "1000000000000000000",
   "outputToken": {
-    "address": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
-    "name": "USD Coin",
-    "symbol": "USDC",
+    "address": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
+    "name": "Bridged USD Coin",
+    "symbol": "USDC.e",
     "decimals": 6,
     "base": true,
     "native": false
   },
-  "outputAmount": "4263279730",
+  "outputAmount": "9500000000",
   "time": 0.372,
   "estimatedGasUsed": "69993657648",
   "estimatedGasUsedInUsd": 0.0012143367650129875,
@@ -153,45 +153,45 @@ axios.get('https://api.fibrous.finance/scroll/route', { params })
         [
           {
             "protocol": 1,
-            "poolId": "1:0x814a23b053fd0f102aeeda0459215c2444799c70:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolId": "1:0x814a23b053fd0f102aeeda0459215c2444799c70:0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839:0x0000000000000000000000000000000000000000",
             "poolName": "SyncSwap Classic",
-            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "fromTokenAddress": "0x0000000000000000000000000000000000000000",
+            "toTokenAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
             "percent": "60.00%"
           },
           {
             "protocol": 5,
-            "poolId": "5:0x6905c59be1a7ea32d1f257e302401ec9a1401c52:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolId": "5:0x6905c59be1a7ea32d1f257e302401ec9a1401c52:0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839:0x0000000000000000000000000000000000000000",
             "poolName": "SpaceFi",
-            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "fromTokenAddress": "0x0000000000000000000000000000000000000000",
+            "toTokenAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
             "percent": "6.67%"
           },
           {
             "protocol": 8,
-            "poolId": "8:0xe64ae4128e725868e8fe52e771e3d272e787b041:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolId": "8:0xe64ae4128e725868e8fe52e771e3d272e787b041:0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839:0x0000000000000000000000000000000000000000",
             "poolName": "Sushi CL",
             "poolAddress": "0xe64ae4128e725868e8fe52e771e3d272e787b041",
-            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "fromTokenAddress": "0x0000000000000000000000000000000000000000",
+            "toTokenAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
             "percent": "11.11%"
           },
           {
             "protocol": 12,
-            "poolId": "12:0x118a84e97620829a6a9666d41acc9e91edf32bd6:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolId": "12:0x118a84e97620829a6a9666d41acc9e91edf32bd6:0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839:0x0000000000000000000000000000000000000000",
             "poolName": "Zebra CL",
             "poolAddress": "0x118a84e97620829a6a9666d41acc9e91edf32bd6",
-            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "fromTokenAddress": "0x0000000000000000000000000000000000000000",
+            "toTokenAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
             "percent": "7.78%"
           },
           {
             "protocol": 15,
-            "poolId": "15:0xe0da810f07da1eace7f044afd081f8583dbe9cd3:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4:0x5300000000000000000000000000000000000004",
+            "poolId": "15:0xe0da810f07da1eace7f044afd081f8583dbe9cd3:0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839:0x0000000000000000000000000000000000000000",
             "poolName": "Nuri CL",
             "poolAddress": "0xe0da810f07da1eace7f044afd081f8583dbe9cd3",
-            "fromTokenAddress": "0x5300000000000000000000000000000000000004",
-            "toTokenAddress": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+            "fromTokenAddress": "0x0000000000000000000000000000000000000000",
+            "toTokenAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839",
             "percent": "14.44%"
           }
         ]

@@ -1,21 +1,21 @@
 ---
 title: 'Calldata'
-description: 'Generate calldata for the Fibrous Finance router contract for swap on Scroll'
-api: 'GET /scroll/calldata'
+description: 'Generate calldata for the Fibrous router contract for swap on Citrea'
+api: 'GET /citrea/calldata'
 ---
 
 <CodeGroup>
 ```bash
-https://api.fibrous.finance/scroll/calldata
+https://api.fibrous.finance/citrea/calldata
 ```
 </CodeGroup>
 
-Generate the calldata required to execute a swap through the Fibrous Finance router contract on Scroll. This endpoint provides the raw transaction data that can be used to execute the swap directly through a Web3 provider.
+Generate the calldata required to execute a swap through the Fibrous router contract on Citrea. This endpoint provides the raw transaction data that can be used to execute the swap directly through a Web3 provider.
 
 ## Request Body Parameters
 
 <ParamField body="route_response" type="object" required>
-  The complete response object from the `/scroll/route` endpoint.
+  The complete response object from the `/citrea/route` endpoint.
   This contains all the necessary information about the optimal route.
 </ParamField>
 

@@ -39,7 +39,7 @@ Generate transaction calldata for executing a swap using a pre-calculated route.
 </ParamField>
 
 <Warning>
-  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps or integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps or integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
@@ -117,9 +117,7 @@ Generate transaction calldata for executing a swap using a pre-calculated route.
   </Expandable>
 </ResponseField>
 
-## Example Request
-
-<CodeGroup>
+<RequestExample>
 
 ```bash cURL
 curl -X POST "https://api.fibrous.finance/{network}/v2/calldata" \
@@ -129,28 +127,23 @@ curl -X POST "https://api.fibrous.finance/{network}/v2/calldata" \
       "success": true,
       "routeSwapType": 0,
       "inputToken": {
-        "name": "Monad",
-        "address": "0x0000000000000000000000000000000000000000",
+        "name": "Wrapped Ether",
+        "address": "0x4200000000000000000000000000000000000006",
         "decimals": 18,
-        "price": 0
+        "price": 2949.717076112869
       },
       "inputAmount": "1000000000000000000",
       "outputToken": {
-        "name": "Wrapped Monad",
-        "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
-        "decimals": 18,
-        "price": 0
+        "name": "USD Coin",
+        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "decimals": 6,
+        "price": 0.999597487941284
       },
-      "outputAmount": "1000000000000000000",
-      "estimatedGasUsed": "0",
-      "estimatedGasUsedInUsd": 0,
-      "route": [],
-      "time": 0,
-      "bestQuotesByProtocols": [],
-      "initial": false
+      "outputAmount": "2951108576",
+      "route": []
     },
     "slippage": 0.5,
-    "destination": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+    "destination": "0x1234567890123456789012345678901234567890"
   }'
 ```
 
@@ -162,19 +155,19 @@ const route = {
   success: true,
   routeSwapType: 0,
   inputToken: {
-    name: "Monad",
-    address: "0x0000000000000000000000000000000000000000",
+    name: "Wrapped Ether",
+    address: "0x4200000000000000000000000000000000000006",
     decimals: 18,
-    price: 0
+    price: 2949.717076112869
   },
   inputAmount: "1000000000000000000",
   outputToken: {
-    name: "Wrapped Monad",
-    address: "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
-    decimals: 18,
-    price: 0
+    name: "USD Coin",
+    address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    decimals: 6,
+    price: 0.999597487941284
   },
-  outputAmount: "1000000000000000000",
+  outputAmount: "2951108576",
   route: []
 };
 
@@ -208,26 +201,26 @@ route = {
     "success": True,
     "routeSwapType": 0,
     "inputToken": {
-        "name": "Monad",
-        "address": "0x0000000000000000000000000000000000000000",
+        "name": "Wrapped Ether",
+        "address": "0x4200000000000000000000000000000000000006",
         "decimals": 18,
-        "price": 0
+        "price": 2949.717076112869
     },
     "inputAmount": "1000000000000000000",
     "outputToken": {
-        "name": "Wrapped Monad",
-        "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
-        "decimals": 18,
-        "price": 0
+        "name": "USD Coin",
+        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "decimals": 6,
+        "price": 0.999597487941284
     },
-    "outputAmount": "1000000000000000000",
+    "outputAmount": "2951108576",
     "route": []
 }
 
 payload = {
     "route": route,
     "slippage": 0.5,
-    "destination": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+    "destination": "0x1234567890123456789012345678901234567890"
 }
 
 response = requests.post(url, json=payload)
@@ -237,26 +230,174 @@ print(f"API Version: {data['meta']['apiVersion']}")
 print(f"Router Address: {data['router_address']}")
 ```
 
-</CodeGroup>
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
-## Example Response
+public class FibrousCalldata {
+    public static void main(String[] args) throws Exception {
+        String url = "https://api.fibrous.finance/{network}/v2/calldata";
+        
+        Map<String, Object> route = new HashMap<>();
+        route.put("success", true);
+        route.put("routeSwapType", 0);
+        
+        Map<String, Object> inputToken = new HashMap<>();
+        inputToken.put("name", "Wrapped Ether");
+        inputToken.put("address", "0x4200000000000000000000000000000000000006");
+        inputToken.put("decimals", 18);
+        inputToken.put("price", 2949.717076112869);
+        route.put("inputToken", inputToken);
+        route.put("inputAmount", "1000000000000000000");
+        
+        Map<String, Object> outputToken = new HashMap<>();
+        outputToken.put("name", "USD Coin");
+        outputToken.put("address", "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913");
+        outputToken.put("decimals", 6);
+        outputToken.put("price", 0.999597487941284);
+        route.put("outputToken", outputToken);
+        route.put("outputAmount", "2951108576");
+        route.put("route", new Object[0]);
+        
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("route", route);
+        payload.put("slippage", 0.5);
+        payload.put("destination", "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb");
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = mapper.writeValueAsString(payload);
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+            .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+type Route struct {
+    Success      bool                   `json:"success"`
+    RouteSwapType int                   `json:"routeSwapType"`
+    InputToken   map[string]interface{} `json:"inputToken"`
+    InputAmount  string                 `json:"inputAmount"`
+    OutputToken  map[string]interface{} `json:"outputToken"`
+    OutputAmount string                 `json:"outputAmount"`
+    Route        []interface{}          `json:"route"`
+}
+
+type Payload struct {
+    Route       Route   `json:"route"`
+    Slippage    float64 `json:"slippage"`
+    Destination string  `json:"destination"`
+}
+
+func main() {
+    url := "https://api.fibrous.finance/{network}/v2/calldata"
+    
+    route := Route{
+        Success:      true,
+        RouteSwapType: 0,
+        InputToken: map[string]interface{}{
+            "name":     "Wrapped Ether",
+            "address":  "0x4200000000000000000000000000000000000006",
+            "decimals": 18,
+            "price":    2949.717076112869,
+        },
+        InputAmount: "1000000000000000000",
+        OutputToken: map[string]interface{}{
+            "name":     "USD Coin",
+            "address":  "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "decimals": 6,
+            "price":    0.999597487941284,
+        },
+        OutputAmount: "2951108576",
+        Route:        []interface{}{},
+    }
+    
+    payload := Payload{
+        Route:       route,
+        Slippage:    0.5,
+        Destination: "0x1234567890123456789012345678901234567890",
+    }
+    
+    jsonData, err := json.Marshal(payload)
+    if err != nil {
+        panic(err)
+    }
+    
+    req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+    if err != nil {
+        panic(err)
+    }
+    
+    req.Header.Set("Content-Type", "application/json")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Response:", string(body))
+}
+```
+</RequestExample>
+
+<ResponseExample>
 
 ```json
 {
   "route": {
-    "token_in": "0x0000000000000000000000000000000000000000",
-    "token_out": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+    "token_in": "0x4200000000000000000000000000000000000006",
+    "token_out": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     "amount_in": "1000000000000000000",
-    "amount_out": "1000000000000000000",
-    "min_received": "995000000000000000",
-    "destination": "0x742d35cc6634c0532925a3b844bc9e7595f0beb",
+    "amount_out": "2951108576",
+    "min_received": "2936407033",
+    "destination": "0x1234567890123456789012345678901234567890",
     "swap_type": 0
   },
-  "swap_parameters": [],
+  "swap_parameters": [
+    {
+      "token_in": "0x4200000000000000000000000000000000000006",
+      "token_out": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "rate": "2951108576",
+      "protocol_id": "3",
+      "pool_address": "0xb2cc224c1c9fee385f8ad6a55b4d94e92359dc59",
+      "swap_type": 0,
+      "extra_data": "0x0064"
+    }
+  ],
   "router_address": "0x274602a953847d807231d2370072f5f4e4594b44",
   "meta": {
     "apiVersion": "2.0",
-    "timestamp": "2024-01-15T10:30:00.000Z"
+    "timestamp": "2026-01-24T21:46:40.000Z"
   }
 }
 ```
@@ -298,6 +439,7 @@ print(f"Router Address: {data['router_address']}")
   "details": "Slippage must be between 0 and 49"
 }
 ```
+</ResponseExample>
 
 ## Related Endpoints
 

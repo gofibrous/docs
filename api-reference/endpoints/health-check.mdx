@@ -21,9 +21,9 @@ The Health Check endpoint allows you to verify the API status and check if a spe
     https://api.fibrous.finance/hyperevm/healthcheck
     ```
   </Tab>
-  <Tab title="Scroll">
+  <Tab title="Citrea">
     ```bash
-    https://api.fibrous.finance/scroll/healthcheck
+    https://api.fibrous.finance/citrea/healthcheck
     ```
   </Tab>
   <Tab title="Monad">
@@ -129,7 +129,7 @@ check_health('base')
 ```javascript
 class FibrousClient {
   constructor() {
-    this.networks = ['base', 'hyperevm', 'scroll', 'starknet'];
+    this.networks = ['base', 'hyperevm', 'citrea', 'starknet'];
   }
   
   async getHealthyNetwork() {

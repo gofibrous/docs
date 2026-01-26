@@ -1,15 +1,15 @@
 ---
 title: 'Execute Parameters'
-description: 'Parameters for executing swaps through Fibrous Finance on Scroll'
+description: 'Parameters for executing swaps through Fibrous on Citrea'
 ---
 
-https://api.fibrous.finance/scroll
+https://api.fibrous.finance/citrea
 
 | Parameter name | Type | Description |
 |---------------|------|-------------|
-| amount * | string | amount of a token to sell, for 1 eth set as `1000000000000000000` |
-| tokenInAddress * | string | contract address of a token to sell e.g.: `0x5300000000000000000000000000000000000004` |
-| tokenOutAddress * | string | contract address of a token to buy e.g.: `0x06eFdBF3B1ab11D8CDE82B0FA792D4cE44dBE550` |
+| amount * | string | amount of a token to sell, for 1 cBTC set as `1000000000000000000` (18 decimals) |
+| tokenInAddress * | string | contract address of a token to sell e.g.: `0x0000000000000000000000000000000000000000` |
+| tokenOutAddress * | string | contract address of a token to buy e.g.: `0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839` |
 | slippage * | integer | slippage=0.5 means 0.5% slippage is acceptable. Low values increase chances that transaction will fail, high values increase chances of front running. |
 | destination * | string | The receiver address for the output token |
 | reverse | boolean | Default `false`, it's not supported yet. |
@@ -22,4 +22,4 @@ This is where you list the IDs of the AMMs you don't want to include. For exampl
 ### supportPairs ↗
 This function returns a list of supported AMMs, along with the AMM IDs.
 
-Returns data with best route to transaction via Fibrous Finance 
+Returns data with best route to transaction via Fibrous 

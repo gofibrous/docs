@@ -1,11 +1,11 @@
 ---
 title: "Overview"
-description: "Overview of the Scroll API endpoints and common concepts"
+description: "Overview of the Citrea API endpoints and common concepts"
 ---
 
-# Scroll API Overview
+# Citrea API Overview
 
-Welcome to the Scroll API documentation. Our API provides powerful endpoints for finding optimal trading routes and executing swaps on Scroll network.
+Welcome to the Citrea API documentation. Our API provides powerful endpoints for finding optimal trading routes and executing swaps on Citrea network.
 
 ETH addresses accepted by the API are listed below:
 
@@ -14,10 +14,10 @@ ETH addresses accepted by the API are listed below:
 | ETH   | 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE |
 | ETH   | 0x0000000000000000000000000000000000000000 |
 
-## Scroll URL
+## Citrea URL
 
 ```bash
-https://api.fibrous.finance/scroll
+https://api.fibrous.finance/citrea
 ```
 
 ## Common Concepts
@@ -32,13 +32,13 @@ Please refer to our [Rate Limit](/api-reference/rate-limit) documentation for de
 
 ### Common Token Addresses
 
-Here are some commonly used token addresses on Scroll:
+Here are some commonly used token addresses on Citrea:
 
 | Token | Address                                    | Decimals |
 | ----- | ------------------------------------------ | -------- |
-| ETH   | 0x0000000000000000000000000000000000000000 | 18       |
-| USDC  | 0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4 | 6        |
-| WETH  | 0x5300000000000000000000000000000000000004 | 18       |
+| cBTC  | 0x0000000000000000000000000000000000000000 | 18       |
+| wcBTC | 0x3100000000000000000000000000000000000006 | 18       |
+| USDC.e| 0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839 | 6        |
 
 ### Response Codes
 
@@ -90,19 +90,19 @@ Here's a complete example of how to perform a swap using our API:
 1. First, get the optimal route:
 
 ```bash
-curl -X GET "https://api.fibrous.finance/scroll/route" \
+curl -X GET "https://api.fibrous.finance/citrea/route" \
   -H "Content-Type: application/json" \
   -d '{
-    "amount": "1000000000000000000",  # 1 ETH
+    "amount": "1000000000000000000",  # 1 cBTC (18 decimals)
     "tokenInAddress": "0x0000000000000000000000000000000000000000",
-    "tokenOutAddress": "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4"
+    "tokenOutAddress": "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839"
   }'
 ```
 
 2. Then, get the execution calldata:
 
 ```bash
-curl -X POST "https://api.fibrous.finance/scroll/execute" \
+curl -X POST "https://api.fibrous.finance/citrea/execute" \
   -H "Content-Type: application/json" \
   -d '{
     "route": { ... },
@@ -113,19 +113,19 @@ curl -X POST "https://api.fibrous.finance/scroll/execute" \
 
 3. Finally, execute the transaction using the returned calldata with your preferred Web3 library.
 
-## Scroll-Specific Features
+## Citrea-Specific Features
 
-### Zero-Knowledge Proofs
+### Bitcoin's First ZK Rollup
 
-Scroll is a zkEVM Layer 2 solution that uses zero-knowledge proofs to ensure transaction validity while maintaining Ethereum's security guarantees.
+Citrea is Bitcoin's first ZK rollup that enhances Bitcoin blockspace with zero-knowledge technology, making it possible to build everything on Bitcoin.
 
-### EVM Equivalence
+### Bitcoin Settlement Layer
 
-Scroll is EVM equivalent, meaning existing Ethereum tools and contracts work seamlessly without modification.
+Citrea uses Bitcoin as a settlement layer via its BitVM-based trust-minimized two-way bridge, Clementine, while maintaining full EVM compatibility.
 
-### Lower Fees
+### EVM Compatibility
 
-Enjoy significantly lower transaction fees compared to Ethereum mainnet while maintaining security through zkEVM technology.
+Citrea is fully EVM compatible (Type 2 zkEVM), enabling all EVM developers to easily build on Bitcoin. The rollup keeps settlement and data availability on-chain, on Bitcoin, while providing a modular execution layer.
 
 ## Need Help?
 

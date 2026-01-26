@@ -86,7 +86,7 @@ Find the optimal trading route through Fibrous' integrated liquidity sources to 
 </ParamField>
 
 <Warning>
-  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps, integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
@@ -202,16 +202,12 @@ Find the optimal trading route through Fibrous' integrated liquidity sources to 
   </Expandable>
 </ResponseField>
 
-## Example Request
-
-<CodeGroup>
-
+<RequestExample>
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/{network}/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a" \
+  "https://api.fibrous.finance/{network}/v2/route?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" \
   --header "Accept: */*"
 ```
-
 
 ```javascript JavaScript
 const axios = require('axios');
@@ -219,12 +215,12 @@ const axios = require('axios');
 const params = {
   amount: '1000000000000000000',
   tokenInAddress: '0x0000000000000000000000000000000000000000',
-  tokenOutAddress: '0x3bd359c1119da7da1d913d1c4d2b7c461115433a'
+  tokenOutAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
 };
 
 // Optional: Add API key for integrator features
 const headers = {
-  'X-API-Key': 'your-api-key-here' // optional
+  'X-API-Key': 'your-api-key-here'
 };
 
 axios.get('https://api.fibrous.finance/{network}/v2/route', { params, headers })
@@ -235,7 +231,6 @@ axios.get('https://api.fibrous.finance/{network}/v2/route', { params, headers })
   .catch(error => console.error(error));
 ```
 
-
 ```python Python
 import requests
 
@@ -244,7 +239,7 @@ url = "https://api.fibrous.finance/{network}/v2/route"
 params = {
     "amount": "1000000000000000000",
     "tokenInAddress": "0x0000000000000000000000000000000000000000",
-    "tokenOutAddress": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a"
+    "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 }
 
 # Optional: Add API key for integrator features
@@ -258,45 +253,224 @@ print(f"API Version: {data['meta']['apiVersion']}")
 print(data)
 ```
 
-</CodeGroup>
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
-## Example Response
+public class FibrousRoute {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fibrous.finance/{network}/v2/route";
+        String params = "amount=1000000000000000000" +
+                       "&tokenInAddress=0x0000000000000000000000000000000000000000" +
+                       "&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl + "?" + params))
+            .header("Accept", "*/*")
+            // Optional: Add API key for integrator features
+            .header("X-API-Key", "your-api-key-here")
+            .GET()
+            .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "net/url"
+)
+
+func main() {
+    baseURL := "https://api.fibrous.finance/{network}/v2/route"
+    
+    params := url.Values{}
+    params.Add("amount", "1000000000000000000")
+    params.Add("tokenInAddress", "0x0000000000000000000000000000000000000000")
+    params.Add("tokenOutAddress", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
+    
+    req, err := http.NewRequest("GET", baseURL+"?"+params.Encode(), nil)
+    if err != nil {
+        panic(err)
+    }
+    
+    req.Header.Set("Accept", "*/*")
+    // Optional: Add API key for integrator features
+    req.Header.Set("X-API-Key", "your-api-key-here")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Response:", string(body))
+}
+```
+</RequestExample>
+
+<ResponseExample>
 
 ```json
 {
   "success": true,
   "routeSwapType": 0,
   "inputToken": {
-    "name": "Monad",
-    "address": "0x0000000000000000000000000000000000000000",
+    "name": "Wrapped Ether",
+    "address": "0x4200000000000000000000000000000000000006",
     "decimals": 18,
-    "price": 0
+    "price": 2949.717076112869
   },
   "inputAmount": "1000000000000000000",
   "outputToken": {
-    "name": "Wrapped Monad",
-    "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
-    "decimals": 18,
-    "price": 0
+    "name": "USD Coin",
+    "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "decimals": 6,
+    "price": 0.999597487941284
   },
-  "outputAmount": "1000000000000000000",
+  "outputAmount": "2951108576",
+  "time": 3.285,
   "estimatedGasUsed": "0",
   "estimatedGasUsedInUsd": 0,
-  "route": [],
-  "time": 0,
+  "route": [
+    {
+      "percent": "35%",
+      "swaps": [
+        [
+          {
+            "protocol": 3,
+            "poolName": "Aerodrome Slipstream",
+            "poolAddress": "0xb2cc224c1c9fee385f8ad6a55b4d94e92359dc59",
+            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "48.57%",
+            "extraData": {
+              "tickSpacing": 100
+            }
+          },
+          {
+            "protocol": 9,
+            "poolName": "PancakeSwap V3",
+            "poolAddress": "0x72ab388e2e2f6facef59e3c3fa2c4e29011c2d38",
+            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "51.43%",
+            "extraData": {
+              "fee": 100
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "percent": "65%",
+      "swaps": [
+        [
+          {
+            "protocol": 3,
+            "poolName": "Aerodrome Slipstream",
+            "poolAddress": "0x70acdf2ad0bf2402c957154f944c19ef4e1cbae1",
+            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+            "toTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "percent": "53.00%",
+            "extraData": {
+              "tickSpacing": 100
+            }
+          },
+          {
+            "protocol": 9,
+            "poolName": "PancakeSwap V3",
+            "poolAddress": "0xc211e1f853a898bd1302385ccde55f33a8c4b3f3",
+            "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+            "toTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "percent": "47.00%",
+            "extraData": {
+              "fee": 100
+            }
+          }
+        ],
+        [
+          {
+            "protocol": 9,
+            "poolName": "PancakeSwap V3",
+            "poolAddress": "0xb94b22332abf5f89877a14cc88f2abc48c34b3df",
+            "fromTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "75.00%",
+            "extraData": {
+              "fee": 100
+            }
+          },
+          {
+            "protocol": 52,
+            "poolName": "Hydrex",
+            "poolAddress": "0x0ba69825c4c033e72309f6ac0bde0023b15cc97c",
+            "fromTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "6.00%",
+            "extraData": null
+          },
+          {
+            "protocol": 57,
+            "poolName": "Quickswap Algebra",
+            "poolAddress": "0xacc2874ed22e811afdc47979c7b7985cced53b29",
+            "fromTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "18.00%",
+            "extraData": null
+          },
+          {
+            "protocol": 55,
+            "poolName": "PancakeSwap Infinity",
+            "poolAddress": "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
+            "fromTokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+            "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+            "percent": "1.00%",
+            "extraData": {
+              "poolId": "0x2a597b8f49af109cebd39704508265dc0083b4bf95ff4b184fb082ae7d71192e",
+              "token0": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+              "token1": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+              "fee": 61,
+              "tickSpacing": 1,
+              "hooks": "0x0000000000000000000000000000000000000000"
+            }
+          }
+        ]
+      ]
+    }
+  ],
   "bestQuotesByProtocols": [],
   "initial": false,
   "meta": {
     "apiVersion": "2.0",
-    "timestamp": "2024-01-15T10:30:00.000Z"
+    "timestamp": "2026-01-24T21:46:39.518Z"
   }
 }
 ```
+</ResponseExample>
 
 ## Integrator Features
 
 <Warning>
-  **API Key Required**: To use integrator features, partners must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
+  **API Key Required**: To use integrator features, partners must obtain an API key from Fibrous. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key.
 </Warning>
 
 To use integrator features, include your API key in the request headers:

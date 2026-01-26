@@ -9,12 +9,12 @@ Fibrous Router API is a cutting-edge discovery and routing algorithm that offers
 
 ## Supported Networks
 
-Fibrous Finance API is available on multiple blockchain networks:
+Fibrous API is available on multiple blockchain networks:
 
 - **Starknet** - Cairo-based Layer 2 with batch operations support
 - **Base** - Optimistic rollup on Ethereum with low fees
 - **HyperEVM** - High-performance EVM chain with ultra-fast execution
-- **Scroll** - zkEVM Layer 2 solution with zero-knowledge proofs
+- **Citrea** - Bitcoin's first ZK rollup with EVM compatibility
 - **Monad** - High-performance Layer 1 with parallel execution
 
 For detailed network information, see [Supported Chains](/api-reference/chains-tokens-contracts/supported-chains).
@@ -93,7 +93,7 @@ All endpoints follow the pattern: `/{network}/{endpoint}`
 **Examples:**
 - `https://api.fibrous.finance/base/v2/route`
 - `https://api.fibrous.finance/hyperevm/v2/execute`
-- `https://api.fibrous.finance/scroll/v2/calldata`
+- `https://api.fibrous.finance/citrea/v2/calldata`
 - `https://api.fibrous.finance/starknet/route`
 - `https://api.fibrous.finance/monad/v2/route` (V2 API)
 
@@ -102,7 +102,7 @@ All endpoints follow the pattern: `/{network}/{endpoint}`
 No authentication is required to use the Fibrous Router API. However, rate limits apply to ensure fair usage. 
 
 <Warning>
-**API Key Required for Integrator Features**: Partners who want to use integrator features (fee or surplus sharing) on V2 API must obtain an API key from Fibrous Finance. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key. API keys also provide higher rate limits.
+**API Key Required for Integrator Features**: Partners who want to use integrator features (fee or surplus sharing) on V2 API must obtain an API key from Fibrous. Contact us at [contact@fibrous.finance](mailto:contact@fibrous.finance) or join our [Discord](https://discord.gg/fibrous) to request an API key. API keys also provide higher rate limits.
 </Warning>
 
 <Card title="Rate Limits" icon="gauge" href="/api-reference/rate-limit">

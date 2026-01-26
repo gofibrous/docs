@@ -1,11 +1,11 @@
 ---
 title: "Supported Tokens & Routes"
-description: "Fibrous Finance supports token swaps across multiple chains with comprehensive token coverage"
+description: "Fibrous supports token swaps across multiple chains with comprehensive token coverage"
 ---
 
 # Supported Tokens & Routes
 
-Fibrous Finance aggregates liquidity from multiple DEX protocols on each supported chain, enabling optimal token swaps with the best possible rates.
+Fibrous aggregates liquidity from multiple DEX protocols on each supported chain, enabling optimal token swaps with the best possible rates.
 
 ## Token Support Overview
 
@@ -13,7 +13,7 @@ Fibrous Finance aggregates liquidity from multiple DEX protocols on each support
 |-------|--------------|
 | **Starknet** | ETH |
 | **Base** | ETH |
-| **Scroll** | ETH |
+| **Citrea** | cBTC |
 | **HyperEVM** | HYPE |
 | **Monad** | MON |
 
@@ -44,17 +44,16 @@ Fibrous Finance aggregates liquidity from multiple DEX protocols on each support
   Base accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native ETH.
 </Tip>
 
-### Scroll
+### Citrea
 
 | Token | Symbol | Address | Decimals |
 |-------|--------|---------|----------|
-| Ether | ETH | `0x0000000000000000000000000000000000000000` | 18 |
-| USD Coin | USDC | `0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4` | 6 |
-| Wrapped Ether | WETH | `0x5300000000000000000000000000000000000004` | 18 |
-| Tether USD | USDT | `0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df` | 6 |
+| Citrea Bitcoin | cBTC | `0x0000000000000000000000000000000000000000` | 18 |
+| Wrapped Citrea Bitcoin | wcBTC | `0x3100000000000000000000000000000000000006` | 18 |
+| Bridged USD Coin | USDC.e | `0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839` | 6 |
 <Tip>
-  Scroll accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native ETH.
-    </Tip>  
+  Citrea accepts `0x0000000000000000000000000000000000000000` for native cBTC. wcBTC is the wrapped version of cBTC.
+</Tip>  
 ### HyperEVM
 
 | Token | Symbol | Address | Decimals |
@@ -179,33 +178,26 @@ Fibrous aggregates liquidity from multiple DEX protocols on each chain. You can 
     **Available Sources:** HyperSwap (V2, V2 Stable, V3), KittenSwap (V2, V2 Stable, V3, Algebra V4), Laminar (V2, V3), Ramses (CL, V3), Project X, Hybra Finance (V2, V2 Stable, V3, V4), Hyper Cat V3, GLiquid V3, Curve (TwoCrypto, Stable, TriCrypto), Balancer (Gyro ECLP, ReCCLAMM, Stable, Stable Surge, Weighted, LB Pool), HyperBrick LB, Valantis, BrownFi V2, Upheaval V3, UltraSolid (V2, V3), RingSwap, Funnel (V1, V2), SpinUp (V2, Stable)
   </Tab>
   
-  <Tab title="Scroll">
+  <Tab title="Citrea">
     ```bash
-    curl https://graph.fibrous.finance/scroll/protocols
+    curl https://graph.fibrous.finance/citrea/protocols
     ```
     
     **Example Response:**
     ```json
     [
       {
-        "amm_name": "syncSwapStable",
+        "amm_name": "protocolName",
         "protocol": 1,
-        "type": "Stable",
-        "display_name": "SyncSwap Stable",
-        "image_url": "https://raw.githubusercontent.com/..."
-      },
-      {
-        "amm_name": "uniswapV3",
-        "protocol": 10,
         "type": "V3",
-        "display_name": "Uniswap CL",
+        "display_name": "Protocol Name",
         "image_url": "https://raw.githubusercontent.com/..."
       }
-      // ... more protocols
+      // ... more protocols (will be available at launch)
     ]
     ```
     
-    **Available Sources:** SyncSwap (Stable, Classic), SkyDrome (Classic, Stable), Metavault (V2, V3), SpaceFi V2, Dodo (DPP, DSP, DVM, CP), Sushi (V2, V3), Zebra V2, Uniswap V3, KyberSwap (Classic, Elastic), Nuri Exchange, PancakeSwap V3, Izumi (Classic, V3), Zada Fi, Oku Trade V3, Keller V3
+    **Available Sources:** Protocol information will be available once Citrea mainnet launches.
   </Tab>
   
   <Tab title="Monad">

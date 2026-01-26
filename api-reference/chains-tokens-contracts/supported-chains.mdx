@@ -1,6 +1,6 @@
 ---
 title: "Supported Chains"
-description: "Fibrous Finance is currently supported on the following blockchain networks"
+description: "Fibrous is currently supported on the following blockchain networks"
 ---
 
 # Supported Chains
@@ -13,7 +13,7 @@ Fibrous Finance provides optimal token swap routing across multiple blockchain n
 | ------------ | -------- | ---------- |
 | **Starknet** | SN_MAIN  | `starknet` |
 | **Base**     | 8453     | `base`     |
-| **Scroll**   | 534352   | `scroll`   |
+| **Citrea**   | 4114     | `citrea`   |
 | **HyperEVM** | 998      | `hyperevm` |
 | **Monad**    | 143      | `monad`    |
 
@@ -85,36 +85,38 @@ Fibrous Finance provides optimal token swap routing across multiple blockchain n
       Base accepts both `0x0000000000000000000000000000000000000000` and `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native ETH.
     </Tip>
   </Accordion>
-  <Accordion title="Scroll" icon="scroll">
+  <Accordion title="Citrea" icon="scroll">
     ### Overview
 
-    Scroll is a zkEVM Layer 2 solution that uses zero-knowledge proofs to ensure transaction validity.
+    Citrea is Bitcoin's first ZK rollup that enhances Bitcoin blockspace with zero-knowledge technology. It uses Bitcoin as a settlement layer via its BitVM-based trust-minimized two-way bridge, Clementine, while maintaining full EVM compatibility.
 
     ### Key Features
 
-    - **VM Type**: zkEVM (EVM Equivalent)
-    - **Native Token**: ETH
-    - **Block Time**: ~3 seconds
-    - **Unique Features**: Zero-knowledge proofs, EVM equivalence
+    - **VM Type**: Type 2 zkEVM (EVM Equivalent)
+    - **Native Token**: cBTC
+    - **Block Time**: TBD
+    - **Unique Features**: Bitcoin settlement layer, zero-knowledge proofs, full EVM compatibility, BitVM-based bridge
 
     ### Network Information
 
-    - **Chain ID**: 534352
-    - **RPC Endpoint**: `https://rpc.scroll.io`
-    - **Explorer**: [Scrollscan](https://scrollscan.com)
-    - **API Base URL**: `https://api.fibrous.finance/scroll/{version}`
+    - **Chain ID**: 4114
+    - **RPC Endpoint**: TBD
+    - **Explorer**: [Citrea Explorer](https://explorer.mainnet.citrea.xyz)
+    - **API Base URL**: `https://api.fibrous.finance/citrea/{version}`
     - **Latest API Version**: `v2`
+    - **Website**: [Citrea](https://citrea.xyz)
+    - **Router Address**: `0x274602a953847d807231d2370072F5f4E4594B44` [View on Explorer](https://explorer.mainnet.citrea.xyz/address/0x274602a953847d807231d2370072F5f4E4594B44)
 
     ### Common Tokens
 
     | Token | Address                                      | Decimals |
     | ----- | -------------------------------------------- | -------- |
-    | ETH   | `0x0000000000000000000000000000000000000000` | 18       |
-    | USDC  | `0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4` | 6        |
-    | WETH  | `0x5300000000000000000000000000000000000004` | 18       |
+    | cBTC  | `0x0000000000000000000000000000000000000000` | 18       |
+    | wcBTC | `0x3100000000000000000000000000000000000006` | 18       |
+    | USDC.e| `0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839` | 6        |
 
     <Note>
-      Scroll is EVM equivalent, meaning existing Ethereum tools work seamlessly without modification.
+      Citrea is fully EVM compatible (Type 2 zkEVM), enabling all EVM developers to easily build on Bitcoin. The rollup keeps settlement and data availability on-chain, on Bitcoin, while providing a modular execution layer.
     </Note>
   </Accordion>
   <Accordion title="HyperEVM" icon="bolt">
@@ -206,7 +208,7 @@ const chains = fibrous.supportedChains;
 // Supported chains:
 // - starknet (SN_MAIN)
 // - base (8453)
-// - scroll (534352)
+// - citrea (4114)
 // - hyperevm (998)
 // - monad (41454)
 ```
@@ -217,7 +219,7 @@ Router contracts are deployed on all supported chains. See [Contract Addresses](
 
 ## Adding New Chains
 
-Interested in adding Fibrous Finance to your chain? We're always looking to expand to new networks.
+Interested in adding Fibrous to your chain? We're always looking to expand to new networks.
 
 <Card title="Contact Us" icon="envelope" href="mailto:contact@fibrous.finance">
   Reach out to learn more about adding Fibrous to your chain

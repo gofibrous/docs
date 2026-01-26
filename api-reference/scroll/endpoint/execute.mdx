@@ -1,21 +1,21 @@
 ---
 title: 'Execute'
-description: 'Execute a swap using the optimal route found through Fibrous Finance on Scroll'
-api: 'POST /scroll/execute'
+description: 'Execute a swap using the optimal route found through Fibrous on Citrea'
+api: 'POST /citrea/execute'
 ---
 
 <CodeGroup>
 ```bash
-https://api.fibrous.finance/scroll/execute
+https://api.fibrous.finance/citrea/execute
 ```
 </CodeGroup>
 
-Execute a token swap using the optimal route previously found through the route endpoint. This endpoint handles the actual transaction execution and ensures the swap is performed with the best possible outcome on Scroll.
+Execute a token swap using the optimal route previously found through the route endpoint. This endpoint handles the actual transaction execution and ensures the swap is performed with the best possible outcome on Citrea.
 
 ## Request Body Parameters
 
 <ParamField body="route" type="object" required>
-  The route object returned from the `/scroll/route` endpoint.
+  The route object returned from the `/citrea/route` endpoint.
   This contains all necessary information about the swap path and expected outcomes.
 </ParamField>
 

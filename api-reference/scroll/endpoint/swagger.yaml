@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "paths": {
-        "/scroll/healthCheck": {
+        "/citrea/healthCheck": {
             "get": {
                 "operationId": "RouterController_healthCheck",
                 "summary": "Ping the router to see if it's alive or just pretending to work",
@@ -16,11 +16,11 @@
                 ]
             }
         },
-        "/scroll/route": {
+        "/citrea/route": {
             "get": {
                 "operationId": "RouterController_route",
-                "summary": "Find the magical money path through the DeFi jungle of Fibrous Finance",
-                "description": "Find the optimal trading route through Fibrous Finance's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.",
+                "summary": "Find the magical money path through the DeFi jungle of Fibrous",
+                "description": "Find the optimal trading route through Fibrous's liquidity pools to maximize output and minimize slippage. This endpoint analyzes multiple protocols, pool depths, and potential paths to deliver the most efficient swap execution for your tokens.",
                 "parameters": [
                     {
                         "name": "amount",
@@ -35,7 +35,7 @@
                         "name": "tokenInAddress",
                         "required": true,
                         "in": "query",
-                        "example": "0x5300000000000000000000000000000000000004",
+                        "example": "0x0000000000000000000000000000000000000000",
                         "schema": {
                             "type": "string"
                         }
@@ -44,7 +44,7 @@
                         "name": "tokenOutAddress",
                         "required": true,
                         "in": "query",
-                        "example": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
+                        "example": "0xe045e6c36cf77faa2cfb54466d71a3aef7bbe839",
                         "schema": {
                             "type": "string"
                         }
@@ -96,10 +96,10 @@
                 ]
             }
         },
-        "/scroll/execute": {
+        "/citrea/execute": {
             "post": {
                 "operationId": "RouterController_execute",
-                "summary": "Generate calldata for the Fibrous Finance router contract for swap",
+                "summary": "Generate calldata for the Fibrous router contract for swap",
                 "description": "Like a financial GPS on steroids - finds the magical money path through DeFi jungle, squeezes every penny out of your swap, and hands you the secret incantation (calldata) to summon the Fibrous Router contract. No wizardry degree required!\n     **TLDR: Find the best route and return the calldata to execute the swap**",
                 "parameters": [
                     {
@@ -115,7 +115,7 @@
                         "name": "tokenInAddress",
                         "required": true,
                         "in": "query",
-                        "example": "0x5300000000000000000000000000000000000004",
+                        "example": "0x0000000000000000000000000000000000000000",
                         "schema": {
                             "type": "string"
                         }
@@ -188,7 +188,7 @@
                 ]
             }
         },
-        "/scroll/calldata": {
+        "/citrea/calldata": {
             "post": {
                 "operationId": "RouterController_calldata",
                 "parameters": [],
@@ -242,11 +242,11 @@
                     },
                     "tokenInAddress": {
                         "type": "string",
-                        "example": "0x5300000000000000000000000000000000000004"
+                        "example": "0x0000000000000000000000000000000000000000"
                     },
                     "tokenOutAddress": {
                         "type": "string",
-                        "example": "0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4"
+                        "example": "0xe045e6c36cf77faa2cfb54466d71a3aef7bbe839"
                     },
                     "reverse": {
                         "type": "boolean",

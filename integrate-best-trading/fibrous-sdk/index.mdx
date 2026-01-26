@@ -14,7 +14,7 @@ Fibrous Router SDK is a TypeScript library that provides a simple and efficient 
     Full TypeScript support with comprehensive type definitions
   </Card>
   <Card title="Multi-Chain" icon="network-wired">
-    Single interface for Base, HyperEVM, Scroll, Monad, and Starknet
+    Single interface for Base, HyperEVM, Citrea, Monad, and Starknet
   </Card>
   <Card title="Easy Integration" icon="plug">
     Simple API that abstracts away complex routing logic
@@ -32,7 +32,7 @@ The SDK supports the following blockchain networks:
 | ------------ | -------- |
 | **Starknet** | SN_MAIN  |
 | **Base**     | 8453     |
-| **Scroll**   | 534352   |
+| **Citrea**   | 4114     |
 | **HyperEVM** | 998      |
 | **Monad**    | 143      |
 
@@ -229,16 +229,16 @@ async function swapTokens() {
     });
     ```
   </Tab>
-  <Tab title="Scroll">
+  <Tab title="Citrea">
     ```typescript
     const fibrous = new FibrousRouter({ apiVersion: "v2" });
     const chains = await fibrous.refreshSupportedChains();
-    const chainId = chains.find(chain => chain.chain_name == "scroll")?.chain_id;
+    const chainId = chains.find(chain => chain.chain_name == "citrea")?.chain_id;
     
     const route = await fibrous.getBestRoute({
       amount: BigInt(parseUnits("1", 18)),
-      tokenInAddress: "0x0000000000000000000000000000000000000000", // ETH
-      tokenOutAddress: "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4", // USDC
+      tokenInAddress: "0x0000000000000000000000000000000000000000", // cBTC
+      tokenOutAddress: "0xE045e6c36cF77FAA2CfB54466D71A3aEF7bbE839", // USDC.e
       chainId,
     });
     ```

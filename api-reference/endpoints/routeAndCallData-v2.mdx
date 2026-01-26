@@ -81,7 +81,7 @@ Find the optimal trading route through Fibrous' integrated liquidity sources and
 </ParamField>
 
 <Warning>
-  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps or integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous Finance to use these monetization features. Include the API key in the request headers as `X-API-Key`.
+  **API Key Required**: Integrator features (integratorAddress, integratorFeePercentageBps or integratorSurplusPercentageBps) require an API key. Partners must obtain an API key from Fibrous to use these monetization features. Include the API key in the request headers as `X-API-Key`.
 </Warning>
 
 ## Response
@@ -189,13 +189,11 @@ Find the optimal trading route through Fibrous' integrated liquidity sources and
   </Expandable>
 </ResponseField>
 
-## Example Request
-
-<CodeGroup>
+<RequestExample>
 
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x3bd359c1119da7da1d913d1c4d2b7c461115433a&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
+  "https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
   --header "Accept: */*"
 ```
 
@@ -206,9 +204,9 @@ const axios = require('axios');
 const params = {
   amount: '1000000000000000000',
   tokenInAddress: '0x0000000000000000000000000000000000000000',
-  tokenOutAddress: '0x3bd359c1119da7da1d913d1c4d2b7c461115433a',
+  tokenOutAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   slippage: 0.5,
-  destination: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+  destination: '0x1234567890123456789012345678901234567890'
 };
 
 axios.get('https://api.fibrous.finance/{network}/v2/routeAndCallData', { params })
@@ -230,9 +228,9 @@ url = "https://api.fibrous.finance/{network}/v2/routeAndCallData"
 params = {
     "amount": "1000000000000000000",
     "tokenInAddress": "0x0000000000000000000000000000000000000000",
-    "tokenOutAddress": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+    "tokenOutAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     "slippage": 0.5,
-    "destination": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+    "destination": "0x1234567890123456789012345678901234567890"
 }
 
 response = requests.get(url, params=params)
@@ -243,9 +241,81 @@ print(f"Router Address: {data['router_address']}")
 # Use data['calldata'] to execute transaction
 ```
 
-</CodeGroup>
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
-## Example Response
+public class FibrousRouteAndCallData {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fibrous.finance/{network}/v2/routeAndCallData";
+        String params = "amount=1000000000000000000" +
+                       "&tokenInAddress=0x0000000000000000000000000000000000000000" +
+                       "&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" +
+                       "&slippage=0.5" +
+                       "&destination=0x1234567890123456789012345678901234567890";
+        
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(baseUrl + "?" + params))
+            .header("Accept", "*/*")
+            .GET()
+            .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```go Go
+package main
+
+import (
+    "fmt"
+    "io"
+    "net/http"
+    "net/url"
+)
+
+func main() {
+    baseURL := "https://api.fibrous.finance/{network}/v2/routeAndCallData"
+    
+    params := url.Values{}
+    params.Add("amount", "1000000000000000000")
+    params.Add("tokenInAddress", "0x0000000000000000000000000000000000000000")
+    params.Add("tokenOutAddress", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
+    params.Add("slippage", "0.5")
+    params.Add("destination", "0x1234567890123456789012345678901234567890")
+    
+    req, err := http.NewRequest("GET", baseURL+"?"+params.Encode(), nil)
+    if err != nil {
+        panic(err)
+    }
+    
+    req.Header.Set("Accept", "*/*")
+    
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Println("Response:", string(body))
+}
+```
+</RequestExample>
+
+<ResponseExample>
 
 ```json
 {
@@ -253,49 +323,79 @@ print(f"Router Address: {data['router_address']}")
     "success": true,
     "routeSwapType": 0,
     "inputToken": {
-      "name": "Monad",
-      "address": "0x0000000000000000000000000000000000000000",
+      "name": "Wrapped Ether",
+      "address": "0x4200000000000000000000000000000000000006",
       "decimals": 18,
-      "price": 0
+      "price": 2949.717076112869
     },
     "inputAmount": "1000000000000000000",
     "outputToken": {
-      "name": "Wrapped Monad",
-      "address": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
-      "decimals": 18,
-      "price": 0
+      "name": "USD Coin",
+      "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "decimals": 6,
+      "price": 0.999597487941284
     },
-    "outputAmount": "1000000000000000000",
+    "outputAmount": "2951108576",
+    "time": 3.285,
     "estimatedGasUsed": "0",
     "estimatedGasUsedInUsd": 0,
-    "route": [],
-    "time": 0,
+    "route": [
+      {
+        "percent": "35%",
+        "swaps": [
+          [
+            {
+              "protocol": 3,
+              "poolName": "Aerodrome Slipstream",
+              "poolAddress": "0xb2cc224c1c9fee385f8ad6a55b4d94e92359dc59",
+              "fromTokenAddress": "0x4200000000000000000000000000000000000006",
+              "toTokenAddress": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+              "percent": "48.57%",
+              "extraData": {
+                "tickSpacing": 100
+              }
+            }
+          ]
+        ]
+      }
+    ],
     "bestQuotesByProtocols": [],
     "initial": false,
     "meta": {
       "apiVersion": "2.0",
-      "timestamp": "2024-01-15T10:30:00.000Z"
+      "timestamp": "2026-01-24T21:46:39.518Z"
     }
   },
   "calldata": {
     "route": {
-      "token_in": "0x0000000000000000000000000000000000000000",
-      "token_out": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+      "token_in": "0x4200000000000000000000000000000000000006",
+      "token_out": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       "amount_in": "1000000000000000000",
-      "amount_out": "1000000000000000000",
-      "min_received": "995000000000000000",
-      "destination": "0x742d35cc6634c0532925a3b844bc9e7595f0beb",
+      "amount_out": "2951108576",
+      "min_received": "2936407033",
+      "destination": "0x1234567890123456789012345678901234567890",
       "swap_type": 0
     },
-    "swap_parameters": []
+    "swap_parameters": [
+      {
+        "token_in": "0x4200000000000000000000000000000000000006",
+        "token_out": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "rate": "2951108576",
+        "protocol_id": "3",
+        "pool_address": "0xb2cc224c1c9fee385f8ad6a55b4d94e92359dc59",
+        "swap_type": 0,
+        "extra_data": "0x0064"
+      }
+    ]
   },
   "router_address": "0x274602a953847d807231d2370072f5f4e4594b44",
   "meta": {
     "apiVersion": "2.0",
-    "timestamp": "2024-01-15T10:30:00.000Z"
+    "timestamp": "2026-01-24T21:46:40.000Z"
   }
 }
 ```
+</ResponseExample>
 
 ## When to Use This Endpoint
 
