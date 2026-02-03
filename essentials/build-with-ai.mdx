@@ -1,0 +1,238 @@
+---
+title: "Build with AI"
+description: "Connect AI tools like Claude, Cursor, and ChatGPT to Fibrous documentation and API for faster integration development"
+---
+
+Fibrous documentation is AI-agent ready. AI coding assistants can search the docs in real time, understand the API structure, and help you build swap integrations faster. This works through three mechanisms: an **MCP server** for direct doc access, **llms.txt** for structured indexing, and **skill.md** for agent capability discovery.
+
+## What AI Tools Can Do with Fibrous
+
+<CardGroup cols={3}>
+  <Card title="Search Docs" icon="magnifying-glass">
+    AI tools search Fibrous docs in real time via MCP, getting accurate API specs instead of stale web results.
+  </Card>
+  <Card title="Generate Code" icon="code">
+    Ask your AI assistant to build a swap integration using the Fibrous V2 API or SDK with correct parameters and types.
+  </Card>
+  <Card title="Debug Integrations" icon="bug">
+    AI tools can look up error codes, rate limits, slippage guidance, and contract addresses directly from the docs.
+  </Card>
+</CardGroup>
+
+## Connect the Fibrous MCP Server
+
+Fibrous hosts an MCP server at `https://docs.fibrous.finance/mcp`. When connected, AI tools can search Fibrous documentation directly during conversations instead of relying on web search.
+
+<Tip>
+  You can also connect from any docs page using the contextual menu (top-right). Options include **Copy MCP server URL**, **Connect to Cursor**, and **Connect to VS Code**.
+</Tip>
+
+<Tabs>
+  <Tab title="Claude Code">
+    Run the following command to add the Fibrous MCP server:
+
+    ```bash
+    claude mcp add --transport http Fibrous https://docs.fibrous.finance/mcp
+    ```
+
+    Verify the connection:
+
+    ```bash
+    claude mcp list
+    ```
+
+    After adding, Claude Code can search Fibrous docs during any coding session. Try asking: *"Using the Fibrous API, how do I find the best route for swapping ETH to USDC on Base?"*
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    <Steps>
+      <Step title="Open Claude settings">
+        Navigate to the [Connectors](https://claude.ai/settings/connectors) page in the Claude settings.
+      </Step>
+      <Step title="Add the Fibrous connector">
+        Select **Add custom connector** and enter:
+        - **Name**: `Fibrous`
+        - **URL**: `https://docs.fibrous.finance/mcp`
+
+        Select **Add**.
+      </Step>
+      <Step title="Use in conversations">
+        When using Claude, select the attachments button (the plus icon) and enable the **Fibrous** connector. Claude will search Fibrous docs when relevant to your questions.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Cursor">
+    Open MCP settings with <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> and search for "Open MCP settings". Add the following to your `mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "Fibrous": {
+          "url": "https://docs.fibrous.finance/mcp"
+        }
+      }
+    }
+    ```
+
+    Test the connection by asking Cursor: *"What tools do you have available?"* -- it should list the Fibrous MCP server.
+  </Tab>
+
+  <Tab title="VS Code">
+    Create a `.vscode/mcp.json` file in your project and add:
+
+    ```json
+    {
+      "servers": {
+        "Fibrous": {
+          "type": "http",
+          "url": "https://docs.fibrous.finance/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Windsurf">
+    Open the MCP configuration in Windsurf settings and add:
+
+    ```json
+    {
+      "mcpServers": {
+        "Fibrous": {
+          "url": "https://docs.fibrous.finance/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="ChatGPT / Others">
+    ChatGPT and Perplexity do not support MCP natively. Instead:
+
+    - Use the **contextual menu** on any Fibrous docs page to open content directly in ChatGPT or Perplexity
+    - Paste `https://docs.fibrous.finance/llms.txt` into a conversation to give the AI an overview of all available documentation pages
+  </Tab>
+</Tabs>
+
+## llms.txt
+
+Fibrous hosts an AI-friendly documentation index at [`docs.fibrous.finance/llms.txt`](https://docs.fibrous.finance/llms.txt). This file lists every documentation page with descriptions, acting as a sitemap for AI tools.
+
+A full-content version is available at [`docs.fibrous.finance/llms-full.txt`](https://docs.fibrous.finance/llms-full.txt), containing the complete text of all pages in a single file.
+
+<Tip>
+  Paste the llms.txt URL into any AI chat to give it an overview of all Fibrous documentation pages. This works with any LLM, no MCP required.
+</Tip>
+
+## skill.md
+
+Fibrous hosts a capability descriptor at [`docs.fibrous.finance/skill.md`](https://docs.fibrous.finance/skill.md). This file tells AI agents what they can accomplish with Fibrous: find swap routes, generate calldata, check supported tokens and chains, and more.
+
+Agents that support skills (like Claude) can use this to understand Fibrous capabilities upfront, enabling them to proactively search the right documentation when helping you build integrations.
+
+<Note>
+  The skill.md is automatically generated from your documentation and stays up to date on every deploy.
+</Note>
+
+## Example: Build a Swap Integration with AI
+
+Here's a practical walkthrough of using an AI assistant with the Fibrous MCP server connected to build a complete swap integration.
+
+<Steps>
+  <Step title="Find the best route">
+    Ask your AI assistant:
+
+    > *Using the Fibrous V2 API, write a function that finds the best route to swap 1 ETH for USDC on Base network.*
+
+    The AI will search Fibrous docs and produce something like:
+
+    ```javascript
+    async function findRoute() {
+      const params = new URLSearchParams({
+        amount: '1000000000000000000', // 1 ETH in wei
+        tokenInAddress: '0x0000000000000000000000000000000000000000',
+        tokenOutAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      });
+
+      const response = await fetch(
+        `https://api.fibrous.finance/base/v2/route?${params}`
+      );
+      return response.json();
+    }
+    ```
+  </Step>
+
+  <Step title="Generate calldata and execute">
+    Follow up with:
+
+    > *Now get the route and calldata in a single call with 0.5% slippage and show me how to execute it with ethers.js.*
+
+    The AI will use the `routeAndCallData` V2 endpoint:
+
+    ```javascript
+    async function executeSwap(signer) {
+      const params = new URLSearchParams({
+        amount: '1000000000000000000',
+        tokenInAddress: '0x0000000000000000000000000000000000000000',
+        tokenOutAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        slippage: '0.5',
+        destination: await signer.getAddress(),
+      });
+
+      const response = await fetch(
+        `https://api.fibrous.finance/base/v2/routeAndCallData?${params}`
+      );
+      const data = await response.json();
+
+      const tx = await signer.sendTransaction({
+        to: data.router_address,
+        data: data.calldata,
+        value: data.calldata.route.swap_type === 0 ? data.calldata.route.amount_in : '0',
+      });
+
+      return tx.wait();
+    }
+    ```
+  </Step>
+
+  <Step title="Add error handling">
+    Ask:
+
+    > *Add token approval checking, rate limit handling, and error handling following Fibrous best practices.*
+
+    With MCP connected, the AI will pull recommendations from the [Integration Guide](/api-reference/integration-guide) -- slippage tables, error codes, rate limit backoff, and token approval patterns.
+  </Step>
+
+  <Step title="Use the SDK instead">
+    Try:
+
+    > *Rewrite this using the @fibrous/router SDK instead of raw API calls.*
+
+    The AI will reference the [SDK documentation](/integrate-best-trading/fibrous-sdk/index) and produce a cleaner integration using the TypeScript SDK.
+  </Step>
+</Steps>
+
+## Tips for Best Results
+
+- **Be specific about the network** -- Always mention the target chain (Base, Monad, Starknet, etc.) since each has different token addresses and contract formats.
+- **Specify V1 or V2** -- Tell the AI whether to use V2 endpoints (recommended for new integrations) or V1 for backward compatibility. Both are actively supported.
+- **Use the SDK for Starknet** -- Starknet uses a different transaction model (Cairo). The `@fibrous/router` SDK abstracts this, so direct the AI to use it for Starknet integrations.
+- **Ask about integrator features** -- If you want to monetize your integration, tell the AI to include `integratorAddress` and `integratorFeePercentageBps` parameters with API key authentication.
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Integration Guide" icon="book" href="/api-reference/integration-guide">
+    Complete integration guide with best practices for slippage, approvals, and error handling.
+  </Card>
+  <Card title="SDK Reference" icon="cube" href="/integrate-best-trading/fibrous-sdk/index">
+    TypeScript SDK documentation for @fibrous/router.
+  </Card>
+  <Card title="V2 Migration Guide" icon="arrow-up" href="/api-reference/v2-migration">
+    Upgrade from V1 to V2 endpoints with integrator support.
+  </Card>
+  <Card title="Supported Chains" icon="link" href="/api-reference/chains-tokens-contracts/supported-chains">
+    Networks, token addresses, and contract details.
+  </Card>
+</CardGroup>

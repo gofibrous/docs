@@ -6,7 +6,11 @@ api: "GET /{network}/route"
 
 ## Overview
 
-Route endpoint finds the optimal trading path through Fibrous 's integrated liquidity sources to maximize output and minimize slippage. This endpoint is available across all supported networks.
+<Info>
+  **V2 Available**: An enhanced version of this endpoint is available at `/{network}/v2/route` with integrator support, metadata, and API key features. See [Get Route V2](/api-reference/endpoints/route-v2) and the [V2 Migration Guide](/api-reference/v2-migration).
+</Info>
+
+Route endpoint finds the optimal trading path through Fibrous' integrated liquidity sources to maximize output and minimize slippage. This endpoint is available across all supported networks.
 
 ## Supported Networks
 
@@ -431,3 +435,5 @@ func main() {
 - [Execute](/api-reference/endpoints/execute) - Execute the swap using the route
 - [Calldata](/api-reference/endpoints/calldata) - Get transaction calldata
 - [Health Check](/api-reference/endpoints/health-check) - Check API status
+- [Get Route V2](/api-reference/endpoints/route-v2) - Enhanced route endpoint with integrator support
+- [V2 Migration Guide](/api-reference/v2-migration) - Migrate to V2 API

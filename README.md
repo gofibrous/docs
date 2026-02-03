@@ -1,32 +1,45 @@
-# Mintlify Starter Kit
+# Fibrous Finance Documentation
 
-Click on `Use this template` to copy the Mintlify starter kit. The starter kit contains examples including
+Official documentation for [Fibrous Finance](https://fibrous.finance) - a DEX aggregator providing optimal token swap routing across multiple blockchain networks.
 
-- Guide pages
-- Navigation
-- Customizations
-- API Reference pages
-- Use of popular components
+**Live docs**: [docs.fibrous.finance](https://docs.fibrous.finance)
 
-### Development
+## Supported Networks
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the documentation changes locally. To install, use the following command
+- **Starknet** - V1 API + dedicated Starknet endpoints
+- **Base** - V1 + V2 API
+- **Citrea** - V1 + V2 API
+- **HyperEVM** - V1 + V2 API
+- **Monad** - V2 API
 
-```
+## Development
+
+Install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview documentation changes locally.
+
+```bash
 npm i -g mintlify
 ```
 
-Run the following command at the root of your documentation (where docs.json is)
+Run the local dev server at the root of this repository (where `docs.json` is):
 
-```
+```bash
 mintlify dev
 ```
 
-### Publishing Changes
+## Publishing
 
-Install our Github App to auto propagate changes from your repo to your deployment. Changes will be deployed to production automatically after pushing to the default branch. Find the link to install on your dashboard. 
+Changes pushed to the default branch are automatically deployed via the Mintlify GitHub app.
 
-#### Troubleshooting
+## Structure
 
-- Mintlify dev isn't running - Run `mintlify install` it'll re-install dependencies.
-- Page loads as a 404 - Make sure you are running in a folder with `docs.json`
+- `docs.json` - Mintlify configuration (navigation, theme, API settings)
+- `essentials/` - Overview pages (FAQ, introduction)
+- `api-reference/` - API endpoint documentation (V1, V2, Starknet)
+- `fibrous-solutions/` - UI guides (interface, widget)
+- `integrate-best-trading/` - SDK reference and smart contracts
+- `external-links/` - Links to app, social media, GitHub
+
+## Troubleshooting
+
+- **Mintlify dev not running** - Run `mintlify install` to re-install dependencies
+- **Page loads as 404** - Make sure you are running in a folder with `docs.json`

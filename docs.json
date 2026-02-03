@@ -71,6 +71,7 @@
             "pages": [
               "api-reference/introduction",
               "api-reference/integration-guide",
+              "essentials/build-with-ai",
               "api-reference/rate-limit",
               "api-reference/errors"
             ]
