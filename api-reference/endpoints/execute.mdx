@@ -6,6 +6,10 @@ api: "POST /{network}/execute"
 
 ## Overview
 
+<Info>
+  **V2 Available**: This endpoint maps to `/{network}/v2/calldata` in V2, with integrator support and metadata. See [Calldata V2](/api-reference/endpoints/calldata-v2) and the [V2 Migration Guide](/api-reference/v2-migration).
+</Info>
+
 The Execute endpoint generates the necessary transaction data to execute a token swap using a previously obtained route. This endpoint is available across all supported networks.
 
 ## Supported Networks
@@ -486,5 +490,7 @@ sequenceDiagram
 - [Get Route](/api-reference/endpoints/route) - Find optimal route before execution
 - [Get Calldata](/api-reference/endpoints/calldata) - Alternative endpoint combining route and execute
 - [Health Check](/api-reference/endpoints/health-check) - Check API status
+- [Calldata V2](/api-reference/endpoints/calldata-v2) - V2 equivalent of this endpoint
+- [V2 Migration Guide](/api-reference/v2-migration) - Migrate to V2 API
 
 

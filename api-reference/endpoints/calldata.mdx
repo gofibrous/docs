@@ -6,6 +6,10 @@ api: "POST /{network}/calldata"
 
 ## Overview
 
+<Info>
+  **V2 Available**: This endpoint maps to `/{network}/v2/routeAndCallData` in V2, with integrator support and metadata. See [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) and the [V2 Migration Guide](/api-reference/v2-migration).
+</Info>
+
 The Calldata endpoint combines the functionality of both `/route` and `/execute` endpoints, providing an optimized way to get transaction calldata in a single API call. This is ideal for applications that want to minimize API calls and latency.
 
 ## Supported Networks
@@ -437,5 +441,7 @@ async function executeSwap(provider, signer) {
 - [Get Route](/api-reference/endpoints/route) - Get route without execution data
 - [Execute Swap](/api-reference/endpoints/execute) - Execute with existing route
 - [Health Check](/api-reference/endpoints/health-check) - Check API status
+- [Route and Calldata V2](/api-reference/endpoints/routeAndCallData-v2) - V2 equivalent of this endpoint
+- [V2 Migration Guide](/api-reference/v2-migration) - Migrate to V2 API
 
 
