@@ -1,0 +1,115 @@
+---
+title: "Installation and Setup"
+description: "Requirements, installation, and authentication methods for the fibx CLI."
+---
+
+## Requirements
+
+- **Node.js** v18 or higher
+- **npm** (included with Node.js)
+- A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance for wallet operations
+
+<Note>
+  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the most recent version.
+</Note>
+
+## Verify Your Environment
+
+```bash
+node --version   # Must be v18.0.0 or higher
+npm --version
+```
+
+## Authentication
+
+FibX requires an active session before performing any wallet operation (balance, send, trade, aave). Two authentication methods are available:
+
+### Method 1: Email OTP (Privy Server Wallets)
+
+This method creates a server-managed wallet through [Privy](https://privy.io). The private key is held securely on Privy's infrastructure and never exposed to the client.
+
+```bash
+# Step 1: Request an OTP code
+npx fibx@latest auth login user@example.com
+
+# Step 2: Enter the code received via email
+npx fibx@latest auth verify user@example.com 123456
+
+# Step 3: Confirm the session is active
+npx fibx@latest status
+```
+
+### Method 2: Private Key Import
+
+This method uses a locally stored wallet. The private key is encrypted and saved in a local session file.
+
+<Warning>
+  Your private key will be stored locally in an encrypted session file. Only use this method on a trusted device.
+</Warning>
+
+```bash
+# Interactive prompt — paste your private key when asked
+npx fibx@latest auth import
+
+# Confirm the session is active
+npx fibx@latest status
+```
+
+### Session Management
+
+```bash
+# Check current session status
+npx fibx@latest status
+
+# Get the active wallet address
+npx fibx@latest address
+
+# End the session
+npx fibx@latest auth logout
+```
+
+## Global Options
+
+These flags apply to all commands:
+
+| Flag                | Description                                     | Default |
+| ------------------- | ----------------------------------------------- | ------- |
+| `-c, --chain`       | Target chain: `base`, `citrea`, `hyperevm`, `monad` | `base`  |
+| `--json`            | Output results as JSON (useful for scripting)   | `false` |
+
+### Chain Selection
+
+If no `--chain` flag is provided, all commands default to **Base**.
+
+```bash
+# Explicit chain selection
+npx fibx@latest balance --chain citrea
+npx fibx@latest trade 1 MON USDC --chain monad
+
+# Default: Base
+npx fibx@latest balance
+```
+
+## First Transaction
+
+After authenticating, run through a complete workflow to verify everything is working:
+
+<Steps>
+  <Step title="Check your balance">
+    ```bash
+    npx fibx@latest balance
+    ```
+  </Step>
+  <Step title="Execute a swap">
+    ```bash
+    npx fibx@latest trade 0.001 ETH USDC
+    ```
+    The CLI will find the optimal route via Fibrous, simulate the transaction, handle token approvals, and execute.
+  </Step>
+  <Step title="Verify the transaction">
+    ```bash
+    npx fibx@latest tx-status <transaction-hash>
+    ```
+    This returns the on-chain status, gas used, and a block explorer link.
+  </Step>
+</Steps>

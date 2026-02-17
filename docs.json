@@ -163,6 +163,21 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "FibX Agent",
+        "groups": [
+          {
+            "group": "FibX Agent",
+            "pages": [
+              "fibx-agent/index",
+              "fibx-agent/installation",
+              "fibx-agent/cli-commands",
+              "fibx-agent/agent-skills",
+              "fibx-agent/supported-chains"
+            ]
+          }
+        ]
       }
     ]
   },

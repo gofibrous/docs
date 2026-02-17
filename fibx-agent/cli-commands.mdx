@@ -1,0 +1,299 @@
+---
+title: "CLI Command Reference"
+description: "Complete reference for all fibx CLI commands — authentication, balance, send, trade, Aave V3, and transaction status."
+---
+
+All commands follow the pattern:
+
+```bash
+npx fibx@latest <command> [arguments] [--chain <chain>] [--json]
+```
+
+Default chain is `base` unless overridden with `--chain`.
+
+---
+
+## auth — Authentication
+
+Manage the wallet session. Required before any on-chain operation.
+
+### auth login
+
+Send an OTP code to an email address via Privy.
+
+```bash
+npx fibx@latest auth login <email>
+```
+
+| Parameter | Type   | Required | Description            |
+| --------- | ------ | -------- | ---------------------- |
+| `email`   | string | Yes      | User's email address   |
+
+### auth verify
+
+Complete the login by submitting the OTP code.
+
+```bash
+npx fibx@latest auth verify <email> <code>
+```
+
+| Parameter | Type   | Required | Description                 |
+| --------- | ------ | -------- | --------------------------- |
+| `email`   | string | Yes      | Same email used in `login`  |
+| `code`    | string | Yes      | OTP code received via email |
+
+### auth import
+
+Import a private key to create a local wallet session. This is an interactive command — the CLI prompts for the key.
+
+```bash
+npx fibx@latest auth import
+```
+
+### auth logout
+
+End the active session.
+
+```bash
+npx fibx@latest auth logout
+```
+
+---
+
+## status — Session Status
+
+Check whether a session is active and display the authenticated wallet address.
+
+```bash
+npx fibx@latest status
+```
+
+---
+
+## address — Wallet Address
+
+Print the active wallet address.
+
+```bash
+npx fibx@latest address
+```
+
+---
+
+## wallets — List Wallets
+
+List the active wallet associated with an email.
+
+```bash
+npx fibx@latest wallets <email>
+```
+
+---
+
+## balance — Check Balances
+
+Fetch native and ERC-20 token balances for the authenticated wallet.
+
+```bash
+npx fibx@latest balance [--chain <chain>] [--json]
+```
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `json`    | flag   | No       | Output as JSON                               |
+
+<Tabs>
+  <Tab title="Base">
+    ```bash
+    npx fibx@latest balance
+    ```
+  </Tab>
+  <Tab title="Citrea">
+    ```bash
+    npx fibx@latest balance --chain citrea
+    ```
+  </Tab>
+  <Tab title="HyperEVM">
+    ```bash
+    npx fibx@latest balance --chain hyperevm
+    ```
+  </Tab>
+  <Tab title="Monad">
+    ```bash
+    npx fibx@latest balance --chain monad
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## send — Transfer Tokens
+
+Send native tokens or ERC-20 tokens to a recipient address. The transaction is simulated before execution.
+
+```bash
+npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--json]
+```
+
+| Parameter   | Type   | Required | Description                                  |
+| ----------- | ------ | -------- | -------------------------------------------- |
+| `amount`    | number | Yes      | Amount to send                               |
+| `recipient` | string | Yes      | Destination address (`0x...`)                |
+| `token`     | string | No       | Token symbol (e.g. `USDC`). Omit for native token |
+| `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `json`      | flag   | No       | Output as JSON                               |
+
+If `token` is omitted, the chain's native token is used (ETH on Base, cBTC on Citrea, HYPE on HyperEVM, MON on Monad).
+
+### Examples
+
+```bash
+# Send native ETH on Base
+npx fibx@latest send 0.01 0xRecipient
+
+# Send ERC-20 on Base
+npx fibx@latest send 100 0xRecipient USDC
+
+# Send native MON on Monad
+npx fibx@latest send 1 0xRecipient --chain monad
+```
+
+---
+
+## trade — Swap Tokens
+
+Exchange one token for another via Fibrous aggregation. The CLI finds the optimal route, handles token approvals, simulates the swap, and executes.
+
+```bash
+npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slippage <n>] [--approve-max] [--json]
+```
+
+| Parameter     | Type   | Required | Description                                  |
+| ------------- | ------ | -------- | -------------------------------------------- |
+| `amount`      | number | Yes      | Amount of the source token to swap           |
+| `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
+| `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
+| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
+| `approve-max` | flag   | No       | Use infinite approval instead of exact        |
+| `json`        | flag   | No       | Output as JSON                               |
+
+### Examples
+
+<Tabs>
+  <Tab title="Base">
+    ```bash
+    npx fibx@latest trade 0.1 ETH USDC
+    ```
+  </Tab>
+  <Tab title="Citrea">
+    ```bash
+    npx fibx@latest trade 0.01 cBTC USDC --chain citrea
+    ```
+  </Tab>
+  <Tab title="Monad">
+    ```bash
+    npx fibx@latest trade 1 MON USDC --chain monad
+    ```
+  </Tab>
+  <Tab title="Custom Slippage">
+    ```bash
+    npx fibx@latest trade 0.1 ETH USDC --slippage 1.0
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## aave — Aave V3 (Base Only)
+
+Manage Aave V3 lending positions on Base. Supply assets to earn yield, borrow against collateral, repay debt, or withdraw.
+
+<Warning>
+  Aave V3 operations are only available on **Base**. Attempting Aave commands on other chains will fail.
+</Warning>
+
+```bash
+npx fibx@latest aave <action> [amount] [token] [--json]
+```
+
+| Parameter | Type   | Required          | Description                                     |
+| --------- | ------ | ----------------- | ----------------------------------------------- |
+| `action`  | string | Yes               | `status`, `supply`, `borrow`, `repay`, `withdraw` |
+| `amount`  | string | Yes (except `status`) | Amount or `max` for full repay/withdraw         |
+| `token`   | string | Yes (except `status`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.)       |
+| `json`    | flag   | No                | Output as JSON                                  |
+
+### Actions
+
+| Action     | Description                      | Example                                  |
+| ---------- | -------------------------------- | ---------------------------------------- |
+| `status`   | Account health, LTV, net worth   | `npx fibx@latest aave status`           |
+| `supply`   | Deposit assets to earn yield     | `npx fibx@latest aave supply 100 USDC`  |
+| `borrow`   | Borrow against collateral        | `npx fibx@latest aave borrow 0.5 ETH`   |
+| `repay`    | Repay borrowed position          | `npx fibx@latest aave repay max USDC`   |
+| `withdraw` | Withdraw supplied assets         | `npx fibx@latest aave withdraw max USDC` |
+
+<Note>
+  When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` to the Aave contract and prevents dust residuals from remaining.
+</Note>
+
+### Health Factor
+
+Before borrowing, always check `aave status`. The Health Factor indicates liquidation risk:
+
+- **Above 1.5** — Safe to proceed
+- **Between 1.1 and 1.5** — Liquidation risk warning
+- **Below 1.1** — High liquidation risk, proceed with extreme caution
+
+---
+
+## tx-status — Transaction Status
+
+Check the on-chain status of a transaction and retrieve the block explorer link.
+
+```bash
+npx fibx@latest tx-status <hash> [--chain <chain>] [--json]
+```
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `hash`    | string | Yes      | Transaction hash (`0x...`)                   |
+| `chain`   | string | No       | Must match the chain of the original transaction |
+| `json`    | flag   | No       | Output as JSON                               |
+
+<Note>
+  Always use the same `--chain` flag that was used for the original transaction. A Base transaction hash will not be found on Monad.
+</Note>
+
+### JSON Output
+
+```json
+{
+  "status": "success",
+  "blockNumber": "12345",
+  "gasUsed": "21000",
+  "from": "0x...",
+  "to": "0x...",
+  "explorerLink": "https://basescan.org/tx/0x...",
+  "chain": "base"
+}
+```
+
+---
+
+## Error Reference
+
+Common errors across all commands:
+
+| Error                  | Cause                                          | Resolution                                        |
+| ---------------------- | ---------------------------------------------- | ------------------------------------------------- |
+| `Not authenticated`    | No active session                              | Run `auth login` or `auth import` first           |
+| `Insufficient balance` | Not enough tokens for the operation             | Check `balance` and adjust the amount              |
+| `Simulation failed`    | Transaction would revert on-chain               | Verify parameters and token availability           |
+| `No route found`       | No liquidity path exists for the token pair     | Try a different pair or check the chain             |
+| `Slippage exceeded`    | Price moved beyond tolerance                    | Retry or increase slippage with `--slippage`        |
+| `Session expired`      | Authentication session timed out                | Re-authenticate with `auth login`                   |
+| `Invalid address`      | Recipient address is malformed                  | Verify the address starts with `0x` and is valid    |
+| `Rate limit`           | Too many requests in a short period             | Wait 60 seconds and retry                           |

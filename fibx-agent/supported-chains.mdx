@@ -1,0 +1,116 @@
+---
+title: "Supported Chains"
+description: "Chain-specific reference for FibX — native tokens, CLI flags, feature availability, and block explorers."
+---
+
+FibX supports four EVM-compatible chains. The default chain for all commands is **Base**.
+
+## Chain Overview
+
+| Chain    | Native Token | Chain ID | CLI Flag           | Aave V3 |
+| -------- | ------------ | -------- | ------------------ | ------- |
+| Base     | ETH          | 8453     | `--chain base`     | Yes     |
+| Citrea   | cBTC         | 4114     | `--chain citrea`   | No      |
+| HyperEVM | HYPE         | 999      | `--chain hyperevm` | No      |
+| Monad    | MON          | 10143    | `--chain monad`    | No      |
+
+## Chain Details
+
+<AccordionGroup>
+  <Accordion title="Base" icon="ethereum">
+    Base is Coinbase's Layer 2 network built on the OP Stack. It serves as the default chain for all FibX operations and is the only chain with Aave V3 support.
+
+    | Property       | Value                                  |
+    | -------------- | -------------------------------------- |
+    | Native Token   | ETH                                    |
+    | Chain ID       | 8453                                   |
+    | CLI Flag       | `--chain base`                         |
+    | Aave V3        | Yes                                    |
+    | Explorer       | [BaseScan](https://basescan.org)       |
+
+    ```bash
+    # Balance, trade, and Aave on Base (default chain)
+    npx fibx@latest balance
+    npx fibx@latest trade 0.1 ETH USDC
+    npx fibx@latest aave supply 100 USDC
+    ```
+  </Accordion>
+
+  <Accordion title="Citrea" icon="bitcoin">
+    Citrea is Bitcoin's first ZK rollup with full EVM compatibility (Type 2 zkEVM). It uses Bitcoin as a settlement layer via its BitVM-based trust-minimized bridge, Clementine.
+
+    | Property       | Value                                                        |
+    | -------------- | ------------------------------------------------------------ |
+    | Native Token   | cBTC                                                         |
+    | Chain ID       | 4114                                                         |
+    | CLI Flag       | `--chain citrea`                                             |
+    | Aave V3        | No                                                           |
+    | Explorer       | [Citrea Explorer](https://explorer.mainnet.citrea.xyz)       |
+
+    ```bash
+    npx fibx@latest balance --chain citrea
+    npx fibx@latest trade 0.01 cBTC USDC --chain citrea
+    npx fibx@latest send 0.1 0xRecipient --chain citrea
+    ```
+  </Accordion>
+
+  <Accordion title="HyperEVM" icon="bolt">
+    HyperEVM is the EVM-compatible execution environment within the Hyperliquid ecosystem, enabling smart contract deployment alongside Hyperliquid's high-performance order book.
+
+    | Property       | Value                                                              |
+    | -------------- | ------------------------------------------------------------------ |
+    | Native Token   | HYPE                                                               |
+    | Chain ID       | 999                                                                |
+    | CLI Flag       | `--chain hyperevm`                                                 |
+    | Aave V3        | No                                                                 |
+    | Explorer       | [HyperEVM Explorer](https://hyperevm.calderaexplorer.xyz)         |
+
+    ```bash
+    npx fibx@latest balance --chain hyperevm
+    npx fibx@latest trade 1 HYPE USDC --chain hyperevm
+    npx fibx@latest send 0.5 0xRecipient HYPE --chain hyperevm
+    ```
+  </Accordion>
+
+  <Accordion title="Monad" icon="circle-nodes">
+    Monad is a high-performance EVM-compatible Layer 1 blockchain designed for parallel transaction execution, delivering high throughput while maintaining full Ethereum compatibility.
+
+    | Property       | Value                                                    |
+    | -------------- | -------------------------------------------------------- |
+    | Native Token   | MON                                                      |
+    | Chain ID       | 10143                                                    |
+    | CLI Flag       | `--chain monad`                                          |
+    | Aave V3        | No                                                       |
+    | Explorer       | [Monad Explorer](https://explorer.monad.xyz)             |
+
+    ```bash
+    npx fibx@latest balance --chain monad
+    npx fibx@latest trade 1 MON USDC --chain monad
+    npx fibx@latest send 5 0xRecipient MON --chain monad
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Feature Availability by Chain
+
+| Feature          | Base | Citrea | HyperEVM | Monad |
+| ---------------- | ---- | ------ | -------- | ----- |
+| Balance Check    | Yes  | Yes    | Yes      | Yes   |
+| Token Transfers  | Yes  | Yes    | Yes      | Yes   |
+| Token Swaps      | Yes  | Yes    | Yes      | Yes   |
+| Aave V3          | Yes  | No     | No       | No    |
+| Tx Status        | Yes  | Yes    | Yes      | Yes   |
+| JSON Output      | Yes  | Yes    | Yes      | Yes   |
+
+## Selecting a Chain
+
+Pass the `--chain` flag to any command. If omitted, Base is used.
+
+```bash
+# Explicit chain selection
+npx fibx@latest trade 0.1 ETH USDC --chain base
+npx fibx@latest balance --chain monad
+
+# Shorthand with -c
+npx fibx@latest balance -c citrea
+```
