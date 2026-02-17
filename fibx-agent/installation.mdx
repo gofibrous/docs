@@ -24,24 +24,9 @@ npm --version
 
 FibX requires an active session before performing any wallet operation (balance, send, trade, aave). Two authentication methods are available:
 
-### Method 1: Email OTP (Privy Server Wallets)
+### Private Key Import (Recommended)
 
-This method creates a server-managed wallet through [Privy](https://privy.io). The private key is held securely on Privy's infrastructure and never exposed to the client.
-
-```bash
-# Step 1: Request an OTP code
-npx fibx@latest auth login user@example.com
-
-# Step 2: Enter the code received via email
-npx fibx@latest auth verify user@example.com 123456
-
-# Step 3: Confirm the session is active
-npx fibx@latest status
-```
-
-### Method 2: Private Key Import
-
-This method uses a locally stored wallet. The private key is encrypted and saved in a local session file.
+If you already have a wallet with a private key, this is the fastest way to get started. The key is encrypted and stored in a local session file for the duration of the session.
 
 <Warning>
   Your private key will be stored locally in an encrypted session file. Only use this method on a trusted device.
@@ -52,6 +37,23 @@ This method uses a locally stored wallet. The private key is encrypted and saved
 npx fibx@latest auth import
 
 # Confirm the session is active
+npx fibx@latest status
+```
+
+This is ideal for developers and agents that already manage their own wallets. The imported key is used directly for signing transactions — no external server holds your key.
+
+### Email OTP (Alternative — Privy Server Wallets)
+
+If you do not have a private key or prefer a managed wallet, you can authenticate via email OTP. This creates a server-managed wallet through [Privy](https://privy.io), where the private key is held securely on Privy's infrastructure and never exposed to the client.
+
+```bash
+# Step 1: Request an OTP code
+npx fibx@latest auth login user@example.com
+
+# Step 2: Enter the code received via email
+npx fibx@latest auth verify user@example.com 123456
+
+# Step 3: Confirm the session is active
 npx fibx@latest status
 ```
 

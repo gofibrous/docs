@@ -5,7 +5,7 @@ description: "A command-line tool and agent skill framework for executing DeFi o
 
 FibX is a CLI-based DeFi execution layer that enables both developers and AI agents to perform on-chain operations — token swaps, transfers, balance checks, and Aave V3 position management — across **Base, Citrea, HyperEVM, and Monad**.
 
-It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap routing with [Privy](https://privy.io) server wallets for secure, server-side transaction signing.
+It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap routing with flexible wallet authentication — use your own private key directly, or create a server-managed wallet via [Privy](https://privy.io).
 
 ## Core Capabilities
 
@@ -31,11 +31,12 @@ FibX operates as a CLI tool (`npx fibx@latest`) that communicates with a backend
 ```mermaid
 flowchart LR
     A[User or AI Agent] --> B[fibx CLI]
-    B --> C[fibx-server]
-    C --> D[Privy Server Wallets]
-    C --> E[Fibrous Aggregation API]
-    D --> F[Blockchain]
-    E --> F
+    B --> C[Private Key Wallet]
+    B --> D[fibx-server]
+    D --> E[Privy Server Wallets]
+    C --> F[Fibrous Aggregation API]
+    D --> F
+    F --> G[Blockchain]
 ```
 
 ## Supported Chains
@@ -53,7 +54,7 @@ Every FibX session follows the same four-step pattern:
 
 <Steps>
   <Step title="Authenticate">
-    Log in via email OTP or import a private key. This creates a session that persists across commands.
+    Import your private key for direct usage, or log in via email OTP to create a Privy server wallet. Either method creates a session that persists across commands.
   </Step>
   <Step title="Check Funds">
     Query native and ERC-20 token balances on the target chain.
@@ -69,9 +70,8 @@ Every FibX session follows the same four-step pattern:
 ## Quick Example
 
 ```bash
-# Authenticate
-npx fibx@latest auth login user@example.com
-npx fibx@latest auth verify user@example.com 123456
+# Authenticate with your private key
+npx fibx@latest auth import
 
 # Check balance on Base
 npx fibx@latest balance

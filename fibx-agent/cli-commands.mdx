@@ -17,38 +17,32 @@ Default chain is `base` unless overridden with `--chain`.
 
 Manage the wallet session. Required before any on-chain operation.
 
-### auth login
+### auth import
 
-Send an OTP code to an email address via Privy.
+Import an existing private key to create a local wallet session. This is the most direct way to authenticate — if you already have a wallet, use this method. The CLI opens an interactive prompt where you paste the key.
 
 ```bash
-npx fibx@latest auth login <email>
+npx fibx@latest auth import
 ```
 
-| Parameter | Type   | Required | Description            |
-| --------- | ------ | -------- | ---------------------- |
-| `email`   | string | Yes      | User's email address   |
+The key is encrypted and stored in a local session file. No external server holds your private key with this method.
 
-### auth verify
+### auth login / auth verify (Email OTP)
 
-Complete the login by submitting the OTP code.
+Alternative authentication via email OTP. This creates a server-managed wallet through [Privy](https://privy.io) — useful when you do not have an existing private key.
 
 ```bash
+# Step 1: Send OTP to email
+npx fibx@latest auth login <email>
+
+# Step 2: Verify with the code received
 npx fibx@latest auth verify <email> <code>
 ```
 
 | Parameter | Type   | Required | Description                 |
 | --------- | ------ | -------- | --------------------------- |
-| `email`   | string | Yes      | Same email used in `login`  |
+| `email`   | string | Yes      | User's email address        |
 | `code`    | string | Yes      | OTP code received via email |
-
-### auth import
-
-Import a private key to create a local wallet session. This is an interactive command — the CLI prompts for the key.
-
-```bash
-npx fibx@latest auth import
-```
 
 ### auth logout
 

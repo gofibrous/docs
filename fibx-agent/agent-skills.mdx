@@ -52,29 +52,33 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
   <Accordion title="authenticate-wallet" icon="key">
     **Category:** Auth
 
-    Manages the wallet session. Supports email OTP login (via Privy server wallets) and private key import. This skill must run before any other wallet operation.
+    Manages the wallet session. This skill must run before any other wallet operation. Two authentication paths are available:
+
+    - **Private key import** — Use an existing wallet directly. The key is encrypted and stored locally. This is the primary method for developers and agents that already manage their own keys.
+    - **Email OTP** — Alternative method that creates a server-managed wallet via Privy. Use this when no private key is available.
 
     ### Allowed Tools
     ```
+    Bash(npx fibx@latest auth import)
     Bash(npx fibx@latest auth login *)
     Bash(npx fibx@latest auth verify *)
-    Bash(npx fibx@latest auth import)
     Bash(npx fibx@latest auth logout)
     Bash(npx fibx@latest status)
     ```
 
     ### Rules
-    1. For email login, never ask the user for a private key.
+    1. If the user has a private key ready, prefer `auth import` — it is the most direct path.
     2. For private key import, always warn the user first: _"Your private key will be stored locally in an encrypted session file. Shall I proceed?"_
-    3. `auth login` must complete before `auth verify` — they are sequential steps.
-    4. After successful authentication, always run `status` to confirm the session.
+    3. For email login, never ask the user for a private key. `auth login` must complete before `auth verify` — they are sequential steps.
+    4. After successful authentication (either method), always run `status` to confirm the session.
     5. Never store or log private keys, OTP codes, or session tokens.
 
     ### Trigger Examples
     | User Prompt | Action |
     | --- | --- |
-    | "Log me in with user@example.com" | `auth login` then `auth verify` |
     | "Import my private key" | `auth import` |
+    | "I have a wallet, let me use it" | `auth import` |
+    | "Log me in with user@example.com" | `auth login` then `auth verify` |
     | "Log me out" | `auth logout` |
   </Accordion>
 
@@ -214,33 +218,63 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
 
 A typical multi-step interaction between a user and an AI agent using fibx-skills:
 
-<Steps>
-  <Step title="User: 'Log me in with alice@example.com'">
-    Agent triggers **authenticate-wallet**:
-    ```bash
-    npx fibx@latest auth login alice@example.com
-    ```
-    Agent asks: _"Please provide the OTP code sent to your email."_
-  </Step>
-  <Step title="User: '482910'">
-    Agent completes authentication:
-    ```bash
-    npx fibx@latest auth verify alice@example.com 482910
-    npx fibx@latest status
-    ```
-  </Step>
-  <Step title="User: 'Swap 0.05 ETH to USDC'">
-    Agent triggers **balance** then **trade**:
-    ```bash
-    npx fibx@latest balance
-    npx fibx@latest trade 0.05 ETH USDC
-    ```
-  </Step>
-  <Step title="Agent verifies automatically">
-    Agent triggers **tx-status**:
-    ```bash
-    npx fibx@latest tx-status 0x7a3f...c21b
-    ```
-    Agent responds: _"Swap completed. 0.05 ETH → 47.23 USDC. [View on BaseScan](https://basescan.org/tx/0x7a3f...c21b)"_
-  </Step>
-</Steps>
+<Tabs>
+  <Tab title="With Private Key">
+    <Steps>
+      <Step title="User: 'Import my private key'">
+        Agent triggers **authenticate-wallet**:
+        ```bash
+        npx fibx@latest auth import
+        npx fibx@latest status
+        ```
+        The user pastes their private key in the interactive prompt. Session is now active.
+      </Step>
+      <Step title="User: 'Swap 0.05 ETH to USDC'">
+        Agent triggers **balance** then **trade**:
+        ```bash
+        npx fibx@latest balance
+        npx fibx@latest trade 0.05 ETH USDC
+        ```
+      </Step>
+      <Step title="Agent verifies automatically">
+        Agent triggers **tx-status**:
+        ```bash
+        npx fibx@latest tx-status 0x7a3f...c21b
+        ```
+        Agent responds: _"Swap completed. 0.05 ETH → 47.23 USDC. [View on BaseScan](https://basescan.org/tx/0x7a3f...c21b)"_
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="With Email OTP">
+    <Steps>
+      <Step title="User: 'Log me in with alice@example.com'">
+        Agent triggers **authenticate-wallet**:
+        ```bash
+        npx fibx@latest auth login alice@example.com
+        ```
+        Agent asks: _"Please provide the OTP code sent to your email."_
+      </Step>
+      <Step title="User: '482910'">
+        Agent completes authentication:
+        ```bash
+        npx fibx@latest auth verify alice@example.com 482910
+        npx fibx@latest status
+        ```
+      </Step>
+      <Step title="User: 'Swap 0.05 ETH to USDC'">
+        Agent triggers **balance** then **trade**:
+        ```bash
+        npx fibx@latest balance
+        npx fibx@latest trade 0.05 ETH USDC
+        ```
+      </Step>
+      <Step title="Agent verifies automatically">
+        Agent triggers **tx-status**:
+        ```bash
+        npx fibx@latest tx-status 0x7a3f...c21b
+        ```
+        Agent responds: _"Swap completed. 0.05 ETH → 47.23 USDC. [View on BaseScan](https://basescan.org/tx/0x7a3f...c21b)"_
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
