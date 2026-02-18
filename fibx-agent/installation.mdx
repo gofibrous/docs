@@ -10,8 +10,18 @@ description: "Requirements, installation, and authentication methods for the fib
 - A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance for wallet operations
 
 <Note>
-  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the most recent version.
+  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.3.5**).
 </Note>
+
+## Installing Agent Skills
+
+To add fibx skills to your AI agent, use the Vercel Skills CLI:
+
+```bash
+npx skills add Fibrous-Finance/fibx-skills
+```
+
+This installs the pre-built skill definitions from the [fibx-skills repository](https://github.com/Fibrous-Finance/fibx-skills) into your agent's skill registry. No separate installation of `fibx` is needed — all skills execute via `npx fibx@latest`.
 
 ## Verify Your Environment
 

@@ -30,18 +30,22 @@ flowchart LR
 
 ## Getting Started
 
-1. Clone the skills repository:
+Install the skills directly using the Vercel Skills CLI:
+
+```bash
+npx skills add Fibrous-Finance/fibx-skills
+```
+
+Or clone the repository manually and import from the `./skills` directory:
 
 ```bash
 git clone https://github.com/Fibrous-Finance/fibx-skills.git
 ```
 
-2. Import skills from the `./skills` directory into your agent's skill registry.
-
-3. No separate installation of `fibx` is needed — all skills use `npx fibx@latest`.
+No separate installation of `fibx` is needed — all skills use `npx fibx@latest`.
 
 <Note>
-  Skills require Node.js 18+ and are compatible with fibx CLI v0.3.2 and above.
+  Skills require Node.js 18+ and are compatible with fibx CLI v0.3.5 and above.
 </Note>
 
 ---
@@ -163,7 +167,7 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
   <Accordion title="aave" icon="building-columns">
     **Category:** DeFi
 
-    Manages Aave V3 lending positions on **Base only** — supply, borrow, repay, withdraw, and health factor monitoring.
+    Manages Aave V3 lending positions on **Base only** — supply, borrow, repay, withdraw, and health factor monitoring. The CLI automatically handles ETH ↔ WETH wrapping and unwrapping for `supply`, `repay`, and `withdraw` actions.
 
     ### Allowed Tools
     ```
@@ -175,19 +179,65 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
 
     ### Rules
     1. This skill only works on Base. Refuse Aave operations on other chains.
-    2. Before any action, check balance for sufficient gas (ETH).
+    2. Before any action, check balance for sufficient ETH for gas.
     3. Before borrowing, check `aave status` for the Health Factor:
        - Health Factor < 1.5 → Warn the user about liquidation risk
        - Health Factor < 1.1 → Do not proceed without explicit double-confirmation
-    4. When fully closing a position, always use `max` as the amount.
-    5. The CLI handles ETH/WETH conversion automatically — use `ETH` as the symbol.
+    4. When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` and prevents dust residuals.
+    5. Use `ETH` as the token symbol for ETH-based operations — the CLI handles wrapping/unwrapping automatically.
+    6. If a `Rate limit / 429` error occurs, use the `config` skill to set a custom RPC.
+
+    ### ETH ↔ WETH Auto-Wrap Reference
+    | Action | ETH Behavior |
+    | --- | --- |
+    | `supply 1 ETH` | Auto-wraps ETH → WETH before supplying |
+    | `repay max ETH` | Auto-wraps ETH → WETH before repaying |
+    | `withdraw max ETH` | Withdraws WETH and auto-unwraps → ETH |
 
     ### Trigger Examples
     | User Prompt | Action |
     | --- | --- |
     | "How is my Aave position?" | `aave status` |
+    | "Supply 1 ETH to Aave" | `aave supply 1 ETH` |
     | "Supply 100 USDC to Aave" | `aave supply 100 USDC` |
+    | "Repay my ETH debt" | `aave repay max ETH` |
     | "Repay all my USDC debt" | `aave repay max USDC` |
+    | "Withdraw all my ETH" | `aave withdraw max ETH` |
+  </Accordion>
+
+  <Accordion title="config" icon="gear">
+    **Category:** Utility
+
+    View and modify fibx CLI configuration — primarily used to set custom RPC URLs when hitting rate limits on public endpoints. Configuration is stored locally and persists across sessions.
+
+    ### Allowed Tools
+    ```
+    Bash(npx fibx@latest config *)
+    ```
+
+    ### Rules
+    1. If any command fails with a "Rate limit exceeded" or "429" error, use this skill to set a custom RPC for the affected chain.
+    2. Settings are stored in `~/.config/fibx/config.json` and persist across sessions.
+    3. The CLI validates URL format but not connectivity — ensure the RPC URL is valid before setting.
+
+    ### Commands
+    ```bash
+    # Set a custom RPC for a chain
+    npx fibx@latest config set-rpc <chain> <url>
+
+    # View the current RPC for a chain
+    npx fibx@latest config get-rpc <chain>
+
+    # List all custom configurations
+    npx fibx@latest config list
+    ```
+
+    ### Trigger Examples
+    | User Prompt | Action |
+    | --- | --- |
+    | "I'm getting rate limit errors" | `config set-rpc <chain> <url>` |
+    | "I'm getting rate limited on Base" | `config set-rpc base https://mainnet.base.org` |
+    | "Check my current configuration" | `config list` |
   </Accordion>
 
   <Accordion title="tx-status" icon="magnifying-glass">

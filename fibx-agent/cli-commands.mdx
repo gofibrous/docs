@@ -163,15 +163,19 @@ Exchange one token for another via Fibrous aggregation. The CLI finds the optima
 npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slippage <n>] [--approve-max] [--json]
 ```
 
-| Parameter     | Type   | Required | Description                                  |
-| ------------- | ------ | -------- | -------------------------------------------- |
-| `amount`      | number | Yes      | Amount of the source token to swap           |
-| `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
-| `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
-| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| Parameter     | Type   | Required | Description                                    |
+| ------------- | ------ | -------- | ---------------------------------------------- |
+| `amount`      | number | Yes      | Amount of the source token to swap             |
+| `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)       |
+| `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)       |
+| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
 | `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
-| `approve-max` | flag   | No       | Use infinite approval instead of exact        |
-| `json`        | flag   | No       | Output as JSON                               |
+| `approve-max` | flag   | No       | Use infinite approval instead of exact amount  |
+| `json`        | flag   | No       | Output as JSON                                 |
+
+<Note>
+  The `trade` command automatically detects **Wrap** (Native → Wrapped) and **Unwrap** (Wrapped → Native) operations and executes them directly via contract calls, bypassing the aggregator routing to save gas.
+</Note>
 
 ### Examples
 
@@ -212,26 +216,35 @@ Manage Aave V3 lending positions on Base. Supply assets to earn yield, borrow ag
 npx fibx@latest aave <action> [amount] [token] [--json]
 ```
 
-| Parameter | Type   | Required          | Description                                     |
-| --------- | ------ | ----------------- | ----------------------------------------------- |
-| `action`  | string | Yes               | `status`, `supply`, `borrow`, `repay`, `withdraw` |
-| `amount`  | string | Yes (except `status`) | Amount or `max` for full repay/withdraw         |
-| `token`   | string | Yes (except `status`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.)       |
-| `json`    | flag   | No                | Output as JSON                                  |
+| Parameter | Type   | Required              | Description                                       |
+| --------- | ------ | --------------------- | ------------------------------------------------- |
+| `action`  | string | Yes                   | `status`, `supply`, `borrow`, `repay`, `withdraw` |
+| `amount`  | string | Yes (except `status`) | Amount or `max` for full repay/withdraw           |
+| `token`   | string | Yes (except `status`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.)         |
+| `json`    | flag   | No                    | Output as JSON                                    |
 
 ### Actions
 
-| Action     | Description                      | Example                                  |
-| ---------- | -------------------------------- | ---------------------------------------- |
-| `status`   | Account health, LTV, net worth   | `npx fibx@latest aave status`           |
-| `supply`   | Deposit assets to earn yield     | `npx fibx@latest aave supply 100 USDC`  |
-| `borrow`   | Borrow against collateral        | `npx fibx@latest aave borrow 0.5 ETH`   |
-| `repay`    | Repay borrowed position          | `npx fibx@latest aave repay max USDC`   |
-| `withdraw` | Withdraw supplied assets         | `npx fibx@latest aave withdraw max USDC` |
+| Action     | Description                                | Example                                          |
+| ---------- | ------------------------------------------ | ------------------------------------------------ |
+| `status`   | Account health, LTV, net worth             | `npx fibx@latest aave status`                   |
+| `supply`   | Deposit assets (auto-wraps ETH → WETH)     | `npx fibx@latest aave supply 1 ETH`             |
+| `borrow`   | Borrow against collateral                  | `npx fibx@latest aave borrow 50 USDC`           |
+| `repay`    | Repay debt (auto-wraps ETH → WETH)         | `npx fibx@latest aave repay max ETH`            |
+| `withdraw` | Withdraw assets (auto-unwraps WETH → ETH)  | `npx fibx@latest aave withdraw max ETH`         |
 
-<Note>
-  When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` to the Aave contract and prevents dust residuals from remaining.
-</Note>
+### ETH ↔ WETH Auto-Wrap
+
+`supply`, `repay`, and `withdraw` support automatic ETH ↔ WETH conversion. Use `ETH` as the token symbol — the CLI handles wrapping and unwrapping internally.
+
+```bash
+npx fibx@latest aave supply 1 ETH         # Auto-wraps ETH → WETH and supplies
+npx fibx@latest aave supply 100 USDC      # Supply ERC-20 directly
+npx fibx@latest aave borrow 50 USDC       # Borrow
+npx fibx@latest aave repay 50 USDC        # Repay partial USDC debt
+npx fibx@latest aave repay max ETH        # Auto-wraps ETH and repays full WETH debt
+npx fibx@latest aave withdraw max ETH     # Withdraws WETH and auto-unwraps to ETH
+```
 
 ### Health Factor
 
@@ -240,6 +253,48 @@ Before borrowing, always check `aave status`. The Health Factor indicates liquid
 - **Above 1.5** — Safe to proceed
 - **Between 1.1 and 1.5** — Liquidation risk warning
 - **Below 1.1** — High liquidation risk, proceed with extreme caution
+
+<Note>
+  When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` to the Aave contract and prevents dust residuals from remaining.
+</Note>
+
+---
+
+## config — RPC Configuration
+
+View and modify local fibx CLI configuration. Used primarily to set custom RPC URLs when hitting rate limits on public endpoints.
+
+```bash
+npx fibx@latest config <subcommand> [chain] [url]
+```
+
+| Subcommand  | Description                             | Example                                                                  |
+| ----------- | --------------------------------------- | ------------------------------------------------------------------------ |
+| `set-rpc`   | Set a custom RPC URL for a chain        | `npx fibx@latest config set-rpc base https://mainnet.base.org`          |
+| `get-rpc`   | View the current RPC URL for a chain    | `npx fibx@latest config get-rpc base`                                   |
+| `list`      | List all custom configurations          | `npx fibx@latest config list`                                            |
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `chain`   | string | Yes      | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `url`     | string | Yes (`set-rpc`) | Full HTTP(S) RPC endpoint URL         |
+
+<Note>
+  Configuration is stored locally at `~/.config/fibx/config.json` and persists across sessions.
+</Note>
+
+### Examples
+
+```bash
+# Handle rate limit on Base
+npx fibx@latest config set-rpc base https://mainnet.base.org
+
+# Check configured RPC
+npx fibx@latest config get-rpc base
+
+# List all configurations
+npx fibx@latest config list
+```
 
 ---
 

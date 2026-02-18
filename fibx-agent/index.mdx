@@ -20,7 +20,7 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
     Supply, borrow, repay, and withdraw on Base. Includes health factor monitoring and liquidation safety checks.
   </Card>
   <Card title="Agent Skills" icon="robot">
-    Six pre-built skills that allow AI agents to authenticate, check balances, trade, send, manage Aave positions, and verify transactions — all through natural language.
+    Seven pre-built skills that allow AI agents to authenticate, check balances, trade, send, manage Aave positions, verify transactions, and configure RPC endpoints — all through natural language.
   </Card>
 </CardGroup>
 
@@ -96,12 +96,13 @@ npx fibx@latest tx-status 0xabc...def
   <Tab title="As Agent Skills">
     Import the [fibx-skills](https://github.com/Fibrous-Finance/fibx-skills) into your AI agent's skill registry. The agent interprets natural language prompts and maps them to the appropriate CLI commands.
 
-    | User Prompt                  | Skill Triggered       |
-    | ---------------------------- | --------------------- |
-    | "Swap 0.05 ETH to USDC"     | `trade`               |
-    | "Check my balance on Monad"  | `balance`             |
-    | "Send 10 USDC to 0x123..."  | `send`                |
-    | "Supply 100 USDC to Aave"   | `aave`                |
+    | User Prompt                      | Skill Triggered       |
+    | -------------------------------- | --------------------- |
+    | "Swap 0.05 ETH to USDC"         | `trade`               |
+    | "Check my balance on Monad"      | `balance`             |
+    | "Send 10 USDC to 0x123..."      | `send`                |
+    | "Supply 100 USDC to Aave"       | `aave`                |
+    | "I'm getting rate limit errors"  | `config`              |
   </Tab>
 </Tabs>
 
@@ -109,9 +110,9 @@ npx fibx@latest tx-status 0xabc...def
 
 <CardGroup cols={2}>
   <Card title="npm Package" icon="npm" href="https://www.npmjs.com/package/fibx">
-    fibx v0.3.2 — install and version history
+    fibx v0.3.5 — install and version history
   </Card>
   <Card title="Agent Skills" icon="github" href="https://github.com/Fibrous-Finance/fibx-skills">
-    Six pre-built skills for AI agent integration
+    Seven pre-built skills for AI agent integration
   </Card>
 </CardGroup>
