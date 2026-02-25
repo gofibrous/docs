@@ -159,15 +159,15 @@ Look up a transaction receipt by hash.
 
 Get Aave V3 account health on Base.
 
-| Parameter | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| —         | —    | —        | No input required |
+| Parameter | Type | Required | Description        |
+| --------- | ---- | -------- | ------------------ |
+| (none)    | —    | —        | No input required  |
 
 **Output:** `{ wallet, healthFactor, totalCollateralUSD, totalDebtUSD, availableBorrowsUSD }`
 
 ### aave_action
 
-Execute an Aave V3 operation. Auto-handles ETH<->WETH wrapping. Use `"max"` as amount for full repay/withdraw.
+Execute an Aave V3 operation. Auto-handles ETH ↔ WETH wrapping. Use `"max"` as amount for full repay/withdraw.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
