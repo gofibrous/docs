@@ -173,6 +173,7 @@
               "fibx-agent/index",
               "fibx-agent/installation",
               "fibx-agent/cli-commands",
+              "fibx-agent/mcp-configuration",
               "fibx-agent/agent-skills",
               "fibx-agent/supported-chains"
             ]

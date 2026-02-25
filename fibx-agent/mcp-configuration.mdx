@@ -1,0 +1,213 @@
+---
+title: "MCP Configuration"
+description: "Configure FibX as an MCP server for AI editors — Cursor, Claude Desktop, Antigravity, and other MCP-compatible clients."
+---
+
+FibX includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that exposes DeFi operations as callable tools. AI editors like **Cursor**, **Claude Desktop**, **Antigravity**, and any MCP-compatible client can connect to FibX and execute trades, transfers, and DeFi operations through natural language.
+
+## Quick Start
+
+```bash
+npx fibx mcp-start
+```
+
+This starts an MCP server over **stdio** (standard input/output). The server speaks JSON-RPC and is designed to be launched by an AI editor, not run manually.
+
+## Editor Setup
+
+### Cursor
+
+Create `.cursor/mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "fibx": {
+      "command": "npx",
+      "args": ["-y", "fibx", "mcp-start"]
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "fibx": {
+      "command": "npx",
+      "args": ["-y", "fibx", "mcp-start"]
+    }
+  }
+}
+```
+
+### Antigravity
+
+Add to `~/.gemini/antigravity/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "fibx": {
+      "command": "npx",
+      "args": ["-y", "fibx", "mcp-start"]
+    }
+  }
+}
+```
+
+<Note>
+  You must be authenticated (`fibx auth login` or `fibx auth import`) before the MCP server can execute wallet operations.
+</Note>
+
+## Available Tools
+
+### Read-Only
+
+| Tool              | Description                              |
+| ----------------- | ---------------------------------------- |
+| `get_auth_status` | Check session and Fibrous API health     |
+| `get_balance`     | Get native and ERC-20 token balances     |
+| `get_tx_status`   | Check transaction receipt and status    |
+| `get_aave_status` | Get Aave V3 position health on Base     |
+
+### Transactional
+
+These tools are marked as **destructive** — the AI editor will ask for confirmation before executing.
+
+| Tool          | Description                                                |
+| ------------- | ---------------------------------------------------------- |
+| `swap_tokens` | Swap tokens via Fibrous aggregator with optimal routing   |
+| `send_tokens` | Send native or ERC-20 tokens to a recipient                |
+| `aave_action` | Supply, borrow, repay, or withdraw on Aave V3 (Base)    |
+
+### Utility
+
+| Tool            | Description                                      |
+| --------------- | ------------------------------------------------ |
+| `config_action` | Set or view custom RPC URLs to avoid rate limits |
+
+## Tool Details
+
+### get_auth_status
+
+Check whether FibX is authenticated and the Fibrous API is reachable.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+
+**Output:** `{ authenticated, walletAddress, sessionType, chain, fibrousStatus }`
+
+### get_balance
+
+Fetch all token balances for the active wallet. Only returns non-zero balances.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+
+**Output:** `{ wallet, chain, balances: { "ETH": "0.5", "USDC": "100.0", ... } }`
+
+### swap_tokens
+
+Execute a token swap through Fibrous. Handles approvals, simulation, and routing automatically.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `amount`      | string | Yes      | Amount of the source token to swap           |
+| `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
+| `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
+| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
+
+**Output:** `{ txHash, amountIn, amountOut, tokenIn, tokenOut, router, chain }`
+
+**Example prompt:** "Swap 0.1 ETH to USDC on Base"
+
+### send_tokens
+
+Transfer native or ERC-20 tokens. Simulates before executing.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `amount`    | string | Yes      | Amount to send                               |
+| `recipient` | string | Yes      | Recipient address (`0x...`)                   |
+| `token`     | string | No       | Token symbol (omit for native token)         |
+| `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+
+**Output:** `{ txHash, amount, token, recipient, chain }`
+
+**Example prompt:** "Send 50 USDC to 0x1234..."
+
+### get_tx_status
+
+Look up a transaction receipt by hash.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `hash`    | string | Yes      | Transaction hash (`0x...`)                    |
+| `chain`   | string | No       | Must match the chain of the original transaction |
+
+**Output:** `{ hash, status, blockNumber, from, to, gasUsed, chain }`
+
+### get_aave_status
+
+Get Aave V3 account health on Base.
+
+| Parameter | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| —         | —    | —        | No input required |
+
+**Output:** `{ wallet, healthFactor, totalCollateralUSD, totalDebtUSD, availableBorrowsUSD }`
+
+### aave_action
+
+Execute an Aave V3 operation. Auto-handles ETH<->WETH wrapping. Use `"max"` as amount for full repay/withdraw.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `action`  | string | Yes      | `supply`, `borrow`, `repay`, or `withdraw`   |
+| `amount`  | string | Yes      | Amount or `max` for full repay/withdraw      |
+| `token`   | string | Yes      | Token symbol (`ETH`, `USDC`, `DAI`, etc.)   |
+
+**Output:** `{ action, amount, token, txHash, chain }`
+
+**Example prompts:** "Supply 0.5 ETH to Aave" or "Repay max USDC on Aave"
+
+### config_action
+
+Manage custom RPC URLs. Useful when encountering rate limits on public endpoints.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `action`  | string | Yes      | `set-rpc`, `get-rpc`, or `list`              |
+| `chain`   | string | Yes*     | Required for `set-rpc` and `get-rpc`         |
+| `url`     | string | Yes*     | Required for `set-rpc` — full RPC endpoint   |
+
+**Output:** `{ action, chain?, url?, rpcUrls? }`
+
+**Example prompt:** "I'm getting rate limited on Base, set a custom RPC"
+
+## Supported Chains
+
+| Chain    | Native Token | Fibrous Network |
+| -------- | ------------ | --------------- |
+| Base     | ETH          | base            |
+| Citrea   | cBTC         | citrea          |
+| HyperEVM | HYPE         | hyperevm        |
+| Monad    | MON          | monad           |
+
+## Environment Variables
+
+| Variable       | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| `FIBX_API_URL` | Custom fibx-server URL (for Privy wallet operations) |
+
+<Note>
+  If using Privy authentication, ensure `fibx-server` is running and accessible before starting the MCP server.
+</Note>
