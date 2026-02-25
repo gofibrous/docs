@@ -61,7 +61,7 @@ Add to `~/.gemini/antigravity/mcp_config.json`:
 ```
 
 <Note>
-  You must be authenticated (`fibx auth login` or `fibx auth import`) before the MCP server can execute wallet operations.
+  You must be authenticated before the MCP server can execute wallet operations. Use `fibx auth login` or `fibx auth import` to authenticate.
 </Note>
 
 ## Available Tools
@@ -101,7 +101,7 @@ Check whether FibX is authenticated and the Fibrous API is reachable.
 | --------- | ------ | -------- | -------------------------------------------- |
 | `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
 
-**Output:** `{ authenticated, walletAddress, sessionType, chain, fibrousStatus }`
+**Output:** Object with `authenticated`, `walletAddress`, `sessionType`, `chain`, `fibrousStatus`
 
 ### get_balance
 
@@ -111,7 +111,7 @@ Fetch all token balances for the active wallet. Only returns non-zero balances.
 | --------- | ------ | -------- | -------------------------------------------- |
 | `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
 
-**Output:** `{ wallet, chain, balances: { "ETH": "0.5", "USDC": "100.0", ... } }`
+**Output:** Object with `wallet`, `chain`, and `balances` (e.g. ETH, USDC with amounts)
 
 ### swap_tokens
 
@@ -123,9 +123,9 @@ Execute a token swap through Fibrous. Handles approvals, simulation, and routing
 | `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
 | `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
 | `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
-| `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
+| `slippage`    | number | No       | Slippage tolerance in percent (default 0.5)     |
 
-**Output:** `{ txHash, amountIn, amountOut, tokenIn, tokenOut, router, chain }`
+**Output:** Object with `txHash`, `amountIn`, `amountOut`, `tokenIn`, `tokenOut`, `router`, `chain`
 
 **Example prompt:** "Swap 0.1 ETH to USDC on Base"
 
@@ -136,11 +136,11 @@ Transfer native or ERC-20 tokens. Simulates before executing.
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
 | `amount`    | string | Yes      | Amount to send                               |
-| `recipient` | string | Yes      | Recipient address (`0x...`)                   |
+| `recipient` | string | Yes      | Recipient address (0x-prefixed)               |
 | `token`     | string | No       | Token symbol (omit for native token)         |
 | `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
 
-**Output:** `{ txHash, amount, token, recipient, chain }`
+**Output:** Object with `txHash`, `amount`, `token`, `recipient`, `chain`
 
 **Example prompt:** "Send 50 USDC to 0x1234..."
 
@@ -150,24 +150,24 @@ Look up a transaction receipt by hash.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
-| `hash`    | string | Yes      | Transaction hash (`0x...`)                    |
+| `hash`    | string | Yes      | Transaction hash (0x-prefixed)                |
 | `chain`   | string | No       | Must match the chain of the original transaction |
 
-**Output:** `{ hash, status, blockNumber, from, to, gasUsed, chain }`
+**Output:** Object with `hash`, `status`, `blockNumber`, `from`, `to`, `gasUsed`, `chain`
 
 ### get_aave_status
 
 Get Aave V3 account health on Base.
 
-| Parameter | Type | Required | Description        |
-| --------- | ---- | -------- | ------------------ |
-| (none)    | —    | —        | No input required  |
+| Parameter | Type   | Required | Description       |
+| --------- | ------ | -------- | ----------------- |
+| none      | n/a    | n/a      | No input required |
 
-**Output:** `{ wallet, healthFactor, totalCollateralUSD, totalDebtUSD, availableBorrowsUSD }`
+**Output:** Object with `wallet`, `healthFactor`, `totalCollateralUSD`, `totalDebtUSD`, `availableBorrowsUSD`
 
 ### aave_action
 
-Execute an Aave V3 operation. Auto-handles ETH ↔ WETH wrapping. Use `"max"` as amount for full repay/withdraw.
+Execute an Aave V3 operation. Auto-handles ETH ↔ WETH wrapping. Use `max` as the amount for full repay/withdraw.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
@@ -175,7 +175,7 @@ Execute an Aave V3 operation. Auto-handles ETH ↔ WETH wrapping. Use `"max"` as
 | `amount`  | string | Yes      | Amount or `max` for full repay/withdraw      |
 | `token`   | string | Yes      | Token symbol (`ETH`, `USDC`, `DAI`, etc.)   |
 
-**Output:** `{ action, amount, token, txHash, chain }`
+**Output:** Object with `action`, `amount`, `token`, `txHash`, `chain`
 
 **Example prompts:** "Supply 0.5 ETH to Aave" or "Repay max USDC on Aave"
 
@@ -186,10 +186,10 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
 | `action`  | string | Yes      | `set-rpc`, `get-rpc`, or `list`              |
-| `chain`   | string | Yes*     | Required for `set-rpc` and `get-rpc`         |
-| `url`     | string | Yes*     | Required for `set-rpc` — full RPC endpoint   |
+| `chain`   | string | Conditional | Required for `set-rpc` and `get-rpc`         |
+| `url`     | string | Conditional | Required for `set-rpc` — full RPC endpoint   |
 
-**Output:** `{ action, chain?, url?, rpcUrls? }`
+**Output:** Object with `action`, `chain`, `url`, or `rpcUrls` depending on the action
 
 **Example prompt:** "I'm getting rate limited on Base, set a custom RPC"
 
