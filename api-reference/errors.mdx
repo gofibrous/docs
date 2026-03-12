@@ -154,11 +154,11 @@ Validation errors occur when request parameters don't meet the required format o
 **Solution:**
 - Wait for the rate limit to reset (check `Retry-After` header)
 - Implement exponential backoff in your retry logic
-- Consider requesting an API key for higher rate limits
+- Generate and manage your API keys at the [Fibrous Partnership Portal](https://portal.fibrous.finance/) for higher rate limits
 - Contact [contact@fibrous.finance](mailto:contact@fibrous.finance) for enterprise rate limits
 
 <Info>
-API keys provide higher rate limits. Contact us to obtain an API key for your integration.
+API keys provide higher rate limits. Generate and manage your API keys at the [Fibrous Partnership Portal](https://portal.fibrous.finance/).
 </Info>
 
 ---
@@ -364,7 +364,7 @@ GET /monad/v2/route?amount=1000&tokenInAddress=0x...&tokenOutAddress=0x...
 }
 ```
 
-**Fix:** Implement rate limiting in your application or request an API key for higher limits.
+**Fix:** Implement rate limiting in your application or obtain an API key from the [Fibrous Partnership Portal](https://portal.fibrous.finance/) for higher limits.
 
 ---
 

@@ -12,7 +12,7 @@ This guide covers critical considerations and best practices for integrating the
 ### 0.   Integrator Features - API Key Requirement ⚠️
 
 <Warning>
-  **API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous. Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
+  **API Key Required for Integrator Features**: To use integrator features (fee or surplus sharing), you MUST obtain an API key from Fibrous. Generate and manage your API keys at the [Fibrous Partnership Portal](https://portal.fibrous.finance/). Without an API key, integrator parameters will be ignored and normal swap functionality will be used.
 
   **Contract Function Selection**:
 
@@ -365,7 +365,7 @@ async function makeRequest(url) {
 
 **For Higher Limits:**
 
-- Request an API key for increased rate limits
+- Generate and manage your API keys at the [Fibrous Partnership Portal](https://portal.fibrous.finance/) for increased rate limits
 - Contact [contact@fibrous.finance](mailto:contact@fibrous.finance) for enterprise limits
 
 ---
@@ -497,7 +497,7 @@ async function executeSwap(calldataResponse, signer) {
 ### 9. Integrator Features and API Key Requirements
 
 <Warning>
-  **API Key Required**: Integrator features (fee or surplus sharing) require an API key from Fibrous Finance. If you don't have an API key, use normal swap functionality.
+  **API Key Required**: Integrator features (fee or surplus sharing) require an API key from Fibrous. Generate and manage your API keys at the [Fibrous Partnership Portal](https://portal.fibrous.finance/). If you don't have an API key, use normal swap functionality.
 </Warning>
 
 **Two Swap Modes:**
@@ -1072,7 +1072,7 @@ Before going to production, ensure you've covered:
 - Error monitoring
 - Analytics tracking
 - **Integrator Features (if using)**:
-  - API key obtained from Fibrous
+  - API key from the [Fibrous Partnership Portal](https://portal.fibrous.finance/)
   - `swapIntegrator()` function used instead of `swap()`
   - `integrator_data` passed to contract function
   - `min_received` calculation verified (amount_out - fee - slippage)

@@ -67,6 +67,16 @@
         "tab": "API Reference",
         "groups": [
           {
+            "group": "Partner",
+            "pages": [
+              {
+                "title": "Portal",
+                "href": "https://portal.fibrous.finance/",
+                "icon": "gauge-high"
+              }
+            ]
+          },
+          {
             "group": "Getting Started",
             "pages": [
               "api-reference/introduction",
