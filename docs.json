@@ -12,6 +12,20 @@
     "baseUrl": "https://api.fibrous.finance"
   },
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Portal",
+          "href": "https://portal.fibrous.finance/",
+          "icon": "gauge-high"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/fibrous-finance",
+          "icon": "github"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Overview",
@@ -66,12 +80,6 @@
       {
         "tab": "API Reference",
         "groups": [
-          {
-            "group": "Partner",
-            "pages": [
-              "external-links/portal"
-            ]
-          },
           {
             "group": "Getting Started",
             "pages": [
