@@ -69,11 +69,7 @@
           {
             "group": "Partner",
             "pages": [
-              {
-                "title": "Portal",
-                "href": "https://portal.fibrous.finance/",
-                "icon": "gauge-high"
-              }
+              "external-links/portal"
             ]
           },
           {

@@ -15,50 +15,93 @@ This starts an MCP server over **stdio** (standard input/output). The server spe
 
 ## Editor Setup
 
-### Cursor
+Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the editor spawns `npx fibx mcp-start` and communicates over standard input/output.
 
-Create `.cursor/mcp.json` in your project root:
+<Tabs>
+  <Tab title="Cursor">
+    Open MCP settings with <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> and search for "Open MCP settings". Create or edit `.cursor/mcp.json` in your project root:
 
-```json
-{
-  "mcpServers": {
-    "fibx": {
-      "command": "npx",
-      "args": ["-y", "fibx", "mcp-start"]
+    ```json
+    {
+      "mcpServers": {
+        "fibx": {
+          "command": "npx",
+          "args": ["-y", "fibx", "mcp-start"]
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-### Claude Desktop
+    Test by asking Cursor: _"What tools do you have available?"_ — it should list the FibX MCP server.
+  </Tab>
+  <Tab title="Claude Desktop">
+    Add to your `claude_desktop_config.json`:
 
-Add to `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "fibx": {
-      "command": "npx",
-      "args": ["-y", "fibx", "mcp-start"]
+    ```json
+    {
+      "mcpServers": {
+        "fibx": {
+          "command": "npx",
+          "args": ["-y", "fibx", "mcp-start"]
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-### Antigravity
+    Restart Claude Desktop after editing the config. Ensure you are authenticated with `fibx auth login` or `fibx auth import` before using DeFi tools.
+  </Tab>
+  <Tab title="VS Code">
+    Create or edit `.vscode/mcp.json` in your project:
 
-Add to `~/.gemini/antigravity/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "fibx": {
-      "command": "npx",
-      "args": ["-y", "fibx", "mcp-start"]
+    ```json
+    {
+      "mcpServers": {
+        "fibx": {
+          "command": "npx",
+          "args": ["-y", "fibx", "mcp-start"]
+        }
+      }
     }
-  }
-}
-```
+    ```
+
+    Reload the window or restart VS Code to activate the MCP server.
+  </Tab>
+  <Tab title="Windsurf">
+    Open the MCP configuration in Windsurf settings and add:
+
+    ```json
+    {
+      "mcpServers": {
+        "fibx": {
+          "command": "npx",
+          "args": ["-y", "fibx", "mcp-start"]
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Antigravity">
+    Add to `~/.gemini/antigravity/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "fibx": {
+          "command": "npx",
+          "args": ["-y", "fibx", "mcp-start"]
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="ChatGPT / Others">
+    ChatGPT and other tools without MCP support cannot connect to FibX directly. Use one of these alternatives:
+
+    - **CLI**: Run `npx fibx@latest` commands directly in your terminal.
+    - **Agent Skills**: Install [fibx-skills](https://github.com/Fibrous-Finance/fibx-skills) for AI agents that support the Agent Skills format.
+    - **MCP-capable editor**: Use Cursor, Claude Desktop, VS Code, or Windsurf with the config above.
+  </Tab>
+</Tabs>
 
 <Note>
   You must be authenticated before the MCP server can execute wallet operations. Use `fibx auth login` or `fibx auth import` to authenticate.
