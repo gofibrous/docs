@@ -7,11 +7,25 @@ description: "Requirements, installation, and authentication methods for the fib
 
 - **Node.js** v18 or higher
 - **npm** (included with Node.js)
-- A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance for wallet operations
+- A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance only if you use Privy-managed wallet operations
 
 <Note>
   No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.3.5**).
 </Note>
+
+## Installation Options
+
+Run FibX directly with `npx`:
+
+```bash
+npx fibx@latest status
+```
+
+Or install it globally:
+
+```bash
+npm install -g fibx
+```
 
 ## Installing Agent Skills
 
@@ -36,7 +50,7 @@ FibX requires an active session before performing any wallet operation (balance,
 
 ### Private Key Import (Recommended)
 
-If you already have a wallet with a private key, this is the fastest way to get started. The key is encrypted and stored in a local session file for the duration of the session.
+If you already have a wallet with a private key, this is the fastest way to get started. The key is encrypted and stored in a local session file for the duration of the session. This mode does not require `fibx-server`.
 
 <Warning>
   Your private key will be stored locally in an encrypted session file. Only use this method on a trusted device.
@@ -54,7 +68,7 @@ This is ideal for developers and agents that already manage their own wallets. T
 
 ### Email OTP (Alternative — Privy Server Wallets)
 
-If you do not have a private key or prefer a managed wallet, you can authenticate via email OTP. This creates a server-managed wallet through [Privy](https://privy.io), where the private key is held securely on Privy's infrastructure and never exposed to the client.
+If you do not have a private key or prefer a managed wallet, you can authenticate via email OTP. This creates a server-managed wallet through [Privy](https://privy.io), where the private key is held securely on Privy's infrastructure and never exposed to the client. This mode requires `fibx-server` to be running and reachable.
 
 ```bash
 # Step 1: Request an OTP code
@@ -88,6 +102,7 @@ These flags apply to all commands:
 | ------------------- | ----------------------------------------------- | ------- |
 | `-c, --chain`       | Target chain: `base`, `citrea`, `hyperevm`, `monad` | `base`  |
 | `--json`            | Output results as JSON (useful for scripting)   | `false` |
+| `--simulate`        | Estimate gas and simulate execution without sending a transaction | `false` |
 
 ### Chain Selection
 
@@ -125,3 +140,13 @@ After authenticating, run through a complete workflow to verify everything is wo
     This returns the on-chain status, gas used, and a block explorer link.
   </Step>
 </Steps>
+
+## Dry-Run Mode
+
+Use `--simulate` to estimate gas and validate execution without broadcasting a transaction.
+
+```bash
+npx fibx@latest send 0.1 0xRecipient --simulate
+npx fibx@latest trade 0.1 ETH USDC --simulate
+npx fibx@latest aave supply 1 ETH --simulate
+```

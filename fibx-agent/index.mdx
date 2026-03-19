@@ -3,13 +3,16 @@ title: "What is FibX?"
 description: "A command-line tool and agent skill framework for executing DeFi operations across multiple chains, powered by Fibrous aggregation."
 ---
 
-FibX is a CLI-based DeFi execution layer that enables both developers and AI agents to perform on-chain operations — token swaps, transfers, balance checks, and Aave V3 position management — across **Base, Citrea, HyperEVM, and Monad**.
+FibX is a CLI-based DeFi execution layer that enables both developers and AI agents to perform on-chain operations — token swaps, transfers, balance checks, cross-chain portfolio inspection, and Aave V3 position management — across **Base, Citrea, HyperEVM, and Monad**.
 
 It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap routing with flexible wallet authentication — use your own private key directly, or create a server-managed wallet via [Privy](https://privy.io).
 
 ## Core Capabilities
 
 <CardGroup cols={2}>
+  <Card title="Portfolio View" icon="chart-pie">
+    Consolidated cross-chain portfolio view with USD valuations, token balances, Aave collateral and debt, and total net worth across all supported chains.
+  </Card>
   <Card title="Token Swaps" icon="arrows-rotate">
     Optimal routing via Fibrous aggregation with auto-slippage. Supports all tokens across integrated DEXs on each chain.
   </Card>
@@ -17,7 +20,7 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
     Send native tokens (ETH, cBTC, HYPE, MON) or any ERC-20 token to any address. All transactions are simulated before execution.
   </Card>
   <Card title="Aave V3" icon="building-columns">
-    Supply, borrow, repay, and withdraw on Base. Includes health factor monitoring and liquidation safety checks.
+    Supply, borrow, repay, withdraw, and browse active markets on Base. Includes health factor monitoring and liquidation safety checks.
   </Card>
   <Card title="Agent Skills" icon="robot">
     Seven pre-built skills that allow AI agents to authenticate, check balances, trade, send, manage Aave positions, verify transactions, and configure RPC endpoints — all through natural language.
@@ -26,7 +29,7 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
 
 ## How It Works
 
-FibX operates as a CLI tool (`npx fibx@latest`) that communicates with a backend server for wallet management and transaction execution. Every transaction is simulated before broadcast to prevent failed executions.
+FibX operates as a CLI tool (`npx fibx@latest`) that communicates with the Fibrous aggregation stack and, when needed, a backend server for Privy-managed wallet operations. Every transaction is simulated before broadcast to prevent failed executions.
 
 ```mermaid
 flowchart LR
@@ -57,7 +60,7 @@ Every FibX session follows the same four-step pattern:
     Import your private key for direct usage, or log in via email OTP to create a Privy server wallet. Either method creates a session that persists across commands.
   </Step>
   <Step title="Check Funds">
-    Query native and ERC-20 token balances on the target chain.
+    Query native and ERC-20 token balances on the target chain, or inspect the full cross-chain portfolio with USD valuations.
   </Step>
   <Step title="Execute">
     Perform a swap, transfer, or Aave operation. The CLI simulates the transaction before submitting it on-chain.
@@ -76,6 +79,9 @@ npx fibx@latest auth import
 # Check balance on Base
 npx fibx@latest balance
 
+# View your cross-chain portfolio
+npx fibx@latest portfolio
+
 # Swap 0.1 ETH for USDC
 npx fibx@latest trade 0.1 ETH USDC
 
@@ -90,7 +96,8 @@ npx fibx@latest tx-status 0xabc...def
     Run commands directly in your terminal. Ideal for developers who want programmatic access to DeFi operations or need to script workflows.
 
     ```bash
-    npx fibx@latest trade 0.05 ETH USDC --chain base --json
+    npx fibx@latest portfolio --json
+    npx fibx@latest trade 0.05 ETH USDC --chain base --simulate
     ```
   </Tab>
   <Tab title="As Agent Skills">
@@ -116,6 +123,6 @@ npx fibx@latest tx-status 0xabc...def
     Seven pre-built skills for AI agent integration
   </Card>
   <Card title="MCP Configuration" icon="plug" href="/fibx-agent/mcp-configuration">
-    Connect FibX to Cursor, Claude Desktop, Antigravity
+    Connect FibX to Cursor, Claude Desktop, VS Code, Windsurf, and Antigravity
   </Card>
 </CardGroup>

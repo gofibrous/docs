@@ -11,7 +11,18 @@ FibX includes a built-in [Model Context Protocol](https://modelcontextprotocol.i
 npx fibx mcp-start
 ```
 
-This starts an MCP server over **stdio** (standard input/output). The server speaks JSON-RPC and is designed to be launched by an AI editor, not run manually.
+This starts an MCP server over **stdio** (standard input/output). The server speaks JSON-RPC 2.0 and is designed to be launched by an AI editor, not run manually.
+
+## How It Works
+
+1. Your AI editor spawns `npx fibx mcp-start` as a subprocess.
+2. The editor communicates with FibX over **stdin/stdout** using JSON-RPC 2.0 messages.
+3. FibX reads the local session file to authenticate, so you must run `fibx auth login` or `fibx auth import` first.
+4. Tools execute against live blockchains. Transactional tools are marked as **destructive**, so compatible editors prompt for confirmation before execution.
+
+<Note>
+  `stderr` is used for logging, while `stdout` is reserved for JSON-RPC protocol messages.
+</Note>
 
 ## Editor Setup
 
@@ -115,6 +126,7 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
 | ----------------- | ---------------------------------------- |
 | `get_auth_status` | Check session and Fibrous API health     |
 | `get_balance`     | Get native and ERC-20 token balances     |
+| `get_portfolio`   | Get cross-chain portfolio and DeFi positions |
 | `get_tx_status`   | Check transaction receipt and status    |
 | `get_aave_status` | Get Aave V3 position health on Base     |
 
@@ -155,6 +167,18 @@ Fetch all token balances for the active wallet. Only returns non-zero balances.
 | `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
 
 **Output:** Object with `wallet`, `chain`, and `balances` (e.g. ETH, USDC with amounts)
+
+### get_portfolio
+
+Get a consolidated portfolio across all supported chains, including USD-valued token holdings and DeFi positions.
+
+| Parameter | Type | Required | Description       |
+| --------- | ---- | -------- | ----------------- |
+| none      | n/a  | n/a      | No input required |
+
+**Output:** Object with total portfolio USD value, per-chain assets, and DeFi position summaries
+
+**Example prompts:** "Show me my portfolio" or "What's my total net worth across all chains?"
 
 ### swap_tokens
 
@@ -228,13 +252,13 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
-| `action`  | string | Yes      | `set-rpc`, `get-rpc`, or `list`              |
+| `action`  | string | Yes      | `set-rpc`, `get-rpc`, `reset-rpc`, or `list` |
 | `chain`   | string | Conditional | Required for `set-rpc` and `get-rpc`         |
 | `url`     | string | Conditional | Required for `set-rpc` — full RPC endpoint   |
 
 **Output:** Object with `action`, `chain`, `url`, or `rpcUrls` depending on the action
 
-**Example prompt:** "I'm getting rate limited on Base, set a custom RPC"
+**Example prompts:** "I'm getting rate limited on Base, set a custom RPC" or "Reset all RPCs to default"
 
 ## Supported Chains
 
@@ -254,3 +278,13 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 <Note>
   If using Privy authentication, ensure `fibx-server` is running and accessible before starting the MCP server.
 </Note>
+
+## Troubleshooting
+
+| Problem | Solution |
+| ------- | -------- |
+| Server will not start | Ensure Node.js 18+ is installed and `npx fibx --version` works |
+| "Not authenticated" errors | Run `fibx auth login <email>` or `fibx auth import` before starting |
+| Wallet operations fail | Ensure `fibx-server` is running when using Privy-managed wallets |
+| Rate limit errors | Use `config_action` to set a custom RPC URL |
+| Editor cannot connect | Verify the MCP config JSON syntax and restart the editor |

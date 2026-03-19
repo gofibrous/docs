@@ -1,12 +1,12 @@
 ---
 title: "CLI Command Reference"
-description: "Complete reference for all fibx CLI commands — authentication, balance, send, trade, Aave V3, and transaction status."
+description: "Complete reference for all fibx CLI commands — authentication, portfolio, balance, send, trade, Aave V3, configuration, and transaction status."
 ---
 
 All commands follow the pattern:
 
 ```bash
-npx fibx@latest <command> [arguments] [--chain <chain>] [--json]
+npx fibx@latest <command> [arguments] [--chain <chain>] [--simulate] [--json]
 ```
 
 Default chain is `base` unless overridden with `--chain`.
@@ -74,13 +74,41 @@ npx fibx@latest address
 
 ---
 
-## wallets — List Wallets
+## wallets — Wallet Details
 
-List the active wallet associated with an email.
+Show the active wallet details for the current session.
 
 ```bash
-npx fibx@latest wallets <email>
+npx fibx@latest wallets
 ```
+
+---
+
+## portfolio — Cross-Chain Portfolio
+
+View a consolidated portfolio across all supported chains with USD-valued token holdings and DeFi positions.
+
+```bash
+npx fibx@latest portfolio [--json]
+```
+
+| Parameter | Type | Required | Description                    |
+| --------- | ---- | -------- | ------------------------------ |
+| `json`    | flag | No       | Output the portfolio as JSON   |
+
+### Examples
+
+```bash
+# Human-readable portfolio summary
+npx fibx@latest portfolio
+
+# Structured JSON for automation
+npx fibx@latest portfolio --json
+```
+
+<Note>
+  The portfolio view aggregates holdings across Base, Citrea, HyperEVM, and Monad. It also includes Aave V3 collateral and debt positions when available.
+</Note>
 
 ---
 
@@ -127,7 +155,7 @@ npx fibx@latest balance [--chain <chain>] [--json]
 Send native tokens or ERC-20 tokens to a recipient address. The transaction is simulated before execution.
 
 ```bash
-npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--json]
+npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--simulate] [--json]
 ```
 
 | Parameter   | Type   | Required | Description                                  |
@@ -136,6 +164,7 @@ npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--json]
 | `recipient` | string | Yes      | Destination address (`0x...`)                |
 | `token`     | string | No       | Token symbol (e.g. `USDC`). Omit for native token |
 | `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `simulate`  | flag   | No       | Estimate gas and simulate without sending     |
 | `json`      | flag   | No       | Output as JSON                               |
 
 If `token` is omitted, the chain's native token is used (ETH on Base, cBTC on Citrea, HYPE on HyperEVM, MON on Monad).
@@ -151,6 +180,9 @@ npx fibx@latest send 100 0xRecipient USDC
 
 # Send native MON on Monad
 npx fibx@latest send 1 0xRecipient --chain monad
+
+# Estimate gas without broadcasting
+npx fibx@latest send 0.1 0xRecipient --simulate
 ```
 
 ---
@@ -160,7 +192,7 @@ npx fibx@latest send 1 0xRecipient --chain monad
 Exchange one token for another via Fibrous aggregation. The CLI finds the optimal route, handles token approvals, simulates the swap, and executes.
 
 ```bash
-npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slippage <n>] [--approve-max] [--json]
+npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slippage <n>] [--approve-max] [--simulate] [--json]
 ```
 
 | Parameter     | Type   | Required | Description                                    |
@@ -171,6 +203,7 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
 | `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
 | `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
 | `approve-max` | flag   | No       | Use infinite approval instead of exact amount  |
+| `simulate`    | flag   | No       | Estimate gas and simulate without executing    |
 | `json`        | flag   | No       | Output as JSON                                 |
 
 <Note>
@@ -200,6 +233,11 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
     npx fibx@latest trade 0.1 ETH USDC --slippage 1.0
     ```
   </Tab>
+  <Tab title="Dry Run">
+    ```bash
+    npx fibx@latest trade 0.1 ETH USDC --simulate
+    ```
+  </Tab>
 </Tabs>
 
 ---
@@ -213,14 +251,15 @@ Manage Aave V3 lending positions on Base. Supply assets to earn yield, borrow ag
 </Warning>
 
 ```bash
-npx fibx@latest aave <action> [amount] [token] [--json]
+npx fibx@latest aave <action> [amount] [token] [--simulate] [--json]
 ```
 
 | Parameter | Type   | Required              | Description                                       |
 | --------- | ------ | --------------------- | ------------------------------------------------- |
-| `action`  | string | Yes                   | `status`, `supply`, `borrow`, `repay`, `withdraw` |
+| `action`  | string | Yes                   | `status`, `markets`, `supply`, `borrow`, `repay`, `withdraw` |
 | `amount`  | string | Yes (except `status`) | Amount or `max` for full repay/withdraw           |
 | `token`   | string | Yes (except `status`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.)         |
+| `simulate`| flag   | No                    | Estimate gas and simulate without executing       |
 | `json`    | flag   | No                    | Output as JSON                                    |
 
 ### Actions
@@ -228,6 +267,7 @@ npx fibx@latest aave <action> [amount] [token] [--json]
 | Action     | Description                                | Example                                          |
 | ---------- | ------------------------------------------ | ------------------------------------------------ |
 | `status`   | Account health, LTV, net worth             | `npx fibx@latest aave status`                   |
+| `markets`  | Browse active reserves with APY and TVL    | `npx fibx@latest aave markets`                  |
 | `supply`   | Deposit assets (auto-wraps ETH → WETH)     | `npx fibx@latest aave supply 1 ETH`             |
 | `borrow`   | Borrow against collateral                  | `npx fibx@latest aave borrow 50 USDC`           |
 | `repay`    | Repay debt (auto-wraps ETH → WETH)         | `npx fibx@latest aave repay max ETH`            |
@@ -240,10 +280,12 @@ npx fibx@latest aave <action> [amount] [token] [--json]
 ```bash
 npx fibx@latest aave supply 1 ETH         # Auto-wraps ETH → WETH and supplies
 npx fibx@latest aave supply 100 USDC      # Supply ERC-20 directly
+npx fibx@latest aave markets              # Browse active reserves with APY & TVL
 npx fibx@latest aave borrow 50 USDC       # Borrow
 npx fibx@latest aave repay 50 USDC        # Repay partial USDC debt
 npx fibx@latest aave repay max ETH        # Auto-wraps ETH and repays full WETH debt
 npx fibx@latest aave withdraw max ETH     # Withdraws WETH and auto-unwraps to ETH
+npx fibx@latest aave supply 1 ETH --simulate
 ```
 
 ### Health Factor
@@ -272,6 +314,7 @@ npx fibx@latest config <subcommand> [chain] [url]
 | ----------- | --------------------------------------- | ------------------------------------------------------------------------ |
 | `set-rpc`   | Set a custom RPC URL for a chain        | `npx fibx@latest config set-rpc base https://mainnet.base.org`          |
 | `get-rpc`   | View the current RPC URL for a chain    | `npx fibx@latest config get-rpc base`                                   |
+| `reset-rpc` | Reset one chain or all chains to default | `npx fibx@latest config reset-rpc base`                                 |
 | `list`      | List all custom configurations          | `npx fibx@latest config list`                                            |
 
 | Parameter | Type   | Required | Description                                  |
@@ -291,6 +334,12 @@ npx fibx@latest config set-rpc base https://mainnet.base.org
 
 # Check configured RPC
 npx fibx@latest config get-rpc base
+
+# Reset Base RPC to default
+npx fibx@latest config reset-rpc base
+
+# Reset all custom RPCs
+npx fibx@latest config reset-rpc
 
 # List all configurations
 npx fibx@latest config list

@@ -29,9 +29,11 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
     | Explorer       | [BaseScan](https://basescan.org)       |
 
     ```bash
-    # Balance, trade, and Aave on Base (default chain)
+    # Balance, trade, portfolio, and Aave on Base (default chain)
     npx fibx@latest balance
+    npx fibx@latest portfolio
     npx fibx@latest trade 0.1 ETH USDC
+    npx fibx@latest aave markets
     npx fibx@latest aave supply 100 USDC
     ```
   </Accordion>
@@ -96,10 +98,13 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
 | Feature          | Base | Citrea | HyperEVM | Monad |
 | ---------------- | ---- | ------ | -------- | ----- |
 | Balance Check    | Yes  | Yes    | Yes      | Yes   |
+| Portfolio View   | Yes  | Yes    | Yes      | Yes   |
 | Token Transfers  | Yes  | Yes    | Yes      | Yes   |
 | Token Swaps      | Yes  | Yes    | Yes      | Yes   |
 | Aave V3          | Yes  | No     | No       | No    |
+| Aave Markets     | Yes  | No     | No       | No    |
 | Tx Status        | Yes  | Yes    | Yes      | Yes   |
+| Dry-Run Mode     | Yes  | Yes    | Yes      | Yes   |
 | JSON Output      | Yes  | Yes    | Yes      | Yes   |
 
 ## Selecting a Chain
