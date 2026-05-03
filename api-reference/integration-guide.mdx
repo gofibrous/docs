@@ -604,7 +604,7 @@ function swapIntegrator(
 
 **Endpoint Mapping:**
 
-- V1 `/calldata` → V2 `/routeAndCallData` (GET)
+- V1 `/calldata` → V2 `/routeAndCalldata` (GET)
 - V1 `/execute` → V2 `/calldata` (POST)
 
 ---
@@ -861,7 +861,7 @@ class FibrousRouterIntegration {
       destination
     });
     
-    const response = await fetch(`${this.baseUrl}/routeAndCallData?${params}`, {
+    const response = await fetch(`${this.baseUrl}/routeAndCalldata?${params}`, {
       headers: this.headers
     });
     

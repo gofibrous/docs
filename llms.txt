@@ -51,7 +51,7 @@
 
 - [V2 Migration Guide](/api-reference/v2-migration): Migrate from V1 to V2 API endpoints
 - [Route V2](/api-reference/endpoints/route-v2): Find optimal routes with V2 improvements
-- [Route & Calldata V2](/api-reference/endpoints/routeAndCallData-v2): Combined endpoint for routing and calldata generation
+- [Route & Calldata V2](/api-reference/endpoints/routeAndCalldata-v2): Combined endpoint for routing and calldata generation
 - [Calldata V2](/api-reference/endpoints/calldata-v2): Generate calldata with V2 enhancements
 - [Health Check V2](/api-reference/endpoints/health-check-v2): Enhanced health check with detailed metrics
 

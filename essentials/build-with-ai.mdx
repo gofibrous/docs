@@ -159,7 +159,7 @@ Here's a practical walkthrough of using an AI assistant with the Fibrous MCP ser
 
     > _Now get the route and calldata in a single call with 0.5% slippage and show me how to execute it with ethers.js._
 
-    The AI will use the `routeAndCallData` V2 endpoint:
+    The AI will use the `routeAndCalldata` V2 endpoint:
 
     ```javascript
     async function executeSwap(signer) {
@@ -172,7 +172,7 @@ Here's a practical walkthrough of using an AI assistant with the Fibrous MCP ser
       });
     
       const response = await fetch(
-        `https://api.fibrous.finance/base/v2/routeAndCallData?${params}`
+        `https://api.fibrous.finance/base/v2/routeAndCalldata?${params}`
       );
       const data = await response.json();
     

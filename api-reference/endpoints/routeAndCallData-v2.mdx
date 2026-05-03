@@ -1,7 +1,7 @@
 ---
 title: "Route and Calldata (V2)"
 description: "Get route and calldata in a single V2 API request"
-api: "GET /{network}/v2/routeAndCallData"
+api: "GET /{network}/v2/routeAndCalldata"
 ---
 
 <Warning>
@@ -21,7 +21,7 @@ The Route and Calldata V2 endpoint combines route finding and calldata generatio
 <Tabs>
   <Tab title="EVM Networks">
     ```bash
-    https://api.fibrous.finance/{network}/v2/routeAndCallData
+    https://api.fibrous.finance/{network}/v2/routeAndCalldata
     ```
   </Tab>
 </Tabs>
@@ -193,7 +193,7 @@ Find the optimal trading route through Fibrous' integrated liquidity sources and
 
 ```bash cURL
 curl -L \
-  "https://api.fibrous.finance/{network}/v2/routeAndCallData?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
+  "https://api.fibrous.finance/{network}/v2/routeAndCalldata?amount=1000000000000000000&tokenInAddress=0x0000000000000000000000000000000000000000&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&slippage=0.5&destination=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb" \
   --header "Accept: */*"
 ```
 
@@ -209,7 +209,7 @@ const params = {
   destination: '0x1234567890123456789012345678901234567890'
 };
 
-axios.get('https://api.fibrous.finance/{network}/v2/routeAndCallData', { params })
+axios.get('https://api.fibrous.finance/{network}/v2/routeAndCalldata', { params })
   .then(response => {
     const { route, calldata, router_address, meta } = response.data;
     console.log(`API Version: ${meta.apiVersion}`);
@@ -223,7 +223,7 @@ axios.get('https://api.fibrous.finance/{network}/v2/routeAndCallData', { params 
 ```python Python
 import requests
 
-url = "https://api.fibrous.finance/{network}/v2/routeAndCallData"
+url = "https://api.fibrous.finance/{network}/v2/routeAndCalldata"
 
 params = {
     "amount": "1000000000000000000",
@@ -251,7 +251,7 @@ import java.nio.charset.StandardCharsets;
 
 public class FibrousRouteAndCallData {
     public static void main(String[] args) throws Exception {
-        String baseUrl = "https://api.fibrous.finance/{network}/v2/routeAndCallData";
+        String baseUrl = "https://api.fibrous.finance/{network}/v2/routeAndCalldata";
         String params = "amount=1000000000000000000" +
                        "&tokenInAddress=0x0000000000000000000000000000000000000000" +
                        "&tokenOutAddress=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" +
@@ -282,7 +282,7 @@ import (
 )
 
 func main() {
-    baseURL := "https://api.fibrous.finance/{network}/v2/routeAndCallData"
+    baseURL := "https://api.fibrous.finance/{network}/v2/routeAndCalldata"
     
     params := url.Values{}
     params.Add("amount", "1000000000000000000")
@@ -425,7 +425,7 @@ func main() {
 
 **V2 (1 API call):**
 
-1. GET `/v2/routeAndCallData` - Get route and calldata together
+1. GET `/v2/routeAndCalldata` - Get route and calldata together
 
 This reduces:
 
