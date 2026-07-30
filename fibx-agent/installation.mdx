@@ -7,10 +7,10 @@ description: "Requirements, installation, and authentication methods for the fib
 
 - **Node.js** v18 or higher
 - **npm** (included with Node.js)
-- A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance only if you use Privy-managed wallet operations
+- A running [fibx-server](https://github.com/Fibrous-Finance/fibx-server) instance only if you use Privy-managed wallet operations
 
 <Note>
-  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.5.1**).
+  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.8.1**).
 </Note>
 
 ## Installation Options
@@ -44,9 +44,20 @@ node --version   # Must be v18.0.0 or higher
 npm --version
 ```
 
+## Try It Without a Wallet
+
+Before setting anything up, you can check live prices — `quote` needs no session,
+no wallet and no keys:
+
+```bash
+npx fibx@latest quote 0.01 ETH USDC
+npx fibx@latest quote 100 USDC DAI --chain monad
+```
+
 ## Authentication
 
-FibX requires an active session before performing any wallet operation (balance, send, trade, aave). Two authentication methods are available:
+Every wallet operation (balance, send, trade, aave) needs an active session;
+`quote` is the exception described above. Two authentication methods are available:
 
 ### Private Key Import (Recommended)
 

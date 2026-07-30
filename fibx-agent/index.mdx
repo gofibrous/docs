@@ -23,7 +23,7 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
     Supply, borrow, repay, withdraw, and browse active markets on Base. Includes health factor monitoring and liquidation safety checks.
   </Card>
   <Card title="Agent Skills" icon="robot">
-    Eight pre-built skills that allow AI agents to authenticate, check balances, inspect portfolios, trade, send, manage Aave positions, verify transactions, and configure RPC endpoints — all through natural language.
+    Ten pre-built skills that allow AI agents to check prices, authenticate, inspect balances and portfolios, trade, send, manage Aave positions, verify transactions, and configure RPC endpoints — all through natural language.
   </Card>
 </CardGroup>
 
@@ -51,6 +51,26 @@ flowchart LR
 | HyperEVM | HYPE         | `--chain hyperevm` | No      |
 | Monad    | MON          | `--chain monad`    | No      |
 
+## Security Model
+
+FibX moves real funds, so the limits that matter are enforced below the agent —
+not in a prompt that a jailbreak could rewrite.
+
+<CardGroup cols={2}>
+  <Card title="Limits live at the signing layer" icon="shield-halved">
+    Privy server wallets are created with a default-deny signing policy: transactions are only signed for the chains FibX serves, each under a per-transaction value cap, and private key export is permanently denied. These rules are enforced inside Privy's TEE, so they hold even if the FibX backend is compromised.
+  </Card>
+  <Card title="Confirmation before value moves" icon="hand">
+    Every transactional MCP tool is marked destructive, so compatible editors prompt before execution. All of them accept `simulate=true` to preview fees without sending anything.
+  </Card>
+  <Card title="Keys never reach the client" icon="key">
+    In Privy mode the private key stays in Privy's TEE and the CLI only ever receives a signature. In private-key mode the key is encrypted at rest with AES-256-GCM and never leaves your machine.
+  </Card>
+  <Card title="Simulated before broadcast" icon="flask">
+    Transactions are simulated before they are sent, so failures surface as readable errors instead of burned gas.
+  </Card>
+</CardGroup>
+
 ## Typical Workflow
 
 Every FibX session follows the same four-step pattern:
@@ -73,6 +93,9 @@ Every FibX session follows the same four-step pattern:
 ## Quick Example
 
 ```bash
+# Check a price first — no wallet, no login required
+npx fibx@latest quote 0.01 ETH USDC
+
 # Authenticate with your private key
 npx fibx@latest auth import
 
@@ -105,6 +128,8 @@ npx fibx@latest tx-status 0xabc...def
 
     | User Prompt                      | Skill Triggered       |
     | -------------------------------- | --------------------- |
+    | "How much USDC for 0.1 ETH?"    | `quote`               |
+    | "What's my wallet address?"      | `wallet-info`         |
     | "Swap 0.05 ETH to USDC"         | `trade`               |
     | "Check my balance on Monad"      | `balance`             |
     | "Show me my portfolio"           | `portfolio`           |
@@ -114,16 +139,34 @@ npx fibx@latest tx-status 0xabc...def
   </Tab>
 </Tabs>
 
+## Telegram Bot
+
+[fibx-telegram-bot](https://github.com/Fibrous-Finance/fibx-telegram-bot) puts the
+same execution layer in a chat window. It drives the FibX MCP server, so it has
+exactly the tools described here — quotes, swaps, transfers, portfolio and Aave —
+reached through natural language instead of flags.
+
+- **Bring your own model.** Choose OpenAI, Claude or Gemini and supply your own
+  API key. There is no shared key and no centralized inference billing; keys are
+  encrypted at rest and can be erased with `/deletekey`.
+- **Isolated per user.** Every user gets a dedicated MCP process under its own
+  virtual HOME, so sessions and caches never leak between people.
+- **Price alerts.** `/alert ETH above 4000` notifies you once when the price is
+  reached — no login or AI key required.
+
 ## Resources
 
 <CardGroup cols={2}>
   <Card title="npm Package" icon="npm" href="https://www.npmjs.com/package/fibx">
-    fibx v0.5.1 — install and version history
+    fibx v0.8.1 — install and version history
   </Card>
   <Card title="Agent Skills" icon="github" href="https://github.com/Fibrous-Finance/fibx-skills">
-    Eight pre-built skills for AI agent integration
+    Ten pre-built skills for AI agent integration
   </Card>
   <Card title="MCP Configuration" icon="plug" href="/fibx-agent/mcp-configuration">
     Connect FibX to Cursor, Claude Desktop, VS Code, Windsurf, and Antigravity
+  </Card>
+  <Card title="Telegram Bot" icon="telegram" href="https://github.com/Fibrous-Finance/fibx-telegram-bot">
+    Chat-based DeFi execution with your own AI model
   </Card>
 </CardGroup>

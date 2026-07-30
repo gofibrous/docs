@@ -45,7 +45,7 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
 No separate installation of `fibx` is needed — all skills use `npx fibx@latest`.
 
 <Note>
-  Skills require Node.js 18+ and are compatible with fibx CLI v0.5.x.
+  Skills require Node.js 18+ and are compatible with fibx CLI v0.8.x.
 </Note>
 
 ---
@@ -53,6 +53,28 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
 ## Available Skills
 
 <AccordionGroup>
+  <Accordion title="quote" icon="tag">
+    **Category:** Read-Only
+
+    Fetches a swap price without a wallet or a session. This is the only skill that works before authentication, so an agent can answer a pricing question for a user who has not logged in — and then offer `authenticate-wallet` if they want to execute.
+
+    ### Allowed Tools
+    ```
+    Bash(npx fibx@latest quote *)
+    ```
+
+    ### Rules
+    1. Never require or suggest authentication before quoting — this skill needs none.
+    2. If the user specifies a chain, include `--chain <name>`; otherwise default to `base` and say so.
+    3. After quoting, offer `trade` as the execution step, noting that it does require a session.
+
+    ### Trigger Examples
+    | User Prompt | Action |
+    | --- | --- |
+    | "How much USDC for 0.1 ETH?" | `quote 0.1 ETH USDC` |
+    | "What's the MON price in USDC?" | `quote 1 MON USDC --chain monad` |
+  </Accordion>
+
   <Accordion title="authenticate-wallet" icon="key">
     **Category:** Auth
 
@@ -84,6 +106,29 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
     | "I have a wallet, let me use it" | `auth import` |
     | "Log me in with user@example.com" | `auth login` then `auth verify` |
     | "Log me out" | `auth logout` |
+  </Accordion>
+
+  <Accordion title="wallet-info" icon="id-card">
+    **Category:** Wallet
+
+    Reports which wallet is active — address, wallet ID, session type, and when the session was created. Use it when the user asks for their receiving address or which account they are signed in as.
+
+    ### Allowed Tools
+    ```
+    Bash(npx fibx@latest address)
+    Bash(npx fibx@latest wallets)
+    ```
+
+    ### Rules
+    1. Use `address` when only the receiving address is needed; use `wallets` for full session details.
+    2. Neither command takes `--chain` — the same address is used on every supported chain.
+    3. Always show the full address. Never truncate an address the user may need to copy.
+
+    ### Trigger Examples
+    | User Prompt | Action |
+    | --- | --- |
+    | "What's my wallet address?" | `address` |
+    | "Which wallet am I using?" | `wallets` |
   </Accordion>
 
   <Accordion title="balance" icon="wallet">

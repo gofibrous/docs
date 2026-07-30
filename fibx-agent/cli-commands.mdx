@@ -13,6 +13,44 @@ Default chain is `base` unless overridden with `--chain`.
 
 ---
 
+## quote — Price Quotes (No Auth)
+
+Get a swap price without a wallet, a session, or any setup. This is the only
+command that works before authenticating, which makes it the fastest way to try
+FibX or to let an agent answer a pricing question for a user who has not logged
+in yet.
+
+```bash
+npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--json]
+```
+
+| Parameter    | Type   | Required | Description                                    |
+| ------------ | ------ | -------- | ---------------------------------------------- |
+| `amount`     | number | Yes      | Amount of the input token                      |
+| `from-token` | string | Yes      | Input token symbol                             |
+| `to-token`   | string | Yes      | Output token symbol                            |
+| `chain`      | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
+| `slippage`   | number | No       | Slippage tolerance in percent (default: `0.5`) |
+
+### Examples
+
+```bash
+# Check a price on Base
+npx fibx@latest quote 0.01 ETH USDC
+
+# Compare a pair on Monad
+npx fibx@latest quote 100 USDC DAI --chain monad
+
+# Machine-readable output for scripts
+npx fibx@latest quote 0.1 ETH USDC --json
+```
+
+The output shows the input and output amounts, the exchange rate, slippage, the
+router used, and the chain. To execute the same trade, use
+[`trade`](#trade--swap-tokens) with the same arguments once authenticated.
+
+---
+
 ## auth — Authentication
 
 Manage the wallet session. Required before any on-chain operation.

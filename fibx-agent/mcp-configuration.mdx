@@ -120,19 +120,27 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
 
 ## Available Tools
 
+FibX exposes **11 tools** across four categories.
+
 ### Read-Only
 
-| Tool              | Description                              |
-| ----------------- | ---------------------------------------- |
-| `get_auth_status` | Check session and Fibrous API health     |
-| `get_balance`     | Get native and ERC-20 token balances     |
-| `get_portfolio`   | Get cross-chain portfolio and DeFi positions |
-| `get_tx_status`   | Check transaction receipt and status    |
-| `get_aave_status` | Get Aave V3 position health on Base     |
+| Tool               | Description                                                  | Auth Required |
+| ------------------ | ------------------------------------------------------------ | ------------- |
+| `get_quote`        | Get a swap price quote, exchange rate, and route info        | No            |
+| `get_auth_status`  | Check session and Fibrous API health                         | No            |
+| `get_tx_status`    | Check transaction receipt and status                         | No            |
+| `get_aave_markets` | List all Aave V3 reserves with APY, TVL, and LTV             | No            |
+| `get_balance`      | Get native and ERC-20 token balances                         | Yes           |
+| `get_portfolio`    | Get cross-chain portfolio and DeFi positions                 | Yes           |
+| `get_aave_status`  | Get Aave V3 position health on Base                          | Yes           |
+
+<Tip>
+  `get_quote` needs no wallet and no session. An agent can answer "what would 1 ETH get me in USDC?" before the user has authenticated at all — useful as a first interaction.
+</Tip>
 
 ### Transactional
 
-These tools are marked as **destructive** — the AI editor will ask for confirmation before executing.
+These tools are marked as **destructive** — the AI editor will ask for confirmation before executing. All three accept `simulate=true` to estimate fees without sending a transaction.
 
 | Tool          | Description                                                |
 | ------------- | ---------------------------------------------------------- |
