@@ -190,7 +190,7 @@ npx fibx@latest balance [--chain <chain>] [--json]
 
 ## send — Transfer Tokens
 
-Send native tokens or ERC-20 tokens to a recipient address. The transaction is simulated before execution.
+Send native tokens or ERC-20 tokens to a recipient address. The transfer is preflighted against the chain before it is broadcast.
 
 ```bash
 npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--simulate] [--json]
