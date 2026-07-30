@@ -18,7 +18,7 @@ This starts an MCP server over **stdio** (standard input/output). The server spe
 1. Your AI editor spawns `npx fibx mcp-start` as a subprocess.
 2. The editor communicates with FibX over **stdin/stdout** using JSON-RPC 2.0 messages.
 3. FibX reads the local session file to authenticate, so you must run `fibx auth login` or `fibx auth import` first.
-4. Tools execute against live blockchains. Transactional tools are marked as **destructive**, so compatible editors prompt for confirmation before execution.
+4. Tools execute against live blockchains. Transactional tools advertise `destructiveHint: true`, which compatible clients may use to prompt for confirmation.
 
 <Note>
   `stderr` is used for logging, while `stdout` is reserved for JSON-RPC protocol messages.
@@ -140,7 +140,9 @@ FibX exposes **11 tools** across four categories.
 
 ### Transactional
 
-These tools are marked as **destructive** — the AI editor will ask for confirmation before executing. All three accept `simulate=true` to estimate fees without sending a transaction.
+These tools advertise `destructiveHint: true`. That is an annotation clients may act on — whether a confirmation prompt appears depends on the client and its configuration, so do not rely on it as an enforced gate.
+
+All three accept `simulate=true` for a no-broadcast preview. Gas estimates are returned only where they can be produced without sending something first: a swap whose allowance is already sufficient reports estimated gas, while one that still needs an approval reports `requiresApproval: true` instead of broadcasting an approval to make the estimate possible.
 
 | Tool          | Description                                                |
 | ------------- | ---------------------------------------------------------- |

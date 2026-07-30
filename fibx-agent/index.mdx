@@ -57,19 +57,26 @@ FibX moves real funds, so the limits that matter are enforced below the agent â€
 not in a prompt that a jailbreak could rewrite.
 
 <CardGroup cols={2}>
-  <Card title="Limits live at the signing layer" icon="shield-halved">
-    Privy server wallets are created with a default-deny signing policy: transactions are only signed for the chains FibX serves, each under a per-transaction value cap, and private key export is permanently denied. These rules are enforced inside Privy's TEE, so they hold even if the FibX backend is compromised.
+  <Card title="Limits live below the prompt" icon="shield-halved">
+    Privy server wallets are created with a signing policy attached. Privy evaluates it on every signing request: transactions are allowed only for the chains FibX serves, each under a per-transaction native value cap, and the generated rule set denies private key export. A jailbroken prompt cannot raise these â€” they are not instructions the model can rewrite.
   </Card>
-  <Card title="Confirmation before value moves" icon="hand">
-    Every transactional MCP tool is marked destructive, so compatible editors prompt before execution. All of them accept `simulate=true` to preview fees without sending anything.
+  <Card title="Preview before value moves" icon="hand">
+    Transactional MCP tools advertise `destructiveHint: true`, which clients may use to prompt for confirmation. All of them accept `simulate=true` for a no-broadcast preview; gas estimates are returned where they can be computed without sending anything first.
   </Card>
   <Card title="Keys never reach the client" icon="key">
     In Privy mode the private key stays in Privy's TEE and the CLI only ever receives a signature. In private-key mode the key is encrypted at rest with AES-256-GCM and never leaves your machine.
   </Card>
-  <Card title="Simulated before broadcast" icon="flask">
-    Transactions are simulated before they are sent, so failures surface as readable errors instead of burned gas.
+  <Card title="Preflighted before broadcast" icon="flask">
+    Writes are preflighted against the chain before they are sent, so failures surface as readable errors instead of burned gas.
   </Card>
 </CardGroup>
+
+<Note>
+  The policy is defense in depth on the normal signing path, not a containment
+  guarantee. The Privy app credentials authorize both signing and policy
+  administration, so the backend that holds them is the administrative trust
+  boundary.
+</Note>
 
 ## Typical Workflow
 
