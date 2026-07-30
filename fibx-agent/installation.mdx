@@ -7,10 +7,10 @@ description: "Requirements, installation, and authentication methods for the fib
 
 - **Node.js** v18 or higher
 - **npm** (included with Node.js)
-- A running [fibx-server](https://github.com/ahmetenesdur/fibx-server) instance only if you use Privy-managed wallet operations
+- A running [fibx-server](https://github.com/Fibrous-Finance/fibx-server) instance only if you use Privy-managed wallet operations
 
 <Note>
-  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.5.1**).
+  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.8.2**).
 </Note>
 
 ## Installation Options
@@ -44,9 +44,23 @@ node --version   # Must be v18.0.0 or higher
 npm --version
 ```
 
+## Try It Without a Wallet
+
+Before setting anything up, you can check live prices — `quote` needs no session,
+wallet, or keys:
+
+```bash
+npx fibx@latest quote 0.01 ETH USDC
+npx fibx@latest quote 1 MON USDC --chain monad
+```
+
 ## Authentication
 
-FibX requires an active session before performing any wallet operation (balance, send, trade, aave). Two authentication methods are available:
+Commands that inspect or act on a wallet — including `address`, `wallets`,
+`balance`, `portfolio`, `send`, `trade`, `aave status`, and Aave actions — need
+an active session. Public or local commands such as `quote`, `status`,
+`tx-status`, `config`, and `aave markets` can run without one. Two
+authentication methods are available:
 
 ### Private Key Import (Recommended)
 
@@ -68,7 +82,11 @@ This is ideal for developers and agents that already manage their own wallets. T
 
 ### Email OTP (Alternative — Privy Server Wallets)
 
-If you do not have a private key or prefer a managed wallet, you can authenticate via email OTP. This creates a server-managed wallet through [Privy](https://privy.io), where the private key is held securely on Privy's infrastructure and never exposed to the client. This mode requires `fibx-server` to be running and reachable.
+If you do not have a private key or prefer a managed wallet, you can
+authenticate via email OTP. This creates a server-managed wallet through
+[Privy](https://privy.io). Signing is requested through `fibx-server`, and the
+private key itself is not returned to the CLI. This mode requires `fibx-server`
+to be running and reachable.
 
 ```bash
 # Step 1: Request an OTP code
@@ -94,19 +112,20 @@ npx fibx@latest address
 npx fibx@latest auth logout
 ```
 
-## Global Options
+## Common Command Options
 
-These flags apply to all commands:
+These flags are available where shown in the command reference:
 
 | Flag                | Description                                     | Default |
 | ------------------- | ----------------------------------------------- | ------- |
 | `-c, --chain`       | Target chain: `base`, `citrea`, `hyperevm`, `monad` | `base`  |
 | `--json`            | Output results as JSON (useful for scripting)   | `false` |
-| `--simulate`        | Estimate gas and simulate execution without sending a transaction | `false` |
+| `--simulate`        | Command-specific preview; behavior varies by command (see below) | `false` |
 
 ### Chain Selection
 
-If no `--chain` flag is provided, all commands default to **Base**.
+Commands that accept `--chain` default to **Base** unless their reference says
+otherwise.
 
 ```bash
 # Explicit chain selection
@@ -131,7 +150,7 @@ After authenticating, run through a complete workflow to verify everything is wo
     ```bash
     npx fibx@latest trade 0.001 ETH USDC
     ```
-    The CLI will find the optimal route via Fibrous, simulate the transaction, handle token approvals, and execute.
+    The CLI finds a route via Fibrous, handles any required token approval, estimates the swap where supported, and submits it.
   </Step>
   <Step title="Verify the transaction">
     ```bash
@@ -141,12 +160,22 @@ After authenticating, run through a complete workflow to verify everything is wo
   </Step>
 </Steps>
 
-## Dry-Run Mode
+## Preview Behavior
 
-Use `--simulate` to estimate gas and validate execution without broadcasting a transaction.
+`send --simulate`, `trade --simulate`, and Aave actions with `--simulate` return
+a no-broadcast preview. Review the result and the command-specific limitations
+before submitting the live operation.
 
 ```bash
 npx fibx@latest send 0.1 0xRecipient --simulate
 npx fibx@latest trade 0.1 ETH USDC --simulate
 npx fibx@latest aave supply 1 ETH --simulate
 ```
+
+<Note>
+  Preview output varies by path. If an ERC-20 trade needs approval,
+  `trade --simulate` reports `requiresApproval: true` without submitting the
+  approval or returning a gas estimate. An Aave preview returns the normalized
+  request only; it does not perform on-chain validation or estimate gas. Preview
+  success does not guarantee that later execution will succeed.
+</Note>

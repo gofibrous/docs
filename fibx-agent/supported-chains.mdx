@@ -3,7 +3,9 @@ title: "Supported Chains"
 description: "Chain-specific reference for FibX — native tokens, CLI flags, feature availability, and block explorers."
 ---
 
-FibX supports four EVM-compatible chains. The default chain for all commands is **Base**.
+FibX supports four EVM-compatible chains. Commands that accept `--chain`
+default to **Base**; portfolio spans all supported chains, while Aave always
+targets Base.
 
 ## Chain Overview
 
@@ -12,13 +14,14 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
 | Base     | ETH          | 8453     | `--chain base`     | Yes     |
 | Citrea   | cBTC         | 4114     | `--chain citrea`   | No      |
 | HyperEVM | HYPE         | 999      | `--chain hyperevm` | No      |
-| Monad    | MON          | 10143    | `--chain monad`    | No      |
+| Monad    | MON          | 143      | `--chain monad`    | No      |
 
 ## Chain Details
 
 <AccordionGroup>
   <Accordion title="Base" icon="ethereum">
-    Base is Coinbase's Layer 2 network built on the OP Stack. It serves as the default chain for all FibX operations and is the only chain with Aave V3 support.
+    Base is Coinbase's Layer 2 network built on the OP Stack. It is the default
+    for chain-aware FibX commands and the only chain with Aave V3 support.
 
     | Property       | Value                                  |
     | -------------- | -------------------------------------- |
@@ -29,7 +32,7 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
     | Explorer       | [BaseScan](https://basescan.org)       |
 
     ```bash
-    # Balance, trade, portfolio, and Aave on Base (default chain)
+    # Base-default commands, cross-chain portfolio, and Base-only Aave
     npx fibx@latest balance
     npx fibx@latest portfolio
     npx fibx@latest trade 0.1 ETH USDC
@@ -65,7 +68,7 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
     | Chain ID       | 999                                                                |
     | CLI Flag       | `--chain hyperevm`                                                 |
     | Aave V3        | No                                                                 |
-    | Explorer       | [HyperEVM Explorer](https://hyperevm.calderaexplorer.xyz)         |
+    | Explorer       | [HyperEVM Scan](https://hyperevmscan.io)                         |
 
     ```bash
     npx fibx@latest balance --chain hyperevm
@@ -80,10 +83,10 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
     | Property       | Value                                                    |
     | -------------- | -------------------------------------------------------- |
     | Native Token   | MON                                                      |
-    | Chain ID       | 10143                                                    |
+    | Chain ID       | 143                                                      |
     | CLI Flag       | `--chain monad`                                          |
     | Aave V3        | No                                                       |
-    | Explorer       | [Monad Explorer](https://explorer.monad.xyz)             |
+    | Explorer       | [Monad Vision](https://monadvision.com)                  |
 
     ```bash
     npx fibx@latest balance --chain monad
@@ -104,12 +107,15 @@ FibX supports four EVM-compatible chains. The default chain for all commands is 
 | Aave V3          | Yes  | No     | No       | No    |
 | Aave Markets     | Yes  | No     | No       | No    |
 | Tx Status        | Yes  | Yes    | Yes      | Yes   |
-| Dry-Run Mode     | Yes  | Yes    | Yes      | Yes   |
+| Send/Trade Preview | Yes  | Yes    | Yes      | Yes   |
+| Aave Action Preview | Yes | No     | No       | No    |
 | JSON Output      | Yes  | Yes    | Yes      | Yes   |
 
 ## Selecting a Chain
 
-Pass the `--chain` flag to any command. If omitted, Base is used.
+Use `--chain` with chain-aware commands such as `quote`, `status`, `balance`,
+`send`, `trade`, and `tx-status`. Aave commands always target Base, `portfolio`
+queries every supported chain, and `address`/`wallets` are chain-independent.
 
 ```bash
 # Explicit chain selection
