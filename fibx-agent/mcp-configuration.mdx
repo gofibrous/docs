@@ -17,8 +17,8 @@ This starts an MCP server over **stdio** (standard input/output). The server spe
 
 1. Your AI editor spawns `npx fibx mcp-start` as a subprocess.
 2. The editor communicates with FibX over **stdin/stdout** using JSON-RPC 2.0 messages.
-3. FibX reads the local session file to authenticate, so you must run `fibx auth login` or `fibx auth import` first.
-4. Tools execute against live blockchains. Transactional tools advertise `destructiveHint: true`, which compatible clients may use to prompt for confirmation.
+3. Wallet-dependent tools read the local session file. Run `fibx auth login` or `fibx auth import` before using those tools; public tools such as quotes and Aave market discovery do not need a session.
+4. Transactional tools execute against live blockchains and carry the MCP `destructiveHint` annotation. A client may use that hint to request confirmation, depending on its behavior and configuration.
 
 <Note>
   `stderr` is used for logging, while `stdout` is reserved for JSON-RPC protocol messages.
@@ -120,7 +120,8 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
 
 ## Available Tools
 
-FibX exposes **11 tools** across four categories.
+FibX exposes **11 tools**. The reference below groups them by read-only,
+transactional, and utility behavior.
 
 ### Read-Only
 
@@ -129,7 +130,7 @@ FibX exposes **11 tools** across four categories.
 | `get_quote`        | Get a swap price quote, exchange rate, and route info        | No            |
 | `get_auth_status`  | Check session and Fibrous API health                         | No            |
 | `get_tx_status`    | Check transaction receipt and status                         | No            |
-| `get_aave_markets` | List all Aave V3 reserves with APY, TVL, and LTV             | No            |
+| `get_aave_markets` | List Aave V3 reserves with APY, supply/borrow totals, and LTV | No            |
 | `get_balance`      | Get native and ERC-20 token balances                         | Yes           |
 | `get_portfolio`    | Get cross-chain portfolio and DeFi positions                 | Yes           |
 | `get_aave_status`  | Get Aave V3 position health on Base                          | Yes           |
@@ -140,15 +141,24 @@ FibX exposes **11 tools** across four categories.
 
 ### Transactional
 
-These tools advertise `destructiveHint: true`. That is an annotation clients may act on — whether a confirmation prompt appears depends on the client and its configuration, so do not rely on it as an enforced gate.
-
-All three accept `simulate=true` for a no-broadcast preview. Gas estimates are returned only where they can be produced without sending something first: a swap whose allowance is already sufficient reports estimated gas, while one that still needs an approval reports `requiresApproval: true` instead of broadcasting an approval to make the estimate possible.
+These tools carry the MCP `destructiveHint` annotation. Clients may use the hint
+to request confirmation, but confirmation behavior is client-dependent. All
+three accept `simulate=true`; its behavior is specific to each tool.
 
 | Tool          | Description                                                |
 | ------------- | ---------------------------------------------------------- |
 | `swap_tokens` | Swap tokens via Fibrous aggregator with optimal routing   |
 | `send_tokens` | Send native or ERC-20 tokens to a recipient                |
 | `aave_action` | Supply, borrow, repay, or withdraw on Aave V3 (Base)    |
+
+<Note>
+  `simulate=true` returns a no-broadcast preview, but the available checks differ
+  by tool. If a swap needs ERC-20 approval, the preview reports
+  `requiresApproval: true` without submitting the approval or estimating swap
+  gas. `aave_action` returns normalized request metadata without on-chain
+  validation or a gas estimate. A preview does not guarantee that later
+  execution will succeed.
+</Note>
 
 ### Utility
 
@@ -157,6 +167,22 @@ All three accept `simulate=true` for a no-broadcast preview. Gas estimates are r
 | `config_action` | Set or view custom RPC URLs to avoid rate limits |
 
 ## Tool Details
+
+### get_quote
+
+Get a swap quote without a wallet or session.
+
+| Parameter    | Type   | Required | Description                                    |
+| ------------ | ------ | -------- | ---------------------------------------------- |
+| `amount`     | string | Yes      | Amount of the source token to quote            |
+| `from_token` | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)       |
+| `to_token`   | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)       |
+| `chain`      | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
+| `slippage`   | number | No       | Slippage tolerance in percent (default: `0.5`) |
+
+**Output:** Routed swaps return `input`, `output`, `rate`, `slippage`, `router`,
+and `chain`. Direct native/wrapped-native pairs return `input`, `output`, `rate`,
+`operation` (`wrap` or `unwrap`), and `chain`.
 
 ### get_auth_status
 
@@ -192,7 +218,8 @@ Get a consolidated portfolio across all supported chains, including USD-valued t
 
 ### swap_tokens
 
-Execute a token swap through Fibrous. Handles approvals, simulation, and routing automatically.
+Execute a token swap through Fibrous. Handles routing and any required ERC-20
+approval.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
@@ -200,15 +227,21 @@ Execute a token swap through Fibrous. Handles approvals, simulation, and routing
 | `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
 | `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
 | `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
-| `slippage`    | number | No       | Slippage tolerance in percent (default 0.5)     |
+| `slippage`    | number | No       | Slippage tolerance in percent (default 0.5)   |
+| `simulate`    | boolean | No      | Return a no-broadcast preview; gas may be unavailable |
 
-**Output:** Object with `txHash`, `amountIn`, `amountOut`, `tokenIn`, `tokenOut`, `router`, `chain`
+**Execution output:** `txHash`, `amountIn`, `amountOut`, `tokenIn`, `tokenOut`,
+`router`, `chain`, and `explorer` when available.
+
+**Preview output:** The amounts and route with `mode`, plus `estimatedGas` when
+it can be calculated safely. For a routed ERC-20 swap, `requiresApproval`
+indicates whether approval is needed before live execution.
 
 **Example prompt:** "Swap 0.1 ETH to USDC on Base"
 
 ### send_tokens
 
-Transfer native or ERC-20 tokens. Simulates before executing.
+Transfer native or ERC-20 tokens.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
@@ -216,8 +249,13 @@ Transfer native or ERC-20 tokens. Simulates before executing.
 | `recipient` | string | Yes      | Recipient address (0x-prefixed)               |
 | `token`     | string | No       | Token symbol (omit for native token)         |
 | `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `simulate`  | boolean | No      | Validate or estimate the transfer without submitting it |
 
-**Output:** Object with `txHash`, `amount`, `token`, `recipient`, `chain`
+**Execution output:** `txHash`, `amount`, `token`, `recipient`, `chain`, and
+`explorer` when available.
+
+**Preview output:** The transfer details with `mode`, and `estimatedGas` where
+available.
 
 **Example prompt:** "Send 50 USDC to 0x1234..."
 
@@ -242,17 +280,38 @@ Get Aave V3 account health on Base.
 
 **Output:** Object with `wallet`, `healthFactor`, `totalCollateralUSD`, `totalDebtUSD`, `availableBorrowsUSD`
 
+### get_aave_markets
+
+List Aave V3 reserve markets on Base. No wallet or session is required.
+
+| Parameter | Type | Required | Description       |
+| --------- | ---- | -------- | ----------------- |
+| none      | n/a  | n/a      | No input required |
+
+**Output:** Object with `chain`, `marketCount`, and `markets`. Each market
+includes `symbol`, `supplyAPY`, `borrowAPY`, `totalSupply`, `totalBorrow`, `ltv`,
+and `isFrozen`.
+
 ### aave_action
 
-Execute an Aave V3 operation. Auto-handles ETH ↔ WETH wrapping. Use `max` as the amount for full repay/withdraw.
+Execute an Aave V3 operation on Base. ETH supply and repay can auto-wrap, ETH
+withdraw can auto-unwrap, and borrowing the ETH market returns WETH. Use `max`
+only for full repay or withdraw.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
 | `action`  | string | Yes      | `supply`, `borrow`, `repay`, or `withdraw`   |
-| `amount`  | string | Yes      | Amount or `max` for full repay/withdraw      |
+| `amount`  | string | Yes      | Amount; `max` is allowed only for repay/withdraw |
 | `token`   | string | Yes      | Token symbol (`ETH`, `USDC`, `DAI`, etc.)   |
+| `simulate`| boolean | No      | Return an action preview without submitting it; does not estimate gas |
 
-**Output:** Object with `action`, `amount`, `token`, `txHash`, `chain`
+**Execution output:** `action`, `amount`, `token`, `txHash`, `chain`, and
+`explorer` when available. A repay with no remaining debt instead returns
+`status` and no transaction hash.
+
+**Preview output:** `success`, `mode` (`PREVIEW (no TX sent)`), `action`,
+`amount`, `token`, `chain`, and `note`. The note states that no on-chain
+validation, gas estimate, or transaction was performed.
 
 **Example prompts:** "Supply 0.5 ETH to Aave" or "Repay max USDC on Aave"
 

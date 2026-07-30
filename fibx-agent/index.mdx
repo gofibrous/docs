@@ -17,10 +17,10 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
     Optimal routing via Fibrous aggregation with auto-slippage. Supports all tokens across integrated DEXs on each chain.
   </Card>
   <Card title="Transfers" icon="paper-plane">
-    Send native tokens (ETH, cBTC, HYPE, MON) or any ERC-20 token to any address. Writes are preflighted against the chain before they are broadcast.
+    Send native tokens (ETH, cBTC, HYPE, MON) or ERC-20 tokens to an address, with command-specific preflight and preview support.
   </Card>
   <Card title="Aave V3" icon="building-columns">
-    Supply, borrow, repay, withdraw, and browse active markets on Base. Includes health factor monitoring and liquidation safety checks.
+    Supply, borrow, repay, withdraw, and browse active markets on Base. ETH supply and repay can auto-wrap, ETH withdraw can auto-unwrap, and borrowing the ETH market returns WETH.
   </Card>
   <Card title="Agent Skills" icon="robot">
     Ten pre-built skills that allow AI agents to check prices, authenticate, inspect balances and portfolios, trade, send, manage Aave positions, verify transactions, and configure RPC endpoints — all through natural language.
@@ -29,7 +29,7 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
 
 ## How It Works
 
-FibX operates as a CLI tool (`npx fibx@latest`) that communicates with the Fibrous aggregation stack and, when needed, a backend server for Privy-managed wallet operations. Writes are preflighted against the chain before broadcast, so predictable failures surface as errors rather than spent gas.
+FibX operates as a CLI tool (`npx fibx@latest`) that communicates with the Fibrous aggregation stack and, when needed, a backend server for Privy-managed wallet operations. Transaction paths use command-specific estimates or contract simulations where implemented, but those checks do not guarantee that an on-chain operation will succeed.
 
 ```mermaid
 flowchart LR
@@ -53,21 +53,22 @@ flowchart LR
 
 ## Security Model
 
-FibX moves real funds, so the limits that matter are enforced below the agent —
-not in a prompt that a jailbreak could rewrite.
+FibX moves real funds. Treat client confirmation, preview output, signing policy,
+and backend credentials as separate controls; none replaces reviewing the final
+transaction request.
 
 <CardGroup cols={2}>
-  <Card title="Limits live below the prompt" icon="shield-halved">
-    Privy server wallets are created with a signing policy attached. Privy evaluates it on every signing request: transactions are allowed only for the chains FibX serves, each under a per-transaction native value cap, and the generated rule set denies private key export. A jailbroken prompt cannot raise these — they are not instructions the model can rewrite.
+  <Card title="Signing-Policy Scope" icon="shield-halved">
+    With the default configuration, new Privy wallets are attached to a default-deny policy whose transaction rules allowlist configured chain IDs and cap the native `value` field. The cap does not limit ERC-20 amounts encoded in calldata; those transactions, along with message and typed-data requests, also rely on `fibx-server` validation. A custom `WALLET_POLICY_ID` is checked for existence, not compared with the default rule set.
   </Card>
-  <Card title="Preview before value moves" icon="hand">
-    Transactional MCP tools advertise `destructiveHint: true`, which clients may use to prompt for confirmation. All of them accept `simulate=true` for a no-broadcast preview; gas estimates are returned where they can be computed without sending anything first.
+  <Card title="Client Confirmation Hints" icon="hand">
+    Transactional MCP tools carry the `destructiveHint` annotation. MCP clients may use this metadata to request confirmation, depending on the client and its configuration.
   </Card>
-  <Card title="Keys never reach the client" icon="key">
-    In Privy mode the private key stays in Privy's TEE and the CLI only ever receives a signature. In private-key mode the key is encrypted at rest with AES-256-GCM and never leaves your machine.
+  <Card title="Signing Modes" icon="key">
+    In Privy mode, transaction signing returns a signed transaction payload to the CLI; message and typed-data signing return signatures. The raw private key is not returned. The default policy includes a key-export denial rule, but administrators with policy-management credentials can change controls, so `fibx-server` and the Privy app secret remain trust boundaries. In private-key mode, FibX encrypts the imported key at rest with AES-256-GCM and signs locally.
   </Card>
-  <Card title="Preflighted before broadcast" icon="flask">
-    Writes are preflighted against the chain before they are sent, so failures surface as readable errors instead of burned gas.
+  <Card title="Preview Limitations" icon="flask">
+    `--simulate` and `simulate=true` provide no-broadcast previews for supported write paths, but the returned checks are command-specific. Gas estimates are included only where they can be calculated safely, and an Aave action preview does not perform on-chain validation. A preview does not guarantee that later execution will succeed.
   </Card>
 </CardGroup>
 
@@ -90,7 +91,7 @@ Every FibX session follows the same four-step pattern:
     Query native and ERC-20 token balances on the target chain, or inspect the full cross-chain portfolio with USD valuations.
   </Step>
   <Step title="Execute">
-    Perform a swap, transfer, or Aave operation. The CLI preflights the write before submitting it on-chain, and `--simulate` returns a preview without broadcasting anything.
+    Review the amount, tokens, destination, chain, and any approval. Use the command-specific preview options where appropriate, then submit the operation on-chain.
   </Step>
   <Step title="Verify">
     Check the transaction status and obtain the block explorer link.
@@ -149,15 +150,18 @@ npx fibx@latest tx-status 0xabc...def
 ## Telegram Bot
 
 [fibx-telegram-bot](https://github.com/Fibrous-Finance/fibx-telegram-bot) puts the
-same execution layer in a chat window. It drives the FibX MCP server, so it has
-exactly the tools described here — quotes, swaps, transfers, portfolio and Aave —
-reached through natural language instead of flags.
+same execution layer in a chat window. It drives the FibX MCP server, exposing
+capabilities such as quotes, swaps, transfers, portfolio, and Aave through
+natural language rather than CLI flags.
 
 - **Bring your own model.** Choose OpenAI, Claude or Gemini and supply your own
   API key. There is no shared key and no centralized inference billing; keys are
-  encrypted at rest and can be erased with `/deletekey`.
-- **Isolated per user.** Every user gets a dedicated MCP process under its own
-  virtual HOME, so the application routes sessions, config and caches to separate directories. These processes share the bot host's OS account, so this is application-level separation rather than an OS or container boundary.
+  encrypted at rest. `/deletekey` clears the provider configuration and
+  encrypted key, FibX session/config/cache, pending authentication, and chat
+  history; price alerts remain active.
+- **Per-user runtime state.** Every active user gets a dedicated MCP process and
+  separate HOME/XDG paths. These processes still run under the same OS account,
+  so this is application-level separation rather than an OS sandbox.
 - **Price alerts.** `/alert ETH above 4000` notifies you once when the price is
   reached — no login or AI key required.
 

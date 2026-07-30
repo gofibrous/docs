@@ -11,7 +11,7 @@ Skills follow the [Agent Skills](https://agentskills.io) specification and can b
 
 Each skill is a structured YAML+Markdown file that defines:
 
-- **Allowed tools** — The exact CLI commands the agent is permitted to run
+- **Allowed tools** — The CLI command patterns declared by the installed skill
 - **Rules** — Constraints and safety checks the agent must follow
 - **Parameters** — Inputs the agent extracts from the user's natural language prompt
 - **Error handling** — How the agent should respond to specific failures
@@ -46,6 +46,9 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
 
 <Note>
   Skills require Node.js 18+ and are compatible with fibx CLI v0.8.x.
+  The installed `SKILL.md` files are the source of truth for allowed-tool
+  patterns and rules; the summaries below describe the current published
+  skills and may change independently of this page.
 </Note>
 
 ---
@@ -56,7 +59,7 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="quote" icon="tag">
     **Category:** Read-Only
 
-    Fetches a swap price without a wallet or a session. This is the only skill that works before authentication, so an agent can answer a pricing question for a user who has not logged in — and then offer `authenticate-wallet` if they want to execute.
+    Fetches a swap price without a wallet or a session, so an agent can answer a pricing question for a user who has not logged in — and then offer `authenticate-wallet` if they want to execute.
 
     ### Allowed Tools
     ```
@@ -116,8 +119,13 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
     ### Allowed Tools
     ```
     Bash(npx fibx@latest address)
+    Bash(npx fibx@latest address *)
     Bash(npx fibx@latest wallets)
+    Bash(npx fibx@latest wallets *)
     ```
+
+    **Prerequisite:** An active session is required. If no session is active,
+    run the `authenticate-wallet` skill first.
 
     ### Rules
     1. Use `address` when only the receiving address is needed; use `wallets` for full session details.
@@ -184,7 +192,9 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="send" icon="paper-plane">
     **Category:** Transaction
 
-    Transfers native tokens or ERC-20 tokens to a destination address. Simulates the transaction before execution.
+    Transfers native tokens or ERC-20 tokens to a destination address. The CLI
+    performs a command-specific preflight and supports `--simulate` for a
+    transfer preview.
 
     ### Allowed Tools
     ```
@@ -211,11 +221,13 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="trade" icon="arrows-rotate">
     **Category:** Transaction
 
-    Swaps tokens via Fibrous aggregation. Finds the optimal route, handles approvals, simulates, and executes.
+    Swaps tokens via Fibrous aggregation. Finds a route, handles approvals,
+    estimates the main swap path, and executes.
 
     ### Allowed Tools
     ```
     Bash(npx fibx@latest trade *)
+    Bash(npx fibx@latest quote *)
     Bash(npx fibx@latest status)
     Bash(npx fibx@latest balance *)
     Bash(npx fibx@latest balance)
@@ -228,6 +240,12 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
     3. Never use `--approve-max` unless the user explicitly requests it.
     4. After a successful trade, verify the transaction with `tx-status`.
 
+    <Note>
+      `trade --simulate` does not broadcast an approval or swap. When an ERC-20
+      approval is required, it returns `requiresApproval: true` without a gas
+      estimate.
+    </Note>
+
     ### Trigger Examples
     | User Prompt | Action |
     | --- | --- |
@@ -238,7 +256,7 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="aave" icon="building-columns">
     **Category:** DeFi
 
-    Manages Aave V3 lending positions on **Base only** — status, markets, supply, borrow, repay, withdraw, and health factor monitoring. The CLI automatically handles ETH ↔ WETH wrapping and unwrapping for `supply`, `repay`, and `withdraw` actions.
+    Manages Aave V3 lending positions on **Base only** — status, markets, supply, borrow, repay, withdraw, and health factor monitoring. ETH supply and repay can auto-wrap to WETH, while ETH withdraw can auto-unwrap to ETH. Borrowing the ETH market returns WETH.
 
     ### Allowed Tools
     ```
@@ -254,14 +272,16 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
     3. Before borrowing, check `aave status` for the Health Factor:
        - Health Factor < 1.5 → Warn the user about liquidation risk
        - Health Factor < 1.1 → Do not proceed without explicit double-confirmation
-    4. When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` and prevents dust residuals.
-    5. Use `ETH` as the token symbol for ETH-based operations — the CLI handles wrapping/unwrapping automatically.
+    4. `max` is supported only for `repay` and `withdraw`. Use it when fully repaying debt or withdrawing a supplied position to avoid dust residuals.
+    5. Use `ETH` for ETH-market supply, repay, and withdraw so the CLI can apply
+       the documented wrap/unwrap behavior. Borrowing that market returns WETH.
     6. If a `Rate limit / 429` error occurs, use the `config` skill to set a custom RPC.
 
     ### ETH ↔ WETH Auto-Wrap Reference
     | Action | ETH Behavior |
     | --- | --- |
     | `supply 1 ETH` | Auto-wraps ETH → WETH before supplying |
+    | `borrow 1 ETH` | Borrows WETH; no automatic unwrap |
     | `repay max ETH` | Auto-wraps ETH → WETH before repaying |
     | `withdraw max ETH` | Withdraws WETH and auto-unwraps → ETH |
 

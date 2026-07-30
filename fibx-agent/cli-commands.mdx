@@ -3,25 +3,25 @@ title: "CLI Command Reference"
 description: "Complete reference for all fibx CLI commands — authentication, portfolio, balance, send, trade, Aave V3, configuration, and transaction status."
 ---
 
-All commands follow the pattern:
+Commands use this general pattern:
 
 ```bash
-npx fibx@latest <command> [arguments] [--chain <chain>] [--simulate] [--json]
+npx fibx@latest <command> [arguments] [options]
 ```
 
-Default chain is `base` unless overridden with `--chain`.
+Commands that accept `--chain` default to `base` unless documented otherwise.
 
 ---
 
 ## quote — Price Quotes (No Auth)
 
-Get a swap price without a wallet, a session, or any setup. This is the only
-command that works before authenticating, which makes it the fastest way to try
-FibX or to let an agent answer a pricing question for a user who has not logged
-in yet.
+Get a swap price without a wallet, a session, or any setup. It is the fastest
+pricing entry point for trying FibX or answering a question before a user has
+logged in. Other public or local commands, including `status`, `tx-status`,
+`config`, and `aave markets`, also work without an active session.
 
 ```bash
-npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--json]
+npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--slippage <number>] [--json]
 ```
 
 | Parameter    | Type   | Required | Description                                    |
@@ -39,21 +39,24 @@ npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--json
 npx fibx@latest quote 0.01 ETH USDC
 
 # Compare a pair on Monad
-npx fibx@latest quote 100 USDC DAI --chain monad
+npx fibx@latest quote 1 MON USDC --chain monad
 
 # Machine-readable output for scripts
 npx fibx@latest quote 0.1 ETH USDC --json
 ```
 
-The output shows the input and output amounts, the exchange rate, slippage, the
-router used, and the chain. To execute the same trade, use
-[`trade`](#trade--swap-tokens) with the same arguments once authenticated.
+For routed swaps, the output shows the input and output amounts, exchange rate,
+slippage, router, and chain. A direct native/wrapped-native pair instead reports
+a 1:1 `wrap` or `unwrap` operation without slippage or router fields. To execute
+the same trade, use [`trade`](#trade-swap-tokens) with the same arguments once
+authenticated.
 
 ---
 
 ## auth — Authentication
 
-Manage the wallet session. Required before any on-chain operation.
+Manage the wallet session. Authentication is required before commands that
+inspect or act on a wallet.
 
 ### auth import
 
@@ -190,7 +193,8 @@ npx fibx@latest balance [--chain <chain>] [--json]
 
 ## send — Transfer Tokens
 
-Send native tokens or ERC-20 tokens to a recipient address. The transfer is preflighted against the chain before it is broadcast.
+Send native tokens or ERC-20 tokens to a recipient address. FibX performs a
+command-specific preflight before submission.
 
 ```bash
 npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--simulate] [--json]
@@ -202,7 +206,7 @@ npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--simulate]
 | `recipient` | string | Yes      | Destination address (`0x...`)                |
 | `token`     | string | No       | Token symbol (e.g. `USDC`). Omit for native token |
 | `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
-| `simulate`  | flag   | No       | Estimate gas and simulate without sending     |
+| `simulate`  | flag   | No       | Preview the transfer without submitting it    |
 | `json`      | flag   | No       | Output as JSON                               |
 
 If `token` is omitted, the chain's native token is used (ETH on Base, cBTC on Citrea, HYPE on HyperEVM, MON on Monad).
@@ -219,15 +223,16 @@ npx fibx@latest send 100 0xRecipient USDC
 # Send native MON on Monad
 npx fibx@latest send 1 0xRecipient --chain monad
 
-# Estimate gas without broadcasting
+# Preview a native transfer
 npx fibx@latest send 0.1 0xRecipient --simulate
 ```
 
 ---
 
-## trade — Swap Tokens
+## trade: Swap Tokens
 
-Exchange one token for another via Fibrous aggregation. The CLI finds the optimal route, handles token approvals, simulates the swap, and executes.
+Exchange one token for another via Fibrous aggregation. The CLI finds a route,
+handles token approvals, estimates the main swap path, and submits it.
 
 ```bash
 npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slippage <n>] [--approve-max] [--simulate] [--json]
@@ -241,11 +246,18 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
 | `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
 | `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
 | `approve-max` | flag   | No       | Use infinite approval instead of exact amount  |
-| `simulate`    | flag   | No       | Estimate gas and simulate without executing    |
+| `simulate`    | flag   | No       | Return a no-broadcast preview of the main swap |
 | `json`        | flag   | No       | Output as JSON                                 |
 
 <Note>
   The `trade` command automatically detects **Wrap** (Native → Wrapped) and **Unwrap** (Wrapped → Native) operations and executes them directly via contract calls, bypassing the aggregator routing to save gas.
+</Note>
+
+<Note>
+  If the source is an ERC-20 token with insufficient allowance,
+  `trade --simulate` returns `requiresApproval: true` without submitting an
+  approval. Because the swap cannot be estimated safely in that state, the
+  preview omits the gas estimate.
 </Note>
 
 ### Examples
@@ -271,7 +283,7 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
     npx fibx@latest trade 0.1 ETH USDC --slippage 1.0
     ```
   </Tab>
-  <Tab title="Dry Run">
+  <Tab title="Swap Preview">
     ```bash
     npx fibx@latest trade 0.1 ETH USDC --simulate
     ```
@@ -295,9 +307,9 @@ npx fibx@latest aave <action> [amount] [token] [--simulate] [--json]
 | Parameter | Type   | Required              | Description                                       |
 | --------- | ------ | --------------------- | ------------------------------------------------- |
 | `action`  | string | Yes                   | `status`, `markets`, `supply`, `borrow`, `repay`, `withdraw` |
-| `amount`  | string | Yes (except `status`) | Amount or `max` for full repay/withdraw           |
-| `token`   | string | Yes (except `status`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.)         |
-| `simulate`| flag   | No                    | Estimate gas and simulate without executing       |
+| `amount`  | string | Yes (except `status`, `markets`) | Amount or `max` for full repay/withdraw  |
+| `token`   | string | Yes (except `status`, `markets`) | Token symbol (`USDC`, `ETH`, `DAI`, etc.) |
+| `simulate`| flag   | No                    | Return a request-only, no-broadcast preview        |
 | `json`    | flag   | No                    | Output as JSON                                    |
 
 ### Actions
@@ -305,15 +317,17 @@ npx fibx@latest aave <action> [amount] [token] [--simulate] [--json]
 | Action     | Description                                | Example                                          |
 | ---------- | ------------------------------------------ | ------------------------------------------------ |
 | `status`   | Account health, LTV, net worth             | `npx fibx@latest aave status`                   |
-| `markets`  | Browse active reserves with APY and TVL    | `npx fibx@latest aave markets`                  |
-| `supply`   | Deposit assets (auto-wraps ETH → WETH)     | `npx fibx@latest aave supply 1 ETH`             |
-| `borrow`   | Borrow against collateral                  | `npx fibx@latest aave borrow 50 USDC`           |
-| `repay`    | Repay debt (auto-wraps ETH → WETH)         | `npx fibx@latest aave repay max ETH`            |
-| `withdraw` | Withdraw assets (auto-unwraps WETH → ETH)  | `npx fibx@latest aave withdraw max ETH`         |
+| `markets`  | Browse reserves with APY and supply/borrow totals | `npx fibx@latest aave markets`           |
+| `supply`   | Deposit assets; ETH input can auto-wrap to WETH | `npx fibx@latest aave supply 1 ETH`          |
+| `borrow`   | Borrow against collateral; the ETH market returns WETH | `npx fibx@latest aave borrow 50 USDC` |
+| `repay`    | Repay debt; ETH input can auto-wrap to WETH | `npx fibx@latest aave repay max ETH`         |
+| `withdraw` | Withdraw assets; ETH input can auto-unwrap WETH to ETH | `npx fibx@latest aave withdraw max ETH` |
 
 ### ETH ↔ WETH Auto-Wrap
 
-`supply`, `repay`, and `withdraw` support automatic ETH ↔ WETH conversion. Use `ETH` as the token symbol — the CLI handles wrapping and unwrapping internally.
+For the ETH market, `supply` and `repay` can wrap ETH to WETH, while `withdraw`
+can unwrap WETH to ETH. Borrowing the ETH market returns WETH; the borrowed
+asset is not auto-unwrapped.
 
 ```bash
 npx fibx@latest aave supply 1 ETH         # Auto-wraps ETH → WETH and supplies
@@ -323,19 +337,27 @@ npx fibx@latest aave borrow 50 USDC       # Borrow
 npx fibx@latest aave repay 50 USDC        # Repay partial USDC debt
 npx fibx@latest aave repay max ETH        # Auto-wraps ETH and repays full WETH debt
 npx fibx@latest aave withdraw max ETH     # Withdraws WETH and auto-unwraps to ETH
-npx fibx@latest aave supply 1 ETH --simulate
+npx fibx@latest aave supply 1 ETH --simulate # Preview the request only
 ```
+
+<Note>
+  An Aave `--simulate` result summarizes the normalized request without
+  broadcasting it. It does not perform on-chain validation, simulate the
+  contract call, or estimate gas.
+</Note>
 
 ### Health Factor
 
 Before borrowing, always check `aave status`. The Health Factor indicates liquidation risk:
 
-- **Above 1.5** — Safe to proceed
+- **Above 1.5** — Lower liquidation risk, but not risk-free
 - **Between 1.1 and 1.5** — Liquidation risk warning
 - **Below 1.1** — High liquidation risk, proceed with extreme caution
 
 <Note>
-  When fully closing a position, always use `max` as the amount. This sends `MAX_UINT256` to the Aave contract and prevents dust residuals from remaining.
+  `max` is supported only for `repay` and `withdraw`; `supply max` and
+  `borrow max` are rejected. Use `max` when fully repaying debt or withdrawing a
+  supplied position to avoid dust residuals.
 </Note>
 
 ---
