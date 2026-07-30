@@ -59,7 +59,8 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
     }
     ```
 
-    Restart Claude Desktop after editing the config. Ensure you are authenticated with `fibx auth login` or `fibx auth import` before using DeFi tools.
+    Restart Claude Desktop after editing the config. Authenticate with `fibx auth
+    login` or `fibx auth import` before using wallet-dependent tools.
   </Tab>
   <Tab title="VS Code">
     Create or edit `.vscode/mcp.json` in your project:
@@ -196,7 +197,8 @@ Check whether FibX is authenticated and the Fibrous API is reachable.
 
 ### get_balance
 
-Fetch all token balances for the active wallet. Only returns non-zero balances.
+Fetch token balances for the active wallet. The native-token entry is returned
+even when its balance is zero; ERC-20 entries are limited to non-zero balances.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
@@ -233,9 +235,17 @@ approval.
 **Execution output:** `txHash`, `amountIn`, `amountOut`, `tokenIn`, `tokenOut`,
 `router`, `chain`, and `explorer` when available.
 
-**Preview output:** The amounts and route with `mode`, plus `estimatedGas` when
-it can be calculated safely. For a routed ERC-20 swap, `requiresApproval`
-indicates whether approval is needed before live execution.
+**Preview output:** Direct wrap/unwrap previews return `success`, `mode`,
+`operation`, `amountIn`, `tokenIn`, `tokenOut`, and `chain`. Routed previews
+also return `amountOut`, `router`, and `requiresApproval`; `estimatedGas` is
+included only when the swap can be estimated without first broadcasting an
+approval.
+
+<Warning>
+  A live routed ERC-20 swap may confirm an approval transaction before
+  estimating and submitting the swap. If the later swap step fails, that
+  approval remains on-chain. `simulate=true` broadcasts neither transaction.
+</Warning>
 
 **Example prompt:** "Swap 0.1 ETH to USDC on Base"
 
@@ -249,13 +259,14 @@ Transfer native or ERC-20 tokens.
 | `recipient` | string | Yes      | Recipient address (0x-prefixed)               |
 | `token`     | string | No       | Token symbol (omit for native token)         |
 | `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
-| `simulate`  | boolean | No      | Validate or estimate the transfer without submitting it |
+| `simulate`  | boolean | No      | Preflight the transfer without submitting it |
 
 **Execution output:** `txHash`, `amount`, `token`, `recipient`, `chain`, and
 `explorer` when available.
 
-**Preview output:** The transfer details with `mode`, and `estimatedGas` where
-available.
+**Preview output:** Both paths return `success`, `mode`, `amount`, `token`,
+`recipient`, and `chain`. Native-token previews also return `estimatedGas`;
+ERC-20 previews validate the transfer contract call without a gas field.
 
 **Example prompt:** "Send 50 USDC to 0x1234..."
 
@@ -268,7 +279,8 @@ Look up a transaction receipt by hash.
 | `hash`    | string | Yes      | Transaction hash (0x-prefixed)                |
 | `chain`   | string | No       | Must match the chain of the original transaction |
 
-**Output:** Object with `hash`, `status`, `blockNumber`, `from`, `to`, `gasUsed`, `chain`
+**Output:** Object with `hash`, `status`, `blockNumber`, `from`, `to`, `gasUsed`,
+`chain`, and `explorer` when available.
 
 ### get_aave_status
 
@@ -313,6 +325,15 @@ only for full repay or withdraw.
 `amount`, `token`, `chain`, and `note`. The note states that no on-chain
 validation, gas estimate, or transaction was performed.
 
+<Warning>
+  Live wrap, approval, Aave, and unwrap steps are separate transactions, so an
+  earlier step remains on-chain if a later one fails. For an ETH withdrawal,
+  the output transaction hash identifies the Aave withdrawal transaction, not
+  the separate unwrap transaction. With `action: "withdraw"`, `amount: "max"`,
+  and `token: "ETH"`, FibX unwraps the wallet's entire post-withdraw WETH
+  balance, including WETH held before the request.
+</Warning>
+
 **Example prompts:** "Supply 0.5 ETH to Aave" or "Repay max USDC on Aave"
 
 ### config_action
@@ -353,7 +374,7 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 | Problem | Solution |
 | ------- | -------- |
 | Server will not start | Ensure Node.js 18+ is installed and `npx fibx --version` works |
-| "Not authenticated" errors | Run `fibx auth login <email>` or `fibx auth import` before starting |
+| "Not authenticated" errors | Run `fibx auth login <email>` or `fibx auth import` before using wallet-dependent tools |
 | Wallet operations fail | Ensure `fibx-server` is running when using Privy-managed wallets |
 | Rate limit errors | Use `config_action` to set a custom RPC URL |
 | Editor cannot connect | Verify the MCP config JSON syntax and restart the editor |

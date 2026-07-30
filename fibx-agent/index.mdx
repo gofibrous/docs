@@ -14,7 +14,9 @@ It combines [Fibrous](https://fibrous.finance) aggregation for optimal swap rout
     Consolidated cross-chain portfolio view with USD valuations, token balances, Aave collateral and debt, and total net worth across all supported chains.
   </Card>
   <Card title="Token Swaps" icon="arrows-rotate">
-    Optimal routing via Fibrous aggregation with auto-slippage. Supports all tokens across integrated DEXs on each chain.
+    Optimal routing via Fibrous aggregation with configurable slippage
+    (default: 0.5%). Supports the tokens and integrated DEX liquidity available
+    through Fibrous on each chain.
   </Card>
   <Card title="Transfers" icon="paper-plane">
     Send native tokens (ETH, cBTC, HYPE, MON) or ERC-20 tokens to an address, with command-specific preflight and preview support.
@@ -59,7 +61,7 @@ transaction request.
 
 <CardGroup cols={2}>
   <Card title="Signing-Policy Scope" icon="shield-halved">
-    With the default configuration, new Privy wallets are attached to a default-deny policy whose transaction rules allowlist configured chain IDs and cap the native `value` field. The cap does not limit ERC-20 amounts encoded in calldata; those transactions, along with message and typed-data requests, also rely on `fibx-server` validation. A custom `WALLET_POLICY_ID` is checked for existence, not compared with the default rule set.
+    With the default configuration, new Privy wallets are attached to a default-deny policy whose transaction rules allowlist configured chain IDs and cap the native `value` field. Existing wallets retain the policy ID attached when they were created. The cap does not limit ERC-20 amounts encoded in calldata; those transactions, along with message and typed-data requests, also rely on `fibx-server` validation. A custom `WALLET_POLICY_ID` is checked for existence, not compared with the default rule set.
   </Card>
   <Card title="Client Confirmation Hints" icon="hand">
     Transactional MCP tools carry the `destructiveHint` annotation. MCP clients may use this metadata to request confirmation, depending on the client and its configuration.
@@ -81,7 +83,7 @@ transaction request.
 
 ## Typical Workflow
 
-Every FibX session follows the same four-step pattern:
+A typical wallet workflow follows four steps:
 
 <Steps>
   <Step title="Authenticate">
