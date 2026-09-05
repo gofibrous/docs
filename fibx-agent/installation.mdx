@@ -1,6 +1,6 @@
 ---
 title: "Installation and Setup"
-description: "Requirements, installation, and authentication methods for the fibx CLI."
+description: "Requirements, installation, and the three ways to authenticate the fibx CLI."
 ---
 
 ## Requirements
@@ -10,7 +10,7 @@ description: "Requirements, installation, and authentication methods for the fib
 - A running [fibx-server](https://github.com/Fibrous-Finance/fibx-server) instance only if you use Privy-managed wallet operations
 
 <Note>
-  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.8.2**).
+  No global installation is needed. All commands use `npx fibx@latest`, which always fetches the latest version (currently **v0.10.0**).
 </Note>
 
 ## Installation Options
@@ -59,15 +59,40 @@ npx fibx@latest quote 1 MON USDC --chain monad
 Commands that inspect or act on a wallet — including `address`, `wallets`,
 `balance`, `portfolio`, `send`, `trade`, `aave status`, and Aave actions — need
 an active session. Public or local commands such as `quote`, `status`,
-`tx-status`, `config`, and `aave markets` can run without one. Two
-authentication methods are available:
+`tx-status`, `config`, `policy`, and `aave markets` can run without one. Three
+signing paths are available, and they are peers — `auth setup` presents the
+choice with the trade-offs explained. The full comparison is on
+[Signing Paths and the Local Policy](/fibx-agent/signing).
 
-### Private Key Import (Recommended)
+```bash
+npx fibx@latest auth setup
+```
 
-If you already have a wallet with a private key, this is the fastest way to get started. The key is encrypted and stored in a local session file for the duration of the session. This mode does not require `fibx-server`.
+### Your Own Wallet (WalletConnect)
+
+Keep your keys in the wallet you already use. The CLI shows a QR code and a
+`wc:` URI; scan it with your wallet app and approve the pairing. Every later
+transaction is approved on your phone, so this path does not run unattended.
+
+```bash
+# Shows a QR code and waits for the wallet to approve
+npx fibx@latest auth connect
+
+# Confirm the session is active
+npx fibx@latest status
+```
+
+### Private Key Import
+
+If you already have a wallet with a private key and want FibX to act without
+you, this is the most direct path. The key is encrypted at rest with
+AES-256-GCM and used to sign locally. This mode does not require `fibx-server`.
 
 <Warning>
-  Your private key will be stored locally in an encrypted session file. Only use this method on a trusted device.
+  With an imported key, the local signing policy is the **only** thing
+  bounding what this wallet signs. Set one (`fibx policy set base.maxValue
+  0.05`) before the first transaction, and only use this path on a trusted
+  device.
 </Warning>
 
 ```bash
@@ -78,12 +103,10 @@ npx fibx@latest auth import
 npx fibx@latest status
 ```
 
-This is ideal for developers and agents that already manage their own wallets. The imported key is used directly for signing transactions — no external server holds your key.
+### Email OTP (Privy Server Wallets)
 
-### Email OTP (Alternative — Privy Server Wallets)
-
-If you do not have a private key or prefer a managed wallet, you can
-authenticate via email OTP. This creates a server-managed wallet through
+If you do not have a private key or prefer a managed wallet, authenticate via
+email OTP. This creates a server-managed wallet through
 [Privy](https://privy.io). Signing is requested through `fibx-server`, and the
 private key itself is not returned to the CLI. This mode requires `fibx-server`
 to be running and reachable.
@@ -108,9 +131,29 @@ npx fibx@latest status
 # Get the active wallet address
 npx fibx@latest address
 
-# End the session
+# End the session (also ends a WalletConnect pairing)
 npx fibx@latest auth logout
 ```
+
+## Set a Signing Policy
+
+A file you own, checked before every signature on all three paths. On the
+imported-key path it is the only limit there is.
+
+```bash
+# Cap the native value of one transaction on Base
+npx fibx@latest policy set base.maxValue 0.05
+
+# Only allow Base and Monad
+npx fibx@latest policy set allowedChains base,monad
+
+# See what is set
+npx fibx@latest policy show
+```
+
+`maxValue` bounds the native value only — an ERC-20 transfer reaches the
+policy with `value: 0`. Use `<chain>.allowedDestinations` to bound where
+tokens may go. Details on [Signing Paths and the Local Policy](/fibx-agent/signing).
 
 ## Common Command Options
 
@@ -118,7 +161,7 @@ These flags are available where shown in the command reference:
 
 | Flag                | Description                                     | Default |
 | ------------------- | ----------------------------------------------- | ------- |
-| `-c, --chain`       | Target chain: `base`, `citrea`, `hyperevm`, `monad` | `base`  |
+| `-c, --chain`       | Target chain: `base`, `hyperevm`, `monad`       | `base`  |
 | `--json`            | Output results as JSON (useful for scripting)   | `false` |
 | `--simulate`        | Command-specific preview; behavior varies by command (see below) | `false` |
 
@@ -129,7 +172,7 @@ otherwise.
 
 ```bash
 # Explicit chain selection
-npx fibx@latest balance --chain citrea
+npx fibx@latest balance --chain hyperevm
 npx fibx@latest trade 1 MON USDC --chain monad
 
 # Default: Base
@@ -150,7 +193,7 @@ After authenticating, run through a complete workflow to verify everything is wo
     ```bash
     npx fibx@latest trade 0.001 ETH USDC
     ```
-    The CLI finds a route via Fibrous, handles any required token approval, estimates the swap where supported, and submits it.
+    The CLI checks the signing policy, finds a route via Fibrous, handles any required token approval, estimates the swap where supported, and submits it. Over WalletConnect, approve it on your phone.
   </Step>
   <Step title="Verify the transaction">
     ```bash

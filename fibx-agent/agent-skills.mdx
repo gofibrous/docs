@@ -3,7 +3,7 @@ title: "Agent Skills"
 description: "Pre-built skills that enable AI agents to execute DeFi operations through the fibx CLI using natural language prompts."
 ---
 
-[fibx-skills](https://github.com/Fibrous-Finance/fibx-skills) is a collection of agent skills that wrap the `fibx` CLI for use by AI agents. Each skill defines a specific capability — authentication, balances, portfolio inspection, transfers, swaps, DeFi management, and transaction verification — with structured rules, allowed tools, and error handling.
+[fibx-skills](https://github.com/Fibrous-Finance/fibx-skills) is a collection of eleven agent skills that wrap the `fibx` CLI for use by AI agents. Each skill defines a specific capability — authentication, the signing policy, balances, portfolio inspection, transfers, swaps, DeFi management, and transaction verification — with structured rules, allowed tools, and error handling.
 
 Skills follow the [Agent Skills](https://agentskills.io) specification and can be imported into any compatible agent framework.
 
@@ -45,7 +45,7 @@ git clone https://github.com/Fibrous-Finance/fibx-skills.git
 No separate installation of `fibx` is needed — all skills use `npx fibx@latest`.
 
 <Note>
-  Skills require Node.js 18+ and are compatible with fibx CLI v0.8.x.
+  Skills require Node.js 18+ and are compatible with fibx CLI v0.10.x.
   The installed `SKILL.md` files are the source of truth for allowed-tool
   patterns and rules; the summaries below describe the current published
   skills and may change independently of this page.
@@ -83,34 +83,66 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="authenticate-wallet" icon="key">
     **Category:** Auth
 
-    Manages the wallet session. This skill must run before any other wallet operation. Two authentication paths are available:
+    Manages the wallet session. This skill must run before any other wallet operation. Three signing paths are available, and they are peers — `auth setup` presents the choice:
 
-    - **Private key import** — Use an existing wallet directly. The key is encrypted and stored locally. This is the primary method for developers and agents that already manage their own keys.
-    - **Email OTP** — Alternative method that creates a server-managed wallet via Privy. Use this when no private key is available.
+    - **Your own wallet** (`auth connect`) — pair a wallet you already have over WalletConnect. Every transaction is approved on the phone; nothing is signed on the machine.
+    - **Privy server wallet** (`auth login` + `auth verify`) — a server-managed wallet via email OTP; runs unattended, bounded by Privy's policy and the local one.
+    - **Imported private key** (`auth import`) — encrypted locally; runs unattended, bounded by the local signing policy **alone**.
 
     ### Allowed Tools
     ```
-    Bash(npx fibx@latest auth import)
+    Bash(npx fibx@latest auth setup)
+    Bash(npx fibx@latest auth connect *)
     Bash(npx fibx@latest auth login *)
     Bash(npx fibx@latest auth verify *)
+    Bash(npx fibx@latest auth import)
     Bash(npx fibx@latest auth logout)
     Bash(npx fibx@latest status)
     ```
 
     ### Rules
-    1. If the user has a private key ready, prefer `auth import` — it is the most direct path.
-    2. For private key import, always warn the user first: _"Your private key will be stored locally in an encrypted session file. Shall I proceed?"_
-    3. For email login, never ask the user for a private key. `auth login` must complete before `auth verify` — they are sequential steps.
-    4. After successful authentication (either method), always run `status` to confirm the session.
-    5. Never store or log private keys, OTP codes, or session tokens.
+    1. If the user has not said how they want to sign, run `auth setup` or ask. Do not default to Privy.
+    2. Never ask the user for a private key. `auth import` prompts for it in the terminal.
+    3. Before `auth import`, warn: _"Your private key will be encrypted with AES-256-GCM and stored on this machine. With an imported key, the local signing policy is the only thing bounding what this wallet signs — I can set one with the `policy` skill. Proceed?"_
+    4. `auth login` must complete before `auth verify` — they are sequential steps.
+    5. `auth connect` prints a QR and waits; tell the user to scan it with their wallet and approve. Every later `trade` or `send` blocks until they approve it on the phone.
+    6. After any of these, run `status` to confirm the session. Any of them replaces the active session; say so before switching.
+    7. Never store or log private keys, OTP codes, pairing URIs, or session data.
 
     ### Trigger Examples
     | User Prompt | Action |
     | --- | --- |
+    | "Which wallet setup should I use?" | `auth setup` |
+    | "Connect my own wallet" / "Use my MetaMask" | `auth connect` |
     | "Import my private key" | `auth import` |
-    | "I have a wallet, let me use it" | `auth import` |
     | "Log me in with user@example.com" | `auth login` then `auth verify` |
     | "Log me out" | `auth logout` |
+  </Accordion>
+
+  <Accordion title="policy" icon="shield-halved">
+    **Category:** Auth
+
+    Reads and changes the local signing policy — a file on the user's machine that caps the native value per chain, allowlists chains and destinations, and expires. FibX evaluates it before every signature on all three signing paths. Use it when a transaction is refused with `POLICY_BLOCKED`, or when the user wants to bound what the wallet can sign. No session is needed.
+
+    ### Allowed Tools
+    ```
+    Bash(npx fibx@latest policy *)
+    ```
+
+    ### Rules
+    1. Propose a concrete value and explain what it bounds; set it only after the user agrees.
+    2. `maxValue` bounds native value only — an ERC-20 transfer reaches the policy with `value: 0`. Only `allowedDestinations` bounds where tokens go. Never tell the user the cap limits token amounts.
+    3. On the imported-key path this file is the only bound. If `policy show` shows nothing on a private-key session, recommend at least a `maxValue` before any `trade` or `send`.
+    4. A refusal names its rule. Relay the rule and limit and ask; do not retry, and do not loosen the rule unasked.
+    5. `policy clear` with no rule removes the whole policy and asks for confirmation. Never pass `-y` unless the user explicitly asked to remove everything.
+
+    ### Trigger Examples
+    | User Prompt | Action |
+    | --- | --- |
+    | "Cap what this wallet can sign to 0.05 ETH on Base" | `policy set base.maxValue 0.05` |
+    | "Only let it use Base and Monad" | `policy set allowedChains base,monad` |
+    | "What limits are on my wallet?" | `policy show` |
+    | "Remove the cap" | `policy clear base.maxValue` |
   </Accordion>
 
   <Accordion title="wallet-info" icon="id-card">
@@ -169,7 +201,7 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
   <Accordion title="portfolio" icon="chart-pie">
     **Category:** Wallet
 
-    Fetches a consolidated cross-chain portfolio view with USD valuations for all token holdings and DeFi positions across Base, Citrea, HyperEVM, and Monad.
+    Fetches a consolidated cross-chain portfolio view with USD valuations for all token holdings and DeFi positions across Base, HyperEVM, and Monad.
 
     ### Allowed Tools
     ```
@@ -390,6 +422,33 @@ No separate installation of `fibx` is needed — all skills use `npx fibx@latest
 A typical multi-step interaction between a user and an AI agent using fibx-skills:
 
 <Tabs>
+  <Tab title="With Your Own Wallet">
+    <Steps>
+      <Step title="User: 'Connect my own wallet'">
+        Agent triggers **authenticate-wallet**:
+        ```bash
+        npx fibx@latest auth connect
+        npx fibx@latest status
+        ```
+        The user scans the QR with their wallet app and approves the pairing. Session is now active; every transaction from here is approved on the phone.
+      </Step>
+      <Step title="User: 'Swap 0.05 ETH to USDC'">
+        Agent triggers **balance** then **trade**:
+        ```bash
+        npx fibx@latest balance
+        npx fibx@latest trade 0.05 ETH USDC
+        ```
+        Agent says: _"Approve the swap in your wallet."_ The command waits until the user does.
+      </Step>
+      <Step title="Agent verifies automatically">
+        Agent triggers **tx-status**:
+        ```bash
+        npx fibx@latest tx-status 0x7a3f...c21b
+        ```
+        Agent responds: _"Swap completed. 0.05 ETH → 47.23 USDC. [View on BaseScan](https://basescan.org/tx/0x7a3f...c21b)"_
+      </Step>
+    </Steps>
+  </Tab>
   <Tab title="With Private Key">
     <Steps>
       <Step title="User: 'Import my private key'">
@@ -399,6 +458,12 @@ A typical multi-step interaction between a user and an AI agent using fibx-skill
         npx fibx@latest status
         ```
         The user pastes their private key in the interactive prompt. Session is now active.
+      </Step>
+      <Step title="Agent: 'Nothing limits this wallet yet — cap it at 0.05 ETH?'">
+        Agent triggers **policy** after the user agrees:
+        ```bash
+        npx fibx@latest policy set base.maxValue 0.05
+        ```
       </Step>
       <Step title="User: 'Swap 0.05 ETH to USDC'">
         Agent triggers **balance** then **trade**:

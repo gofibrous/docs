@@ -1,0 +1,152 @@
+---
+title: "Signing Paths and the Local Policy"
+description: "How FibX signs — your own wallet over WalletConnect, a Privy server wallet, or an imported key — and the signing policy file that bounds all three."
+---
+
+Every FibX transaction is signed through one of three paths. They are peers,
+not a default with fallbacks, and `fibx auth setup` presents the choice:
+
+| Path                 | Command                      | Key held by             | Runs while you are away                    | Bounded by                                      |
+| -------------------- | ---------------------------- | ----------------------- | ------------------------------------------ | ----------------------------------------------- |
+| Your own wallet      | `auth connect`               | your wallet app         | No — every transaction is approved on your phone | the wallet, plus the local policy         |
+| Privy server wallet  | `auth login` + `auth verify` | Privy, server-side      | Yes                                        | Privy's signing policy, plus the local policy   |
+| Imported private key | `auth import`                | this machine, encrypted | Yes                                        | **the local policy alone**                      |
+
+Keeping your own wallet _and_ having FibX act unattended needs ERC-7715, which
+wallets do not yet expose over WalletConnect. `fibx auth setup` explains the
+closest options.
+
+## Choosing a path
+
+```bash
+npx fibx@latest auth setup
+```
+
+The prompt offers four choices and a cancel:
+
+- **Connect a wallet I already have** — runs `auth connect`.
+- **Create a wallet FibX can use on its own** — runs the Privy email flow.
+- **Import a private key onto this machine** — runs `auth import`.
+- **None of these — I want my own wallet AND unattended operation** — explains
+  the ERC-7715 gap and the nearest alternatives.
+
+Any of these **replaces** the active session, and ends a WalletConnect pairing
+it is replacing.
+
+### Your own wallet, over WalletConnect
+
+```bash
+npx fibx@latest auth connect
+```
+
+The CLI prints a QR code and a `wc:` URI, then waits. Scan the QR with your
+wallet app (or paste the URI into it) and approve the pairing. From then on
+the wallet prompts for **every** transaction: a `trade` or `send` blocks until
+you approve it on your phone, and a rejection there is normal — nothing is
+sent. Nothing is signed on the machine running FibX.
+
+`--json` prints `{ "uri": "wc:…" }` instead of the QR, for a host that renders
+its own. A shared WalletConnect project id ships in the package; set
+`FIBX_WC_PROJECT_ID` to your own from [cloud.reown.com](https://cloud.reown.com)
+if pairing starts failing on quota.
+
+### A Privy server wallet, via email OTP
+
+```bash
+npx fibx@latest auth login user@example.com
+npx fibx@latest auth verify user@example.com 123456
+```
+
+Creates a server-managed wallet through [Privy](https://privy.io). Signing is
+requested through [fibx-server](https://github.com/Fibrous-Finance/fibx-server);
+the private key is never returned to the CLI. Privy evaluates its own signing
+policy — chain allowlist, native-value cap, key-export denial — at signing
+time, on top of the local policy below. Sessions are JWTs with a 7-day expiry.
+
+### An imported private key
+
+```bash
+npx fibx@latest auth import
+```
+
+Interactive: paste the key at the prompt; it cannot be passed as an argument.
+The key is encrypted at rest with AES-256-GCM and used to sign locally. This
+path runs unattended and needs no server — and **the local policy is the only
+thing bounding what it signs**. Set one before the first transaction.
+
+<Warning>
+  With an imported key, no policy means nothing limits what this wallet will
+  sign. `fibx policy show` says so in as many words.
+</Warning>
+
+## The local signing policy
+
+A JSON file the user owns, stored beside the session as `policy.json` in the
+FibX config directory (`~/.config/fibx-nodejs/` on Linux,
+`~/Library/Preferences/fibx-nodejs/` on macOS), written with mode `0600`. FibX
+evaluates it **before every signature on all three paths** — in a wrapper
+around the local-key and Privy signers, and in the WalletConnect provider
+before a request reaches the relay.
+
+| Rule                          | Meaning                                                     | Example                                    |
+| ----------------------------- | ----------------------------------------------------------- | ------------------------------------------ |
+| `<chain>.maxValue`            | Largest native value (ETH / HYPE / MON) in one transaction  | `base.maxValue 0.05`                       |
+| `allowedChains`               | Chains anything may be signed on                            | `allowedChains base,monad`                 |
+| `<chain>.allowedDestinations` | Addresses anything may be sent to on that chain             | `base.allowedDestinations 0xAbC…,0xDeF…`   |
+| `expiry`                      | When the whole policy stops applying (ISO-8601)             | `expiry 2026-12-31T00:00:00Z`              |
+
+```bash
+# Show the active policy, or that there is none
+npx fibx@latest policy show
+
+# Set one rule — replaces that rule's previous value
+npx fibx@latest policy set base.maxValue 0.05
+npx fibx@latest policy set allowedChains base,monad
+npx fibx@latest policy set base.allowedDestinations 0xAbC...,0xDeF...
+
+# Remove one rule, or the whole policy (asks for confirmation)
+npx fibx@latest policy clear base.maxValue
+npx fibx@latest policy clear
+```
+
+Three states, not two:
+
+- **Absent** — no file. Everything is permitted.
+- **Active** — the rules apply. A transaction outside them is refused before
+  any signature is requested, with `POLICY_BLOCKED` and the rule and limit
+  named.
+- **Unreadable** — a file exists but cannot be parsed. **Everything is
+  refused** until it is fixed or cleared. This is deliberately distinct from
+  absent; a corrupt policy must not fail open.
+
+<Warning>
+  **`maxValue` bounds the native value only.** An ERC-20 transfer reaches the
+  policy as a call to the token contract with `value: 0`, so the cap never sees
+  the token amount. `allowedDestinations` is what bounds where tokens may go.
+</Warning>
+
+<Note>
+  The product argument is that this file is the user's, on the user's machine,
+  in front of every signing path — including the one where a misbehaving model
+  is the threat it exists for. It is a file, so it is worth nothing against
+  something that can already write to the user's disk. Over MCP the same file
+  is read and edited by `get_policy`, `set_policy_rule` and
+  `clear_policy_rule`, and the FibX app shows it as a collapsible section.
+</Note>
+
+## Session management
+
+```bash
+# Which path is active, the address, and Fibrous API health
+npx fibx@latest status
+
+# The active wallet address
+npx fibx@latest address
+
+# End the session (also ends a WalletConnect pairing)
+npx fibx@latest auth logout
+```
+
+Sessions live in `session.json` beside the policy. Set `FIBX_SESSION_SECRET`
+(64-char hex) to use a custom encryption key instead of the per-machine one,
+for CI or Docker.

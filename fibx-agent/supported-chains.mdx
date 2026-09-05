@@ -3,7 +3,7 @@ title: "Supported Chains"
 description: "Chain-specific reference for FibX — native tokens, CLI flags, feature availability, and block explorers."
 ---
 
-FibX supports four EVM-compatible chains. Commands that accept `--chain`
+FibX supports three EVM-compatible chains. Commands that accept `--chain`
 default to **Base**; portfolio spans all supported chains, while Aave always
 targets Base.
 
@@ -12,9 +12,13 @@ targets Base.
 | Chain    | Native Token | Chain ID | CLI Flag           | Aave V3 |
 | -------- | ------------ | -------- | ------------------ | ------- |
 | Base     | ETH          | 8453     | `--chain base`     | Yes     |
-| Citrea   | cBTC         | 4114     | `--chain citrea`   | No      |
 | HyperEVM | HYPE         | 999      | `--chain hyperevm` | No      |
 | Monad    | MON          | 143      | `--chain monad`    | No      |
+
+<Note>
+  Citrea was delisted by Fibrous on 2026-08-10 and withdrawn from FibX in
+  v0.10.0. `--chain citrea` is refused, and the portfolio no longer queries it.
+</Note>
 
 ## Chain Details
 
@@ -38,24 +42,6 @@ targets Base.
     npx fibx@latest trade 0.1 ETH USDC
     npx fibx@latest aave markets
     npx fibx@latest aave supply 100 USDC
-    ```
-  </Accordion>
-
-  <Accordion title="Citrea" icon="bitcoin">
-    Citrea is Bitcoin's first ZK rollup with full EVM compatibility (Type 2 zkEVM). It uses Bitcoin as a settlement layer via its BitVM-based trust-minimized bridge, Clementine.
-
-    | Property       | Value                                                        |
-    | -------------- | ------------------------------------------------------------ |
-    | Native Token   | cBTC                                                         |
-    | Chain ID       | 4114                                                         |
-    | CLI Flag       | `--chain citrea`                                             |
-    | Aave V3        | No                                                           |
-    | Explorer       | [Citrea Explorer](https://explorer.mainnet.citrea.xyz)       |
-
-    ```bash
-    npx fibx@latest balance --chain citrea
-    npx fibx@latest trade 0.01 cBTC USDC --chain citrea
-    npx fibx@latest send 0.1 0xRecipient --chain citrea
     ```
   </Accordion>
 
@@ -98,18 +84,19 @@ targets Base.
 
 ## Feature Availability by Chain
 
-| Feature          | Base | Citrea | HyperEVM | Monad |
-| ---------------- | ---- | ------ | -------- | ----- |
-| Balance Check    | Yes  | Yes    | Yes      | Yes   |
-| Portfolio View   | Yes  | Yes    | Yes      | Yes   |
-| Token Transfers  | Yes  | Yes    | Yes      | Yes   |
-| Token Swaps      | Yes  | Yes    | Yes      | Yes   |
-| Aave V3          | Yes  | No     | No       | No    |
-| Aave Markets     | Yes  | No     | No       | No    |
-| Tx Status        | Yes  | Yes    | Yes      | Yes   |
-| Send/Trade Preview | Yes  | Yes    | Yes      | Yes   |
-| Aave Action Preview | Yes | No     | No       | No    |
-| JSON Output      | Yes  | Yes    | Yes      | Yes   |
+| Feature             | Base | HyperEVM | Monad |
+| ------------------- | ---- | -------- | ----- |
+| Balance Check       | Yes  | Yes      | Yes   |
+| Portfolio View      | Yes  | Yes      | Yes   |
+| Token Transfers     | Yes  | Yes      | Yes   |
+| Token Swaps         | Yes  | Yes      | Yes   |
+| Signing Policy Cap  | Yes  | Yes      | Yes   |
+| Aave V3             | Yes  | No       | No    |
+| Aave Markets        | Yes  | No       | No    |
+| Tx Status           | Yes  | Yes      | Yes   |
+| Send/Trade Preview  | Yes  | Yes      | Yes   |
+| Aave Action Preview | Yes  | No       | No    |
+| JSON Output         | Yes  | Yes      | Yes   |
 
 ## Selecting a Chain
 
@@ -123,5 +110,5 @@ npx fibx@latest trade 0.1 ETH USDC --chain base
 npx fibx@latest balance --chain monad
 
 # Shorthand with -c
-npx fibx@latest balance -c citrea
+npx fibx@latest balance -c hyperevm
 ```
