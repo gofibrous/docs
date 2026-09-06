@@ -1,6 +1,6 @@
 ---
 title: "CLI Command Reference"
-description: "Complete reference for all fibx CLI commands — authentication, portfolio, balance, send, trade, Aave V3, configuration, and transaction status."
+description: "Complete reference for all fibx CLI commands — authentication, signing policy, portfolio, balance, send, trade, Aave V3, configuration, and transaction status."
 ---
 
 Commands use this general pattern:
@@ -18,7 +18,7 @@ Commands that accept `--chain` default to `base` unless documented otherwise.
 Get a swap price without a wallet, a session, or any setup. It is the fastest
 pricing entry point for trying FibX or answering a question before a user has
 logged in. Other public or local commands, including `status`, `tx-status`,
-`config`, and `aave markets`, also work without an active session.
+`config`, `policy`, and `aave markets`, also work without an active session.
 
 ```bash
 npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--slippage <number>] [--json]
@@ -29,7 +29,7 @@ npx fibx@latest quote <amount> <from-token> <to-token> [--chain <chain>] [--slip
 | `amount`     | number | Yes      | Amount of the input token                      |
 | `from-token` | string | Yes      | Input token symbol or supported contract address |
 | `to-token`   | string | Yes      | Output token symbol or supported contract address |
-| `chain`      | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
+| `chain`      | string | No       | `base`, `hyperevm`, or `monad`                 |
 | `slippage`   | number | No       | Slippage tolerance in percent (default: `0.5`) |
 
 ### Examples
@@ -56,21 +56,49 @@ authenticated.
 ## auth — Authentication
 
 Manage the wallet session. Authentication is required before commands that
-inspect or act on a wallet.
+inspect or act on a wallet. Three signing paths are available; each of these
+commands **replaces** the active session. The comparison is on
+[Signing Paths and the Local Policy](/fibx-agent/signing).
 
-### auth import
+### auth setup
 
-Import an existing private key to create a local wallet session. This is the most direct way to authenticate — if you already have a wallet, use this method. The CLI opens an interactive prompt where you paste the key.
+Choose how FibX should sign, with the trade-offs explained. Interactive: it
+asks one question and runs the matching flow below.
+
+```bash
+npx fibx@latest auth setup
+```
+
+### auth connect (Your Own Wallet)
+
+Pair a wallet you already have over WalletConnect. The CLI prints a QR code
+and a `wc:` URI and waits for the wallet app to approve. Every later
+transaction is approved in that wallet, on your phone; nothing is signed on
+this machine.
+
+```bash
+npx fibx@latest auth connect
+
+# For a host that renders its own QR: prints { "uri": "wc:…" }
+npx fibx@latest auth connect --json
+```
+
+### auth import (Private Key)
+
+Import an existing private key to create a local wallet session that runs
+unattended. The CLI opens an interactive prompt where you paste the key.
 
 ```bash
 npx fibx@latest auth import
 ```
 
-The key is encrypted and stored in a local session file. No external server holds your private key with this method.
+The key is encrypted at rest with AES-256-GCM and signs locally. No external
+server holds your private key with this method — and the local signing policy
+is the only thing bounding it, so set one with [`policy`](#policy-signing-policy).
 
 ### auth login / auth verify (Email OTP)
 
-Alternative authentication via email OTP. This creates a server-managed wallet through [Privy](https://privy.io) — useful when you do not have an existing private key.
+Authentication via email OTP. This creates a server-managed wallet through [Privy](https://privy.io) — useful when you do not have an existing private key and want FibX to act without you.
 
 ```bash
 # Step 1: Send OTP to email
@@ -87,7 +115,7 @@ npx fibx@latest auth verify <email> <code>
 
 ### auth logout
 
-End the active session.
+End the active session. Also ends a WalletConnect pairing.
 
 ```bash
 npx fibx@latest auth logout
@@ -95,9 +123,63 @@ npx fibx@latest auth logout
 
 ---
 
+## policy — Signing Policy
+
+Read and change the local signing policy: a JSON file the user owns, evaluated
+before every signature on all three signing paths. No session is needed.
+
+```bash
+npx fibx@latest policy show
+npx fibx@latest policy set <rule> <value>
+npx fibx@latest policy clear [rule] [-y]
+```
+
+| Rule                          | Meaning                                                    | Example                                   |
+| ----------------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| `<chain>.maxValue`            | Largest native value (ETH / HYPE / MON) in one transaction | `base.maxValue 0.05`                      |
+| `allowedChains`               | Chains anything may be signed on (comma-separated)         | `allowedChains base,monad`                |
+| `<chain>.allowedDestinations` | Addresses anything may be sent to on that chain            | `base.allowedDestinations 0xAbC…,0xDeF…`  |
+| `expiry`                      | When the whole policy stops applying (ISO-8601)            | `expiry 2026-12-31T00:00:00Z`             |
+
+`set` replaces the rule's previous value. `clear` with no rule removes the
+whole policy and asks for confirmation; `-y` skips the question. A
+transaction outside the policy is refused before any signature is requested,
+with `POLICY_BLOCKED` and the rule named.
+
+<Warning>
+  `maxValue` bounds the native value only. An ERC-20 transfer reaches the
+  policy with `value: 0`, so the cap never sees the token amount;
+  `allowedDestinations` is what bounds where tokens may go.
+</Warning>
+
+<Note>
+  No file means everything is permitted. A file that exists but cannot be
+  parsed means **everything is refused** until it is fixed or cleared — a
+  corrupt policy does not fail open.
+</Note>
+
+### Examples
+
+```bash
+# Cap one transaction's native value on Base
+npx fibx@latest policy set base.maxValue 0.05
+
+# Only allow Base and Monad
+npx fibx@latest policy set allowedChains base,monad
+
+# Only allow sends to two addresses on Base
+npx fibx@latest policy set base.allowedDestinations 0xAbC...,0xDeF...
+
+# Remove the cap
+npx fibx@latest policy clear base.maxValue
+```
+
+---
+
 ## status — Session Status
 
-Check whether a session is active and display the authenticated wallet address.
+Check whether a session is active, which signing path it uses, and the
+authenticated wallet address.
 
 ```bash
 npx fibx@latest status [--chain <chain>] [--json]
@@ -148,7 +230,7 @@ npx fibx@latest portfolio --json
 ```
 
 <Note>
-  The portfolio view aggregates holdings across Base, Citrea, HyperEVM, and Monad. It also includes Aave V3 collateral and debt positions when available.
+  The portfolio view aggregates holdings across Base, HyperEVM, and Monad. It also includes Aave V3 collateral and debt positions when available.
 </Note>
 
 ---
@@ -163,18 +245,13 @@ npx fibx@latest balance [--chain <chain>] [--json]
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
-| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `chain`   | string | No       | `base`, `hyperevm`, or `monad`               |
 | `json`    | flag   | No       | Output as JSON                               |
 
 <Tabs>
   <Tab title="Base">
     ```bash
     npx fibx@latest balance
-    ```
-  </Tab>
-  <Tab title="Citrea">
-    ```bash
-    npx fibx@latest balance --chain citrea
     ```
   </Tab>
   <Tab title="HyperEVM">
@@ -205,11 +282,11 @@ npx fibx@latest send <amount> <recipient> [token] [--chain <chain>] [--simulate]
 | `amount`    | number | Yes      | Amount to send                               |
 | `recipient` | string | Yes      | Destination address (`0x...`)                |
 | `token`     | string | No       | Token symbol or supported contract address; omit for native token |
-| `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `chain`     | string | No       | `base`, `hyperevm`, or `monad`               |
 | `simulate`  | flag   | No       | Preview the transfer without submitting it    |
 | `json`      | flag   | No       | Output as JSON                               |
 
-If `token` is omitted, the chain's native token is used (ETH on Base, cBTC on Citrea, HYPE on HyperEVM, MON on Monad).
+If `token` is omitted, the chain's native token is used (ETH on Base, HYPE on HyperEVM, MON on Monad).
 
 ### Examples
 
@@ -243,8 +320,8 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
 | `amount`      | number | Yes      | Amount of the source token to swap             |
 | `from_token`  | string | Yes      | Source token symbol or supported contract address |
 | `to_token`    | string | Yes      | Target token symbol or supported contract address |
-| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
-| `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`) |
+| `chain`       | string | No       | `base`, `hyperevm`, or `monad`                 |
+| `slippage`    | number | No       | Slippage tolerance in percent (default: `0.5`), 0.01–50 |
 | `approve-max` | flag   | No       | Use infinite approval instead of exact amount  |
 | `simulate`    | flag   | No       | Return a no-broadcast preview of the main swap |
 | `json`        | flag   | No       | Output as JSON                                 |
@@ -274,9 +351,9 @@ npx fibx@latest trade <amount> <from_token> <to_token> [--chain <chain>] [--slip
     npx fibx@latest trade 0.1 ETH USDC
     ```
   </Tab>
-  <Tab title="Citrea">
+  <Tab title="HyperEVM">
     ```bash
-    npx fibx@latest trade 0.01 cBTC USDC --chain citrea
+    npx fibx@latest trade 1 HYPE USDC --chain hyperevm
     ```
   </Tab>
   <Tab title="Monad">
@@ -466,11 +543,13 @@ Common errors across all commands:
 
 | Error                  | Cause                                          | Resolution                                        |
 | ---------------------- | ---------------------------------------------- | ------------------------------------------------- |
-| `Not authenticated`    | No active session                              | Run `auth login` or `auth import` first           |
+| `Not authenticated`    | No active session                              | Run `auth setup` (or `auth connect` / `auth login` / `auth import`) first |
+| `POLICY_BLOCKED`       | The local signing policy refused the transaction | The rule and limit are named; change them with `policy set` or `policy clear` |
+| Rejected in wallet     | The WalletConnect wallet declined the request   | Nothing was sent; retry when ready              |
 | `Insufficient balance` | Not enough tokens for the operation             | Check `balance` and adjust the amount              |
 | `Simulation failed`    | An RPC estimate or contract preflight rejected the request | Verify parameters and token availability |
 | `No route found`       | No liquidity path exists for the token pair     | Try a different pair or check the chain             |
 | `Slippage exceeded`    | Price moved beyond tolerance                    | Retry or increase slippage with `--slippage`        |
-| `Session expired`      | Authentication session timed out                | Re-authenticate with `auth login`                   |
+| `Session expired`      | Privy session timed out (7 days)                | Re-authenticate with `auth login`                   |
 | `Invalid address`      | Recipient address is malformed                  | Verify the address starts with `0x` and is valid    |
 | `Rate limit`           | Too many requests in a short period             | Retry shortly; set a custom RPC if 429 errors persist |

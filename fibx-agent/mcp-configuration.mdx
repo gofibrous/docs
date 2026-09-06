@@ -1,9 +1,11 @@
 ---
 title: "MCP Configuration"
-description: "Configure FibX as an MCP server for AI editors — Cursor, Claude Desktop, Antigravity, and other MCP-compatible clients."
+description: "Configure FibX as an MCP server for AI editors — Cursor, Claude Desktop, Antigravity, and other MCP-compatible clients — and open the FibX app in the chat."
 ---
 
 FibX includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server that exposes DeFi operations as callable tools. AI editors like **Cursor**, **Claude Desktop**, **Antigravity**, and any MCP-compatible client can connect to FibX and execute trades, transfers, and DeFi operations through natural language.
+
+In hosts that render [MCP Apps](https://modelcontextprotocol.io/docs/extensions/apps) UI — Claude Desktop today — the server also serves **the FibX app**: one document showing the wallet, balances, the signing policy, and a swap form with the Fibrous route, opened by the `open_fibx` tool and pre-filled from the conversation. The model opens it; the user presses Simulate and Swap.
 
 ## Quick Start
 
@@ -17,8 +19,9 @@ This starts an MCP server over **stdio** (standard input/output). The server spe
 
 1. Your AI editor spawns `npx fibx mcp-start` as a subprocess.
 2. The editor communicates with FibX over **stdin/stdout** using JSON-RPC 2.0 messages.
-3. Wallet-dependent tools read the local session file. Run `fibx auth login` or `fibx auth import` before using those tools; public tools such as quotes and Aave market discovery do not need a session.
-4. Transactional tools execute against live blockchains and carry the MCP `destructiveHint` annotation. A client may use that hint to request confirmation, depending on its behavior and configuration.
+3. Wallet-dependent tools read the local session file. Run `fibx auth setup` (or `auth connect`, `auth login`, `auth import`) before using those tools, or pair a wallet from inside the app with `connect_wallet`; public tools such as quotes, the token list, the policy, and Aave market discovery do not need a session.
+4. Transactional tools execute against live blockchains and carry the MCP `destructiveHint` annotation. A client may use that hint to request confirmation, depending on its behavior and configuration. Every transaction also passes the [local signing policy](/fibx-agent/signing) before a signature is requested.
+5. `open_fibx` is bound to the resource `ui://fibx/app.html`. A host that renders MCP Apps shows the app inline and the tool's JSON result seeds it; a host that does not simply gets the JSON — a complete snapshot of chain, session, balances, policy and quote — and the model reads that instead.
 
 <Note>
   `stderr` is used for logging, while `stdout` is reserved for JSON-RPC protocol messages.
@@ -59,8 +62,7 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
     }
     ```
 
-    Restart Claude Desktop after editing the config. Authenticate with `fibx auth
-    login` or `fibx auth import` before using wallet-dependent tools.
+    Quit Claude Desktop fully after editing the config (<kbd>Cmd</kbd> + <kbd>Q</kbd> on macOS — the server process starts at launch and is not restarted by closing a window). Claude Desktop renders the FibX app inline: ask about your wallet, a price or a swap and the app opens in the chat. You can pair a wallet from inside it, or authenticate first with `fibx auth setup`.
   </Tab>
   <Tab title="VS Code">
     Create or edit `.vscode/mcp.json` in your project:
@@ -116,25 +118,61 @@ Add the FibX MCP server to your AI editor. FibX uses **stdio** transport — the
 </Tabs>
 
 <Note>
-  You must be authenticated before the MCP server can execute wallet operations. Use `fibx auth login` or `fibx auth import` to authenticate.
+  Wallet operations need a session. Create one with `fibx auth setup` in a terminal, or — over MCP — with `connect_wallet`, which pairs your own wallet by QR. The FibX app offers the same pairing from its Connect button.
 </Note>
+
+## The FibX App
+
+`open_fibx` is the entry point in any host that renders MCP Apps UI. The
+server's own instructions tell the model so: a question about the wallet, a
+balance, a price or a swap opens the whole app, pre-filled with whatever the
+conversation supplied — chain, tokens, amount. Inside it:
+
+- the header shows the chain and the connected address, or a **Connect**
+  button that pairs a wallet by QR;
+- two token boxes with balances, a rate chip, and the Fibrous route;
+- one primary button whose label is the state — _Connect wallet_, _Enter an
+  amount_, _Insufficient ETH balance_, **Simulate**, **Swap**, _Waiting…_,
+  _Confirmed_ — so a swap cannot skip its simulation;
+- the signing policy as a collapsible section, editable in place, and a
+  refusal from it shown with the rule named.
+
+The app executes nothing on its own. A swap leaves it only when the user
+presses Swap, after Simulate, and it still passes through the local signing
+policy. The model never gets to press the button; what it receives is a
+sentence describing the state (_quoted_, _broadcast_, _settled_, _reverted_,
+_unresolved_) so it can report honestly.
+
+<Tip>
+  In a text-only host the same call returns a JSON snapshot the model can
+  summarise, and the headless tools below do the rest.
+</Tip>
 
 ## Available Tools
 
-FibX exposes **11 tools**. The reference below groups them by read-only,
-transactional, and utility behavior.
+FibX exposes **19 tools**. The reference below groups them by the app,
+read-only, transactional, and session behavior.
+
+### The App
+
+| Tool          | Description                                                                                                        | Auth Required |
+| ------------- | ------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `open_fibx`   | Open the FibX app — wallet, balances, signing policy and a swap form — pre-filled from `chain`, `from`, `to`, `amount` | No         |
+| `list_tokens` | List the tokens Fibrous supports on a chain, with address, decimals and USD price where known                      | No            |
 
 ### Read-Only
 
-| Tool               | Description                                                  | Auth Required |
-| ------------------ | ------------------------------------------------------------ | ------------- |
-| `get_quote`        | Get a swap price quote, exchange rate, and route info        | No            |
-| `get_auth_status`  | Check session and Fibrous API health                         | No            |
-| `get_tx_status`    | Check transaction receipt and status                         | No            |
-| `get_aave_markets` | List Aave V3 reserves with APY, supply/borrow totals, and LTV | No            |
-| `get_balance`      | Get native and ERC-20 token balances                         | Yes           |
-| `get_portfolio`    | Get cross-chain portfolio and DeFi positions                 | Yes           |
-| `get_aave_status`  | Get Aave V3 position health on Base                          | Yes           |
+| Tool                 | Description                                                  | Auth Required |
+| -------------------- | ------------------------------------------------------------ | ------------- |
+| `get_quote`          | Get a swap price quote, exchange rate, and route info        | No            |
+| `get_auth_status`    | Check session, signing path, and Fibrous API health          | No            |
+| `get_connect_status` | Poll a pairing started by `connect_wallet`                   | No            |
+| `get_policy`         | Read the local signing policy that bounds every transaction  | No            |
+| `get_tx_status`      | Check transaction receipt and status                         | No            |
+| `get_aave_markets`   | List Aave V3 reserves with APY, supply/borrow totals, and LTV | No            |
+| `get_balance`        | Get native and ERC-20 token balances                         | Yes           |
+| `get_portfolio`      | Get cross-chain portfolio and DeFi positions                 | Yes           |
+| `get_aave_status`    | Get Aave V3 position health on Base                          | Yes           |
 
 <Tip>
   `get_quote` needs no wallet and no session. An agent can answer "what would 1 ETH get me in USDC?" before the user has authenticated at all — useful as a first interaction.
@@ -161,13 +199,55 @@ three accept `simulate=true`; its behavior is specific to each tool.
   execution will succeed.
 </Note>
 
-### Utility
+### Session and Configuration
 
-| Tool            | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `config_action` | Set or view custom RPC URLs to avoid rate limits |
+These change local state rather than chain state. `set_policy_rule`,
+`clear_policy_rule`, and `logout` also carry `destructiveHint` — each can
+remove a bound that was protecting the wallet, or end the session outright.
+
+| Tool                | Description                                                                  |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `connect_wallet`    | Start a WalletConnect pairing; **replaces the active session** on approval   |
+| `config_action`     | Set or view custom RPC URLs to avoid rate limits                             |
+| `set_policy_rule`   | Set one rule on the local signing policy — replaces an existing rule's value |
+| `clear_policy_rule` | Remove one policy rule, or the whole policy with `all: true`                 |
+| `logout`            | End the WalletConnect pairing and clear the local session                    |
 
 ## Tool Details
+
+### open_fibx
+
+Open the FibX app. In a host that renders MCP Apps UI this is the entry point
+for anything about the wallet, a balance, a quote or a swap.
+
+| Parameter  | Type   | Required | Description                                    |
+| ---------- | ------ | -------- | ---------------------------------------------- |
+| `chain`    | string | No       | `base`, `hyperevm`, or `monad` (default `base`) |
+| `from`     | string | No       | Source token symbol, to pre-fill a swap        |
+| `to`       | string | No       | Destination token symbol                       |
+| `amount`   | string | No       | Amount of the source token                     |
+| `slippage` | number | No       | Slippage tolerance in percent (default `0.5`)  |
+
+**Output:** `chain`, `auth` (as `get_auth_status` reports it), `balances`
+(`null` without a session), `policy`, `terms` (the resolved `from`/`to`/`amount`),
+`quote` (the Fibrous route when all three were given) and `quoteError`. A quote
+that could not be fetched sets `quoteError` rather than failing the call, so
+the app still opens. The app requests one host permission, `clipboardWrite`,
+for the Copy link button on the pairing screen.
+
+**Example prompts:** "What's in my wallet?", "How much USDC would 0.01 ETH get me?", "Swap 0.01 ETH to USDC"
+
+### list_tokens
+
+List the tokens Fibrous supports on a chain. Feeds the app's token picker;
+useful headlessly to resolve a symbol before `get_quote` or `swap_tokens`.
+
+| Parameter | Type   | Required | Description                                    |
+| --------- | ------ | -------- | ---------------------------------------------- |
+| `chain`   | string | No       | `base`, `hyperevm`, or `monad` (default `base`) |
+
+**Output:** `chain` and `tokens`, each with `symbol`, `name`, `address`,
+`decimals`, and `price` where known.
 
 ### get_quote
 
@@ -178,22 +258,55 @@ Get a swap quote without a wallet or session.
 | `amount`     | string | Yes      | Amount of the source token to quote            |
 | `from_token` | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)       |
 | `to_token`   | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)       |
-| `chain`      | string | No       | `base`, `citrea`, `hyperevm`, or `monad`       |
+| `chain`      | string | No       | `base`, `hyperevm`, or `monad`                 |
 | `slippage`   | number | No       | Slippage tolerance in percent (default: `0.5`) |
 
 **Output:** Routed swaps return `input`, `output`, `rate`, `slippage`, `router`,
-and `chain`. Direct native/wrapped-native pairs return `input`, `output`, `rate`,
-`operation` (`wrap` or `unwrap`), and `chain`.
+`chain`, and a nested `quote` with `outputAmount`, `minReceived`, `usdIn`,
+`usdOut`, `priceImpact`, and `route` — the Fibrous route with protocol names,
+as the FibX app draws it. Direct native/wrapped-native pairs return `input`,
+`output`, `rate`, `operation` (`wrap` or `unwrap`), and `chain`.
 
 ### get_auth_status
 
-Check whether FibX is authenticated and the Fibrous API is reachable.
+Check whether FibX is authenticated, which signing path is active, and whether the Fibrous API is reachable.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
-| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `chain`   | string | No       | `base`, `hyperevm`, or `monad`               |
 
-**Output:** Object with `authenticated`, `walletAddress`, `sessionType`, `chain`, `fibrousStatus`
+**Output:** Object with `authenticated`, `walletAddress`, `sessionType`
+(`walletconnect`, `privy`, or `private-key`), `authType`,
+`requiresApprovalPerTransaction` (`true` for a WalletConnect session — the
+wallet itself prompts for every transaction), `chain`, `fibrousStatus`
+
+### connect_wallet
+
+Start a WalletConnect pairing. Returns immediately; show the QR, then poll
+with `get_connect_status`. On approval the pairing **replaces** the active
+session, whatever path it used.
+
+| Parameter | Type | Required | Description       |
+| --------- | ---- | -------- | ----------------- |
+| none      | n/a  | n/a      | No input required |
+
+**Output:** `uri` (the `wc:` link), `qrDataUri` (a PNG data URI of the QR), `pairingId`
+
+### get_connect_status
+
+Poll a pairing started by `connect_wallet` by its `pairingId`. Reports whether
+the wallet has approved, and the connected address once it has.
+
+### get_policy
+
+Read the local signing policy without changing it. No session needed.
+
+**Output:** `state` (`active`, `absent`, or `unreadable`), `rules`, `path`,
+`message`. `absent` means nothing limits what this wallet will sign;
+`unreadable` means a file exists but could not be parsed, which refuses every
+transaction until it is fixed or removed.
+
+**Example prompts:** "What's my current signing policy?" or "Is anything limiting what fibx can sign?"
 
 ### get_balance
 
@@ -202,7 +315,7 @@ even when its balance is zero; ERC-20 entries are limited to non-zero balances.
 
 | Parameter | Type   | Required | Description                                  |
 | --------- | ------ | -------- | -------------------------------------------- |
-| `chain`   | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `chain`   | string | No       | `base`, `hyperevm`, or `monad`               |
 
 **Output:** Object with `wallet`, `chain`, and `balances` (e.g. ETH, USDC with amounts)
 
@@ -228,8 +341,8 @@ approval.
 | `amount`      | string | Yes      | Amount of the source token to swap           |
 | `from_token`  | string | Yes      | Source token symbol (e.g. `ETH`, `USDC`)     |
 | `to_token`    | string | Yes      | Target token symbol (e.g. `USDC`, `DAI`)     |
-| `chain`       | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
-| `slippage`    | number | No       | Slippage tolerance in percent (default 0.5)   |
+| `chain`       | string | No       | `base`, `hyperevm`, or `monad`               |
+| `slippage`    | number | No       | Slippage tolerance in percent (default 0.5), 0.01–50 |
 | `simulate`    | boolean | No      | Return a no-broadcast preview; gas may be unavailable |
 
 **Execution output:** `txHash`, `amountIn`, `amountOut`, `tokenIn`, `tokenOut`,
@@ -258,7 +371,7 @@ Transfer native or ERC-20 tokens.
 | `amount`    | string | Yes      | Amount to send                               |
 | `recipient` | string | Yes      | Recipient address (0x-prefixed)               |
 | `token`     | string | No       | Token symbol (omit for native token)         |
-| `chain`     | string | No       | `base`, `citrea`, `hyperevm`, or `monad`     |
+| `chain`     | string | No       | `base`, `hyperevm`, or `monad`               |
 | `simulate`  | boolean | No      | Preflight the transfer without submitting it |
 
 **Execution output:** `txHash`, `amount`, `token`, `recipient`, `chain`, and
@@ -350,20 +463,59 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 
 **Example prompts:** "I'm getting rate limited on Base, set a custom RPC" or "Reset all RPCs to default"
 
+### set_policy_rule
+
+Set one rule on the local signing policy — `expiry`, `allowedChains`,
+`<chain>.maxValue`, or `<chain>.allowedDestinations`. Lists are comma-separated.
+
+| Parameter | Type   | Required | Description                                  |
+| --------- | ------ | -------- | -------------------------------------------- |
+| `rule`    | string | Yes      | The rule name                                |
+| `value`   | string | Yes      | The value; comma-separated for lists         |
+
+**Output:** `ok`, `rule`, `value`, and the resulting `rules`
+
+Setting a rule that already exists **replaces** its value — a cap can be
+widened as easily as it was tightened, which is why this tool carries
+`destructiveHint`. `maxValue` bounds only the native value of a transaction;
+use `allowedDestinations` to bound where tokens may go.
+
+**Example prompts:** "Cap Base transactions at 0.05 ETH" or "Only allow sending to my own address on Base"
+
+### clear_policy_rule
+
+Remove one rule from the local signing policy, or the whole policy.
+
+| Parameter | Type    | Required | Description                                  |
+| --------- | ------- | -------- | -------------------------------------------- |
+| `rule`    | string  | One of   | The rule to remove                           |
+| `all`     | boolean | One of   | `true` to remove the whole policy            |
+
+**Output:** `ok`, `changed`, `rule`, the remaining `rules`, and a `message`
+
+### logout
+
+End the WalletConnect pairing, if any, and clear the local session.
+
+| Parameter | Type | Required | Description       |
+| --------- | ---- | -------- | ----------------- |
+| none      | n/a  | n/a      | No input required |
+
 ## Supported Chains
 
 | Chain    | Native Token | Fibrous Network |
 | -------- | ------------ | --------------- |
 | Base     | ETH          | base            |
-| Citrea   | cBTC         | citrea          |
 | HyperEVM | HYPE         | hyperevm        |
 | Monad    | MON          | monad           |
 
 ## Environment Variables
 
-| Variable       | Description                                          |
-| -------------- | ---------------------------------------------------- |
-| `FIBX_API_URL` | Custom fibx-server URL (for Privy wallet operations) |
+| Variable              | Description                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------- |
+| `FIBX_API_URL`        | Custom fibx-server URL (for Privy wallet operations)                                               |
+| `FIBX_SESSION_SECRET` | Custom encryption key for the session file (64-char hex); auto-generated per machine when unset   |
+| `FIBX_WC_PROJECT_ID`  | WalletConnect Cloud project id for `connect_wallet`; a shared id ships in the package, set your own from [cloud.reown.com](https://cloud.reown.com) if pairing fails on quota |
 
 <Note>
   If using Privy authentication, ensure `fibx-server` is running and accessible before starting the MCP server.
@@ -374,7 +526,10 @@ Manage custom RPC URLs. Useful when encountering rate limits on public endpoints
 | Problem | Solution |
 | ------- | -------- |
 | Server will not start | Ensure Node.js 18+ is installed and `npx fibx --version` works |
-| "Not authenticated" errors | Run `fibx auth login <email>` or `fibx auth import` before using wallet-dependent tools |
+| "Not authenticated" errors | Run `fibx auth setup` before using wallet-dependent tools, or pair with `connect_wallet` |
+| `POLICY_BLOCKED` | The local signing policy refused it and named the rule; change it with `set_policy_rule` or in the app |
 | Wallet operations fail | Ensure `fibx-server` is running when using Privy-managed wallets |
 | Rate limit errors | Use `config_action` to set a custom RPC URL |
 | Editor cannot connect | Verify the MCP config JSON syntax and restart the editor |
+| The app does not appear | The host does not render MCP Apps; the model gets `open_fibx`'s JSON snapshot instead |
+| The app is out of date | Quit the host fully (`Cmd+Q`) — the server process only starts at app launch |
